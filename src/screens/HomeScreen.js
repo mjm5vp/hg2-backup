@@ -17,13 +17,22 @@ class HomeScreen extends Component {
       <View>
         <Text>HomeScreen</Text>
         <Text>HomeScreen</Text>
-        <Text>HomeScreen</Text>
-        <Text>HomeScreen</Text>
-        <Text>HomeScreen</Text>
+
+
         <Button
           title='Map'
           onPress={() => this.handleButtonPress()}
         />
+
+        <Text>HomeScreen</Text>
+        <Text>HomeScreen</Text>
+        <Text>HomeScreen</Text>
+
+        <Button
+          title='Add a Poo'
+          onPress={() => this.props.navigation.navigate('input')}
+        />
+
       </View>
     )
   }

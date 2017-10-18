@@ -88,7 +88,7 @@ class MapScreen extends Component {
       >
         <MapView.Marker
           coordinate={marker}
-          // image={require('../assets/pin.png')}
+          image={require('../../assets/pooImages/unicorn.png')}
         />
       </MapView>
     );
