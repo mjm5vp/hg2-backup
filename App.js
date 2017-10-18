@@ -12,7 +12,6 @@ import PooSelect from './src/screens/PooSelect';
 import InputScreen from './src/screens/InputScreen';
 
 
-
 export default class App extends React.Component {
   componentDidMount() {
 

@@ -34,7 +34,7 @@ class HomeScreen extends Component {
         />
 
       </View>
-    )
+    );
   }
 }
 

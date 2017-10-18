@@ -7,8 +7,6 @@ const INITIAL_STATE = {
 export default function (state = INITIAL_STATE, action) {
   switch (action.type) {
     case SELECT_POO:
-      console.log('reducer')
-      console.log(action.payload)
       return { currentPooName: action.payload };
     default:
       return state;
