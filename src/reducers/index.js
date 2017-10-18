@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
-import currentPooName from './input_reducer';
+import input from './input_reducer';
 
 export default combineReducers({
-  currentPooName
+  input
 });

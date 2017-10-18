@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { View, Text, Image, TouchableOpacity } from 'react-native';
+import { View, Text, Image, TouchableOpacity, TextInput } from 'react-native';
 import { Button } from 'react-native-elements';
 import { connect } from 'react-redux';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import moment from 'moment';
-import { selectPoo } from '../actions';
+import { selectPoo, updateDescription } from '../actions';
 import allNamedPoos from '../../assets/namedPooExport';
 
 
@@ -14,7 +14,8 @@ class InputScreen extends Component {
     date: moment(),
     time: moment(),
     isDatePickerVisible: false,
-    isTimePickerVisible: false
+    isTimePickerVisible: false,
+    description: ''
   }
 
   _showDatePicker = () => this.setState({ isDatePickerVisible: true });
@@ -87,13 +88,24 @@ class InputScreen extends Component {
 
         <Text>{this.state.datetime.format('MMMM Do YYYY, h:mm a')} </Text>
 
+        <TextInput
+          label='Description'
+          placeholder='How did everything go?'
+          value={this.props.description}
+          onChangeText={text => this.props.updateDescription({ text })}
+        />
+
       </View>
     );
   }
 }
 
 const mapStateToProps = state => {
-  return { currentPooName: state.currentPooName.currentPooName };
+  const { currentPooName, description } = state.input;
+  return {
+    currentPooName,
+    description
+   };
 };
 
-export default connect(mapStateToProps, { selectPoo })(InputScreen);
+export default connect(mapStateToProps, { selectPoo, updateDescription })(InputScreen);
