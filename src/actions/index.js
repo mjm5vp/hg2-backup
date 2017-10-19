@@ -1,1 +1,2 @@
-export * from './poo_actions';
+export * from './input_actions';
+export * from './my_poo_actions';

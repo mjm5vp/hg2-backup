@@ -33,6 +33,11 @@ class HomeScreen extends Component {
           onPress={() => this.props.navigation.navigate('input')}
         />
 
+        <Button
+          title='View Log'
+          onPress={() => this.props.navigation.navigate('log')}
+        />
+
       </View>
     );
   }

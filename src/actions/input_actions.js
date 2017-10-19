@@ -1,6 +1,7 @@
 import {
   SELECT_POO,
-  CHANGE_DESCRIPTION_TEXT
+  CHANGE_DESCRIPTION_TEXT,
+  CHANGE_DATETIME
 } from './types';
 
 export const selectPoo = (pooName) => {
@@ -13,9 +14,16 @@ export const selectPoo = (pooName) => {
 };
 
 export const updateDescription = ({ text }) => {
-  console.log(text)
+  console.log(text);
   return {
     type: CHANGE_DESCRIPTION_TEXT,
     payload: text
+  };
+};
+
+export const updateDateTime = (datetime) => {
+  return {
+    type: CHANGE_DATETIME,
+    payload: datetime
   };
 };
