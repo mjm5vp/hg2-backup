@@ -103,6 +103,11 @@ class InputScreen extends Component {
         />
 
         <Button
+          title='Add to Map'
+          onPress={() => this.props.navigation.navigate('map_select')}
+        />
+
+        <Button
           title='Flush'
           onPress={() => this.handleFlush()}
         />

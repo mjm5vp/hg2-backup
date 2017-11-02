@@ -11,6 +11,7 @@ import MapScreen from './src/screens/MapScreen';
 import PooSelect from './src/screens/PooSelect';
 import InputScreen from './src/screens/InputScreen';
 import LogScreen from './src/screens/LogScreen';
+import MapSelectScreen from './src/screens/MapSelectScreen';
 
 
 export default class App extends React.Component {
@@ -22,6 +23,7 @@ export default class App extends React.Component {
     const MainNavigator = StackNavigator({
       home: { screen: HomeScreen },
       input: { screen: InputScreen },
+      map_select: { screen: MapSelectScreen },
       log: { screen: LogScreen },
       map: { screen: MapScreen },
       select: { screen: PooSelect }

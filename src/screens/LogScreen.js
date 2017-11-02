@@ -2,17 +2,22 @@ import React, { Component } from 'react';
 import { View, Text, Image } from 'react-native';
 import { connect } from 'react-redux';
 import moment from 'moment';
+import _ from 'lodash';
 import allNamedPoos from '../../assets/namedPooExport';
 
 class LogScreen extends Component {
 
   renderPooLog() {
     console.log(this.props.myPoos.length);
-    return this.props.myPoos.map(poo => {
+    const sortedPoos = _.sortBy(this.props.myPoos, (o) => {
+      return new moment(o.datetime);
+    }).reverse();
+
+    return sortedPoos.map((poo, key) => {
       const datetime = moment(poo.datetime).format('MMMM Do YYYY, h:mm a');
       const pooImage = allNamedPoos[poo.currentPooName].image;
       return (
-        <View>
+        <View key={key}>
           <Image
             source={pooImage}
           />
