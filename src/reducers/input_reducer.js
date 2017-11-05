@@ -3,12 +3,18 @@ import moment from 'moment';
 import {
   SELECT_POO,
   CHANGE_DESCRIPTION_TEXT,
-  CHANGE_DATETIME
+  CHANGE_DATETIME,
+  SET_LOCATION
  } from '../actions/types';
 
 const INITIAL_STATE = {
   currentPooName: 'basketball',
-  datetime: moment()
+  datetime: moment(),
+  description: '',
+  location: {
+    latitude: null,
+    longitude: null
+  }
 };
 
 export default function (state = INITIAL_STATE, action) {
@@ -18,7 +24,9 @@ export default function (state = INITIAL_STATE, action) {
     case CHANGE_DESCRIPTION_TEXT:
       return { ...state, description: action.payload };
     case CHANGE_DATETIME:
-      return { ...state, datetime: action.payload}
+      return { ...state, datetime: action.payload };
+    case SET_LOCATION:
+      return { ...state, location: action.payload };
     default:
       return state;
   }

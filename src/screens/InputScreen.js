@@ -46,9 +46,9 @@ class InputScreen extends Component {
   };
 
   handleFlush = () => {
-    const { currentPooName, datetime, description } = this.props;
+    const { currentPooName, datetime, description, location } = this.props;
 
-    this.props.addPoo({ currentPooName, datetime, description });
+    this.props.addPoo({ currentPooName, datetime, description, location });
   }
 
   render() {
@@ -118,11 +118,12 @@ class InputScreen extends Component {
 }
 
 const mapStateToProps = state => {
-  const { currentPooName, description, datetime } = state.input;
+  const { currentPooName, description, datetime, location } = state.input;
   return {
     currentPooName,
     description,
-    datetime
+    datetime,
+    location
    };
 };
 

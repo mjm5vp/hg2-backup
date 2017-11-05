@@ -23,6 +23,8 @@ class LogScreen extends Component {
           />
           <Text>{poo.description}</Text>
           <Text>{datetime}</Text>
+          <Text>longitude: {poo.location.longitude}</Text>
+          <Text>latitude: {poo.location.latitude}</Text>
         </View>
       );
     });

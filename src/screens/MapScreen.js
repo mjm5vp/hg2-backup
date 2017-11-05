@@ -1,34 +1,28 @@
 import React, { Component } from 'react';
-import { Platform, Text, View, StyleSheet } from 'react-native';
+import { Platform, Text, View, StyleSheet, ActivityIndicator } from 'react-native';
 import { Button } from 'react-native-elements';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps'
 import { Constants, Location, Permissions } from 'expo';
-
+import { connect } from 'react-redux';
+import allNamedPoos from '../../assets/namedPooExport';
 
 class MapScreen extends Component {
 
   static navigationOptions = ({ navigation }) => {
     return {
       title: 'Map',
-      headerRight: (
-        <Button
-          title='Poo'
-          onPress={() => navigation.navigate('select')}
-          backgroundColor='rgba(0,0,0,0)'
-          color='rgba(0, 122, 255, 1)'
-        />
-      )
     };
   }
 
   state = {
+    mapLoaded: false,
     location: null,
     errorMessage: null,
-    initialRegion: {
-      latitude: 37.78825,
-      longitude: -122.4324,
-      latitudeDelta: 0.0922,
-      longitudeDelta: 0.0421
+    region: {
+      longitude: -77.31586374342442,
+      latitude: 38.77684642130346,
+      longitudeDelta: 1.04,
+      latitudeDelta: 1.09
     }
   };
 
@@ -38,11 +32,14 @@ class MapScreen extends Component {
         errorMessage: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!',
       });
     } else {
-      this._getLocationAsync();
+      // this._getLocationAsync();
     }
   }
 
-
+  componentDidMount() {
+    this.setState({ mapLoaded: true });
+    this._getLocationAsync();
+  }
 
   _getLocationAsync = async () => {
     let { status } = await Permissions.askAsync(Permissions.LOCATION);
@@ -56,7 +53,7 @@ class MapScreen extends Component {
     const { coords: { latitude, longitude } } = location
     this.setState({
       location,
-      initialRegion: {
+      region: {
         latitude,
         longitude,
         latitudeDelta: 0.005,
@@ -66,33 +63,40 @@ class MapScreen extends Component {
   };
 
   render() {
-    let text = 'Waiting..';
-    if (this.state.errorMessage) {
-      text = this.state.errorMessage;
-    } else if (this.state.location) {
-      text = JSON.stringify(this.state.location);
+    if (!this.state.mapLoaded) {
+      return (
+        <View style={{ flex: 1, justifyContent: 'center' }}>
+          <ActivityIndicator size='large' />
+        </View>
+      )
     }
-    console.log(this.state.initialRegion);
 
-    const marker = {
-      latitude: 38.91775597643199,
-      longitude: -77.0365972396468
-    };
+    const allMarkers = this.props.myPoos.map((poo, key) => {
+      const pooImage = allNamedPoos[poo.currentPooName].image;
+      return (
+        <MapView.Marker
+          key={key}
+          coordinate={poo.location}
+          image={pooImage}
+          anchor={{ x: 0, y: 0 }}
+        />
+      );
+    });
 
     return (
       <MapView
         provider={PROVIDER_GOOGLE}
         style={{ flex: 1 }}
-        initialRegion={this.state.initialRegion}
-        region={this.state.initialRegion}
+        region={this.state.region}
       >
-        <MapView.Marker
-          coordinate={marker}
-          image={require('../../assets/pooImages/unicorn.png')}
-        />
+        {allMarkers}
       </MapView>
     );
   }
 }
 
-export default MapScreen;
+const mapStateToProps = state => {
+  return { myPoos: state.pooReducer.myPoos };
+};
+
+export default connect(mapStateToProps)(MapScreen);

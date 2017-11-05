@@ -1,7 +1,8 @@
 import {
   SELECT_POO,
   CHANGE_DESCRIPTION_TEXT,
-  CHANGE_DATETIME
+  CHANGE_DATETIME,
+  SET_LOCATION
 } from './types';
 
 export const selectPoo = (pooName) => {
@@ -25,5 +26,14 @@ export const updateDateTime = (datetime) => {
   return {
     type: CHANGE_DATETIME,
     payload: datetime
+  };
+};
+
+export const setLocation = (location) => {
+  console.log("longitude: " + location.longitude);
+  console.log("latitude: " + location.latitude);
+  return {
+    type: SET_LOCATION,
+    payload: location
   };
 };

@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import { Platform, Text, View, Image } from 'react-native';
+import { Platform, Text, View, Image, ActivityIndicator } from 'react-native';
 import { Button } from 'react-native-elements';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 import { Constants, Location, Permissions } from 'expo';
 import { connect } from 'react-redux';
+import { setLocation } from '../actions';
 import allNamedPoos from '../../assets/namedPooExport';
 
 
@@ -12,42 +13,43 @@ class MapSelectScreen extends Component {
   static navigationOptions = ({ navigation }) => {
     return {
       title: 'Map',
-      headerRight: (
-        <Button
-          title='Poo'
-          onPress={() => navigation.navigate('select')}
-          backgroundColor='rgba(0,0,0,0)'
-          color='rgba(0, 122, 255, 1)'
-        />
-      )
+      // headerRight: (
+      //   <Button
+      //     title='Poo'
+      //     onPress={() => navigation.navigate('select')}
+      //     backgroundColor='rgba(0,0,0,0)'
+      //     color='rgba(0, 122, 255, 1)'
+      //   />
+      // )
     };
   }
 
   state = {
+    mapLoaded: false,
     location: null,
     errorMessage: null,
-    initialRegion: {
-      latitude: 37.78825,
-      longitude: -122.4324,
-      latitudeDelta: 0.0922,
-      longitudeDelta: 0.0421
-    },
     region: {
-
+      longitude: -77.31586374342442,
+      latitude: 38.77684642130346,
+      longitudeDelta: 1.04,
+      latitudeDelta: 1.09
     }
   };
 
   componentWillMount() {
-    if (Platform.OS === 'android' && !Constants.isDevice) {
-      this.setState({
-        errorMessage: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!',
-      });
-    } else {
-      this._getLocationAsync();
-    }
+    // if (Platform.OS === 'android' && !Constants.isDevice) {
+    //   this.setState({
+    //     errorMessage: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!',
+    //   });
+    // } else {
+    //   this._getLocationAsync();
+    // }
   }
 
-
+  componentDidMount() {
+    this.setState({ mapLoaded: true })
+    this._getLocationAsync();
+  }
 
   _getLocationAsync = async () => {
     let { status } = await Permissions.askAsync(Permissions.LOCATION);
@@ -61,7 +63,7 @@ class MapSelectScreen extends Component {
     const { coords: { latitude, longitude } } = location
     this.setState({
       location,
-      initialRegion: {
+      region: {
         latitude,
         longitude,
         latitudeDelta: 0.005,
@@ -70,11 +72,22 @@ class MapSelectScreen extends Component {
      });
   };
 
-  onRegionChange(region) {
+  handlePlaceMarker = () => {
+    this.props.setLocation(this.state.region);
+  }
+
+  onRegionChange= (region) => {
     this.setState({ region });
   }
 
   render() {
+    if (!this.state.mapLoaded) {
+      return (
+        <View style={{ flex: 1, justifyContent: 'center' }}>
+          <ActivityIndicator size='large' />
+        </View>
+      )
+    }
     let text = 'Waiting..';
     if (this.state.errorMessage) {
       text = this.state.errorMessage;
@@ -83,12 +96,8 @@ class MapSelectScreen extends Component {
     }
     console.log(this.state.initialRegion);
 
-    const marker = {
-      latitude: 38.91775597643199,
-      longitude: -77.0365972396468
-    };
-
     const pooImage = allNamedPoos[this.props.currentPooName].image;
+    console.log(this.props.currentPooName)
 
     return (
       <View style={styles.containerStyle}>
@@ -96,15 +105,17 @@ class MapSelectScreen extends Component {
         <MapView
           provider={PROVIDER_GOOGLE}
           style={styles.mapViewStyle}
-          initialRegion={this.state.initialRegion}
-          region={this.state.initialRegion}
+          // initialRegion={this.state.initialRegion}
+          region={this.state.region}
+          onRegionChange={this.onRegionChange}
         >
 
-          <View style={styles.markerContainer}>
+          {/* <View style={styles.markerContainer}> */}
             <Image
-              image={pooImage}
+              source={pooImage}
+              style={styles.imageStyle}
             />
-          </View>
+          {/* </View> */}
 
         </MapView>
 
@@ -112,6 +123,7 @@ class MapSelectScreen extends Component {
             <Button
               title='Place Marker'
               style={styles.buttonStyle}
+              onPress={this.handlePlaceMarker}
             />
           </View>
 
@@ -131,9 +143,14 @@ const styles = {
   },
   markerContainer: {
     position: 'absolute',
-    // backgroundColor: 'blue',
-    height: 20,
-    width: 20
+    backgroundColor: 'blue',
+    height: 200,
+    width: 200
+  },
+  imageStyle: {
+    height: 50,
+    width: 50,
+    position: 'absolute'
   },
   buttonContainer: {
     position: 'absolute',
@@ -152,4 +169,4 @@ const mapStateToProps = state => {
   return { currentPooName };
 };
 
-export default connect(mapStateToProps)(MapSelectScreen);
+export default connect(mapStateToProps, { setLocation })(MapSelectScreen);
