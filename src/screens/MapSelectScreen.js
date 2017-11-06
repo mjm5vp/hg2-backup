@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Platform, Text, View, Image, ActivityIndicator } from 'react-native';
-import { Button } from 'react-native-elements';
+import { Button, ButtonGroup } from 'react-native-elements';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 import { Constants, Location, Permissions } from 'expo';
 import { connect } from 'react-redux';
@@ -25,6 +25,7 @@ class MapSelectScreen extends Component {
   }
 
   state = {
+    selectedIndex: 0,
     mapLoaded: false,
     location: null,
     errorMessage: null,
@@ -74,10 +75,29 @@ class MapSelectScreen extends Component {
 
   handlePlaceMarker = () => {
     this.props.setLocation(this.state.region);
+    this.props.navigation.goBack();
   }
 
   onRegionChange= (region) => {
     this.setState({ region });
+  }
+
+  renderAllMarkers = () => {
+    return this.props.myPoos.map((poo, key) => {
+      const pooImage = allNamedPoos[poo.currentPooName].image;
+      return (
+        <MapView.Marker
+          key={key}
+          coordinate={poo.location}
+          image={pooImage}
+          anchor={{ x: 0.5, y: 0.5 }}
+        />
+      );
+    });
+  }
+
+  updateIndex = (selectedIndex) => {
+    this.setState({ selectedIndex });
   }
 
   render() {
@@ -94,10 +114,28 @@ class MapSelectScreen extends Component {
     } else if (this.state.location) {
       text = JSON.stringify(this.state.location);
     }
-    console.log(this.state.initialRegion);
 
-    const pooImage = allNamedPoos[this.props.currentPooName].image;
-    console.log(this.props.currentPooName)
+    const buttons = ['New Marker', 'Add to Existing']
+
+    const renderCenterMarker = () => {
+      const pooImage = allNamedPoos[this.props.currentPooName].image;
+      console.log('selectedIndex: ' + this.state.selectedIndex)
+
+      if (this.state.selectedIndex === 0) {
+          return (
+            <Image
+              source={pooImage}
+              style={styles.imageStyle}
+            />
+          );
+      } else {
+        return (
+          <View>
+            <Text>Not zero</Text>
+          </View>
+        )
+      }
+    };
 
     return (
       <View style={styles.containerStyle}>
@@ -110,22 +148,29 @@ class MapSelectScreen extends Component {
           onRegionChange={this.onRegionChange}
         >
 
-          {/* <View style={styles.markerContainer}> */}
-            <Image
-              source={pooImage}
-              style={styles.imageStyle}
-            />
-          {/* </View> */}
+          {this.renderAllMarkers()}
+
+          {renderCenterMarker()}
 
         </MapView>
 
-          <View style={styles.buttonContainer}>
-            <Button
-              title='Place Marker'
-              style={styles.buttonStyle}
-              onPress={this.handlePlaceMarker}
-            />
-          </View>
+        <View style={styles.topButtonContainer}>
+          <ButtonGroup
+            onPress={this.updateIndex}
+            selectedIndex={this.state.selectedIndex}
+            buttons={buttons}
+            // containerStyle={{height: 100}}
+          />
+        </View>
+
+
+        <View style={styles.buttonContainer}>
+          <Button
+            title='Place Marker'
+            style={styles.buttonStyle}
+            onPress={this.handlePlaceMarker}
+          />
+        </View>
 
       </View>
     );
@@ -152,6 +197,17 @@ const styles = {
     width: 50,
     position: 'absolute'
   },
+  topButtonContainer: {
+    width: '90%',
+    flex: 1,
+    position: 'absolute',
+    top: 20,
+    // left: 0,
+    // right: 0
+  },
+  topButtonStyle: {
+    margin: 20
+  },
   buttonContainer: {
     position: 'absolute',
     bottom: 20,
@@ -166,7 +222,8 @@ const styles = {
 
 const mapStateToProps = state => {
   const { currentPooName } = state.input;
-  return { currentPooName };
+  const { myPoos } = state.pooReducer;
+  return { currentPooName, myPoos };
 };
 
 export default connect(mapStateToProps, { setLocation })(MapSelectScreen);

@@ -49,6 +49,7 @@ class InputScreen extends Component {
     const { currentPooName, datetime, description, location } = this.props;
 
     this.props.addPoo({ currentPooName, datetime, description, location });
+    this.props.navigation.goBack();
   }
 
   render() {

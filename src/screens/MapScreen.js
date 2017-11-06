@@ -68,7 +68,7 @@ class MapScreen extends Component {
         <View style={{ flex: 1, justifyContent: 'center' }}>
           <ActivityIndicator size='large' />
         </View>
-      )
+      );
     }
 
     const allMarkers = this.props.myPoos.map((poo, key) => {
@@ -78,7 +78,8 @@ class MapScreen extends Component {
           key={key}
           coordinate={poo.location}
           image={pooImage}
-          anchor={{ x: 0, y: 0 }}
+          anchor={{ x: 0.5, y: 0.5 }}
+          onPress={e => console.log(e.nativeEvent)} 
         />
       );
     });
