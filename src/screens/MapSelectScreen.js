@@ -25,6 +25,7 @@ class MapSelectScreen extends Component {
   }
 
   state = {
+    renderCenterMarker: null,
     selectedIndex: 0,
     mapLoaded: false,
     location: null,
@@ -91,13 +92,34 @@ class MapSelectScreen extends Component {
           coordinate={poo.location}
           image={pooImage}
           anchor={{ x: 0.5, y: 0.5 }}
+          onPress={e => this.onMarkerTap(e, poo)}
         />
       );
     });
   }
 
+  onMarkerTap = (e, poo) => {
+    console.log(poo.location);
+  }
+
   updateIndex = (selectedIndex) => {
     this.setState({ selectedIndex });
+  }
+
+  renderCenterMarker = () => {
+    const pooImage = allNamedPoos[this.props.currentPooName].image;
+
+    if (this.state.selectedIndex === 0) {
+      return (
+        <Image
+          source={pooImage}
+          style={styles.imageStyle}
+        />
+      );
+    }
+    return (
+      <Image />
+    );
   }
 
   render() {
@@ -117,25 +139,7 @@ class MapSelectScreen extends Component {
 
     const buttons = ['New Marker', 'Add to Existing']
 
-    const renderCenterMarker = () => {
-      const pooImage = allNamedPoos[this.props.currentPooName].image;
-      console.log('selectedIndex: ' + this.state.selectedIndex)
-
-      if (this.state.selectedIndex === 0) {
-          return (
-            <Image
-              source={pooImage}
-              style={styles.imageStyle}
-            />
-          );
-      } else {
-        return (
-          <View>
-            <Text>Not zero</Text>
-          </View>
-        )
-      }
-    };
+    console.log('selectedIndex: ' + this.state.selectedIndex);
 
     return (
       <View style={styles.containerStyle}>
@@ -150,7 +154,7 @@ class MapSelectScreen extends Component {
 
           {this.renderAllMarkers()}
 
-          {renderCenterMarker()}
+          {this.renderCenterMarker()}
 
         </MapView>
 
@@ -179,7 +183,7 @@ class MapSelectScreen extends Component {
 
 const styles = {
   containerStyle: {
-    flex: 1
+    flex: 1,
   },
   mapViewStyle: {
     flex: 1,
@@ -187,15 +191,13 @@ const styles = {
     alignItems: 'center'
   },
   markerContainer: {
-    position: 'absolute',
-    backgroundColor: 'blue',
-    height: 200,
-    width: 200
+    height: 50,
+    width: 50,
+    position: 'absolute'
   },
   imageStyle: {
     height: 50,
     width: 50,
-    position: 'absolute'
   },
   topButtonContainer: {
     width: '90%',
