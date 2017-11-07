@@ -4,6 +4,8 @@ import { Button } from 'react-native-elements';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps'
 import { Constants, Location, Permissions } from 'expo';
 import { connect } from 'react-redux';
+import _ from 'lodash';
+import moment from 'moment';
 import allNamedPoos from '../../assets/namedPooExport';
 import { identifyStackLocation } from '../actions';
 
@@ -68,7 +70,15 @@ class MapScreen extends Component {
       return poo.location.latitude !== null;
     });
 
-    return poosWithLocation.map((poo, key) => {
+    const sortedPoos = _.sortBy(poosWithLocation, (o) => {
+      return new moment(o.datetime);
+    }).reverse();
+
+    console.log(`before uniq: ${poosWithLocation.length}`)
+    const uniqPoos = _.uniqBy(sortedPoos, 'location.latitude')
+    console.log(`after uniq: ${uniqPoos.length}`)
+
+    return uniqPoos.map((poo, key) => {
       const pooImage = allNamedPoos[poo.currentPooName].image;
       return (
         <MapView.Marker
