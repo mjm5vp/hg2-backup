@@ -5,6 +5,7 @@ import MapView, { PROVIDER_GOOGLE } from 'react-native-maps'
 import { Constants, Location, Permissions } from 'expo';
 import { connect } from 'react-redux';
 import allNamedPoos from '../../assets/namedPooExport';
+import { identifyStackLocation } from '../actions';
 
 class MapScreen extends Component {
 
@@ -62,6 +63,38 @@ class MapScreen extends Component {
      });
   };
 
+  renderAllMarkers = () => {
+    const poosWithLocation = this.props.myPoos.filter(poo => {
+      return poo.location.latitude !== null;
+    });
+
+    return poosWithLocation.map((poo, key) => {
+      const pooImage = allNamedPoos[poo.currentPooName].image;
+      return (
+        <MapView.Marker
+          key={key}
+          coordinate={poo.location}
+          image={pooImage}
+          anchor={{ x: 0.5, y: 0.5 }}
+          // onPress={e => console.log(e.nativeEvent)}
+        >
+          <MapView.Callout onPress={() => this.onCalloutStack(poo)}>
+            <View>
+              <Text>View Stack</Text>
+            </View>
+          </MapView.Callout>
+        </MapView.Marker>
+      );
+    });
+  }
+
+  onCalloutStack = ({ location }) => {
+    console.log("location")
+    console.log(location)
+    this.props.identifyStackLocation(location);
+    this.props.navigation.navigate('logStack');
+  }
+
   render() {
     if (!this.state.mapLoaded) {
       return (
@@ -71,26 +104,13 @@ class MapScreen extends Component {
       );
     }
 
-    const allMarkers = this.props.myPoos.map((poo, key) => {
-      const pooImage = allNamedPoos[poo.currentPooName].image;
-      return (
-        <MapView.Marker
-          key={key}
-          coordinate={poo.location}
-          image={pooImage}
-          anchor={{ x: 0.5, y: 0.5 }}
-          onPress={e => console.log(e.nativeEvent)} 
-        />
-      );
-    });
-
     return (
       <MapView
         provider={PROVIDER_GOOGLE}
         style={{ flex: 1 }}
         region={this.state.region}
       >
-        {allMarkers}
+        {this.renderAllMarkers()}
       </MapView>
     );
   }
@@ -100,4 +120,4 @@ const mapStateToProps = state => {
   return { myPoos: state.pooReducer.myPoos };
 };
 
-export default connect(mapStateToProps)(MapScreen);
+export default connect(mapStateToProps, { identifyStackLocation })(MapScreen);

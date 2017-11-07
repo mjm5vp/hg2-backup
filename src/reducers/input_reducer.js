@@ -4,7 +4,8 @@ import {
   SELECT_POO,
   CHANGE_DESCRIPTION_TEXT,
   CHANGE_DATETIME,
-  SET_LOCATION
+  SET_LOCATION,
+  RESET_INPUT
  } from '../actions/types';
 
 const INITIAL_STATE = {
@@ -27,6 +28,8 @@ export default function (state = INITIAL_STATE, action) {
       return { ...state, datetime: action.payload };
     case SET_LOCATION:
       return { ...state, location: action.payload };
+    case RESET_INPUT:
+      return INITIAL_STATE
     default:
       return state;
   }

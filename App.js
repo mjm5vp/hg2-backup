@@ -1,7 +1,7 @@
 import { Notifications } from 'expo';
 import React from 'react';
 import { StyleSheet, Text, View, Alert } from 'react-native';
-import { TabNavigator, StackNavigator } from 'react-navigation';
+import { StackNavigator } from 'react-navigation';
 import { Provider } from 'react-redux';
 
 // import registerForNotifications from './services/push_notifications';
@@ -12,6 +12,7 @@ import PooSelect from './src/screens/PooSelect';
 import InputScreen from './src/screens/InputScreen';
 import LogScreen from './src/screens/LogScreen';
 import MapSelectScreen from './src/screens/MapSelectScreen';
+import LogStackScreen from './src/screens/LogStackScreen';
 
 
 export default class App extends React.Component {
@@ -25,6 +26,7 @@ export default class App extends React.Component {
       input: { screen: InputScreen },
       map_select: { screen: MapSelectScreen },
       log: { screen: LogScreen },
+      logStack: { screen: LogStackScreen },
       map: { screen: MapScreen },
       select: { screen: PooSelect }
     });

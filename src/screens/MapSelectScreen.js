@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
-import { Platform, Text, View, Image, ActivityIndicator } from 'react-native';
+import { Platform, Text, View, Image, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { Button, ButtonGroup } from 'react-native-elements';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 import { Constants, Location, Permissions } from 'expo';
 import { connect } from 'react-redux';
 import { setLocation } from '../actions';
 import allNamedPoos from '../../assets/namedPooExport';
-
 
 class MapSelectScreen extends Component {
 
@@ -39,18 +38,34 @@ class MapSelectScreen extends Component {
   };
 
   componentWillMount() {
-    // if (Platform.OS === 'android' && !Constants.isDevice) {
-    //   this.setState({
-    //     errorMessage: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!',
-    //   });
-    // } else {
-    //   this._getLocationAsync();
-    // }
+    if (Platform.OS === 'android' && !Constants.isDevice) {
+      this.setState({
+        errorMessage: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!',
+      });
+    } else {
+      this.props.location.latitude ? this.setRegionToCoordinate() : this._getLocationAsync();
+    }
   }
 
   componentDidMount() {
-    this.setState({ mapLoaded: true })
-    this._getLocationAsync();
+    this.setState({ mapLoaded: true });
+  }
+
+  onRegionChange = (region) => {
+    this.setState({ region });
+  }
+
+  setRegionToCoordinate = () => {
+    const { longitude, latitude } = this.props.location;
+
+    this.setState({
+      region: {
+        longitude,
+        latitude,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005
+       }
+    });
   }
 
   _getLocationAsync = async () => {
@@ -79,12 +94,16 @@ class MapSelectScreen extends Component {
     this.props.navigation.goBack();
   }
 
-  onRegionChange= (region) => {
-    this.setState({ region });
+  updateIndex = (selectedIndex) => {
+    this.setState({ selectedIndex });
   }
 
   renderAllMarkers = () => {
-    return this.props.myPoos.map((poo, key) => {
+    const poosWithLocation = this.props.myPoos.filter(poo => {
+      return poo.location.latitude !== null;
+    });
+
+    return poosWithLocation.map((poo, key) => {
       const pooImage = allNamedPoos[poo.currentPooName].image;
       return (
         <MapView.Marker
@@ -93,7 +112,13 @@ class MapSelectScreen extends Component {
           image={pooImage}
           anchor={{ x: 0.5, y: 0.5 }}
           onPress={e => this.onMarkerTap(e, poo)}
-        />
+        >
+          <MapView.Callout onPress={e => this.onCalloutTap(e, poo)}>
+            <View style={{ flex: 1 }}>
+              <Text>Add to this Marker</Text>
+            </View>
+          </MapView.Callout>
+        </MapView.Marker>
       );
     });
   }
@@ -102,8 +127,10 @@ class MapSelectScreen extends Component {
     console.log(poo.location);
   }
 
-  updateIndex = (selectedIndex) => {
-    this.setState({ selectedIndex });
+  onCalloutTap = (e, poo) => {
+    console.log('onCalloutTap');
+    this.props.setLocation(poo.location);
+    this.props.navigation.goBack();
   }
 
   renderCenterMarker = () => {
@@ -120,6 +147,20 @@ class MapSelectScreen extends Component {
     return (
       <Image />
     );
+  }
+
+  renderPlaceMarkerButton = () => {
+    if (this.state.selectedIndex === 0) {
+      return (
+        <View style={styles.buttonContainer}>
+          <Button
+            title='Place Marker'
+            style={styles.buttonStyle}
+            onPress={this.handlePlaceMarker}
+          />
+        </View>
+      );
+    }
   }
 
   render() {
@@ -167,14 +208,7 @@ class MapSelectScreen extends Component {
           />
         </View>
 
-
-        <View style={styles.buttonContainer}>
-          <Button
-            title='Place Marker'
-            style={styles.buttonStyle}
-            onPress={this.handlePlaceMarker}
-          />
-        </View>
+        {this.renderPlaceMarkerButton()}
 
       </View>
     );
@@ -223,9 +257,9 @@ const styles = {
 
 
 const mapStateToProps = state => {
-  const { currentPooName } = state.input;
+  const { currentPooName, location } = state.input;
   const { myPoos } = state.pooReducer;
-  return { currentPooName, myPoos };
+  return { currentPooName, location, myPoos };
 };
 
 export default connect(mapStateToProps, { setLocation })(MapSelectScreen);

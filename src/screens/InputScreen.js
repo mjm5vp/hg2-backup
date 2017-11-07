@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { View, Text, Image, TouchableOpacity, TextInput } from 'react-native';
-import { Button } from 'react-native-elements';
+import { View, Text, Image, TouchableOpacity, TextInput, Platform } from 'react-native';
+import { Button, Card } from 'react-native-elements';
 import { connect } from 'react-redux';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import moment from 'moment';
-import { selectPoo, updateDescription, updateDateTime, addPoo } from '../actions';
+import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
+import { selectPoo, updateDescription, updateDateTime, addPoo, resetInput } from '../actions';
 import allNamedPoos from '../../assets/namedPooExport';
 
 
@@ -14,7 +15,7 @@ class InputScreen extends Component {
     time: moment(),
     isDatePickerVisible: false,
     isTimePickerVisible: false,
-    description: ''
+    description: '',
   }
 
   showDatePicker = () => this.setState({ isDatePickerVisible: true });
@@ -45,10 +46,65 @@ class InputScreen extends Component {
     this.hideTimePicker();
   };
 
+  renderMapPreview = () => {
+    if (this.props.location.latitude) {
+      const { latitude, longitude } = this.props.location;
+      const pooImage = allNamedPoos[this.props.currentPooName].image;
+
+      const region = {
+        latitude,
+        longitude,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005
+      };
+      console.log("region: ")
+      console.log(region)
+
+      return (
+        <Card>
+          <View style={{ height: 200 }}>
+            <MapView
+              provider={PROVIDER_GOOGLE}
+              style={{ flex: 1 }}
+              cacheEnabled={Platform.OS === 'android'}
+              scrollEnabled={false}
+              region={region}
+            >
+              <MapView.Marker
+                coordinate={this.props.location}
+                image={pooImage}
+                anchor={{ x: 0.5, y: 0.5 }}
+              />
+            </MapView>
+          </View>
+
+          <Button
+            title='Change Location'
+            onPress={() => this.props.navigation.navigate('map_select')}
+          />
+        </Card>
+      );
+    }
+
+    return (
+      <Card>
+        <View style={styles.emptyMapView}>
+          <Text>Location Not Set</Text>
+        </View>
+
+        <Button
+          title='Add to Map'
+          onPress={() => this.props.navigation.navigate('map_select')}
+        />
+      </Card>
+    );
+  }
+
   handleFlush = () => {
     const { currentPooName, datetime, description, location } = this.props;
 
     this.props.addPoo({ currentPooName, datetime, description, location });
+    this.props.resetInput()
     this.props.navigation.goBack();
   }
 
@@ -103,10 +159,7 @@ class InputScreen extends Component {
           onChangeText={text => this.props.updateDescription({ text })}
         />
 
-        <Button
-          title='Add to Map'
-          onPress={() => this.props.navigation.navigate('map_select')}
-        />
+        {this.renderMapPreview()}
 
         <Button
           title='Flush'
@@ -117,6 +170,15 @@ class InputScreen extends Component {
     );
   }
 }
+
+const styles = {
+  emptyMapView: {
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'gray'
+  }
+};
 
 const mapStateToProps = state => {
   const { currentPooName, description, datetime, location } = state.input;
@@ -132,5 +194,6 @@ export default connect(mapStateToProps, {
   selectPoo,
   updateDescription,
   updateDateTime,
-  addPoo
+  addPoo,
+  resetInput
 })(InputScreen);
