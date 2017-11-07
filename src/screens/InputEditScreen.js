@@ -5,8 +5,15 @@ import { connect } from 'react-redux';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import moment from 'moment';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
-import { selectPoo, updateDescription, updateDateTime, addPoo, resetInput } from '../actions';
 import allNamedPoos from '../../assets/namedPooExport';
+import {
+  selectPoo,
+  updateDescription,
+  updateDateTime,
+  addPoo,
+  editPoos,
+  resetInput
+} from '../actions';
 
 
 class InputEditScreen extends Component {
@@ -16,6 +23,10 @@ class InputEditScreen extends Component {
     isDatePickerVisible: false,
     isTimePickerVisible: false,
     description: '',
+  }
+
+  componentDidMount() {
+    console.log(`this.props.inputUID: ${this.props.inputUID}`)
   }
 
   showDatePicker = () => this.setState({ isDatePickerVisible: true });
@@ -57,8 +68,6 @@ class InputEditScreen extends Component {
         latitudeDelta: 0.005,
         longitudeDelta: 0.005
       };
-      console.log("region: ")
-      console.log(region)
 
       return (
         <Card>
@@ -100,11 +109,24 @@ class InputEditScreen extends Component {
     );
   }
 
-  handleFlush = () => {
-    const { uid, currentPooName, datetime, description, location } = this.props;
+  updateByUID = () => {
+    const { inputUID, currentPooName, datetime, description, location, myPoos } = this.props;
 
-    this.props.addPoo({ currentPooName, datetime, description, location });
-    this.props.resetInput()
+    return myPoos.map(poo => {
+      console.log(`poo.inputUID: ${poo.inputUID}`)
+      console.log(`inputUID: ${inputUID}`)
+      if (poo.inputUID === inputUID) {
+        return { inputUID, currentPooName, datetime, description, location };
+      }
+      return poo;
+    });
+  }
+
+  handleUpdate = () => {
+    const newPoos = this.updateByUID();
+
+    this.props.editPoos(newPoos);
+    this.props.resetInput();
     this.props.navigation.goBack();
   }
 
@@ -162,8 +184,8 @@ class InputEditScreen extends Component {
         {this.renderMapPreview()}
 
         <Button
-          title='Flush'
-          onPress={() => this.handleFlush()}
+          title='Update'
+          onPress={() => this.handleUpdate()}
         />
 
       </View>
@@ -181,13 +203,15 @@ const styles = {
 };
 
 const mapStateToProps = state => {
-  const { uid, currentPooName, description, datetime, location } = state.input;
+  const { inputUID, currentPooName, description, datetime, location } = state.input;
+  const { myPoos } = state.pooReducer;
   return {
-    uid,
+    inputUID,
     currentPooName,
     description,
     datetime,
-    location
+    location,
+    myPoos
    };
 };
 
@@ -196,5 +220,6 @@ export default connect(mapStateToProps, {
   updateDescription,
   updateDateTime,
   addPoo,
+  editPoos,
   resetInput
 })(InputEditScreen);

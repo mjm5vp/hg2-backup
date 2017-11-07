@@ -17,13 +17,14 @@ const INITIAL_STATE = {
   location: {
     latitude: null,
     longitude: null
-  }
+  },
+  inputUID: null
 };
 
 export default function (state = INITIAL_STATE, action) {
   switch (action.type) {
     case SET_UID:
-      return { ...state, uid: action.payload };
+      return { ...state, inputUID: action.payload };
     case SELECT_POO:
       return { ...state, currentPooName: action.payload };
     case CHANGE_DESCRIPTION_TEXT:
@@ -33,8 +34,8 @@ export default function (state = INITIAL_STATE, action) {
     case SET_LOCATION:
       return { ...state, location: action.payload };
     case FILL_INPUT:
-      const { currentPooName, description, datetime, location } = action.payload;
-      return { currentPooName, description, datetime, location };
+      const { inputUID, currentPooName, description, datetime, location } = action.payload;
+      return { inputUID, currentPooName, description, datetime, location };
     case RESET_INPUT:
       return INITIAL_STATE;
     default:

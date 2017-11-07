@@ -8,10 +8,10 @@ import {
   RESET_INPUT
 } from './types';
 
-export const setUID = (uid) => {
+export const setUID = (inputUID) => {
   return {
     type: SET_UID,
-    payload: uid
+    payload: inputUID
   };
 };
 
@@ -43,10 +43,11 @@ export const setLocation = (location) => {
   };
 };
 
-export const fillInput = ({ currentPooName, description, datetime, location }) => {
+export const fillInput = ({ inputUID, currentPooName, description, datetime, location }) => {
+  console.log(`fillInput inputUID: ${inputUID}`)
   return {
     type: FILL_INPUT,
-    payload: { currentPooName, description, datetime, location }
+    payload: { inputUID, currentPooName, description, datetime, location }
   };
 };
 

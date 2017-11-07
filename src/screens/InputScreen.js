@@ -109,7 +109,7 @@ class InputScreen extends Component {
   handleFlush = () => {
     const { uid, currentPooName, datetime, description, location } = this.props;
 
-    this.props.addPoo({ uid, currentPooName, datetime, description, location });
+    this.props.addPoo({ inputUID: uid, currentPooName, datetime, description, location });
     this.props.increaseUID();
     this.props.resetInput();
     this.props.navigation.goBack();
@@ -189,7 +189,7 @@ const styles = {
 
 const mapStateToProps = state => {
   const { currentPooName, description, datetime, location } = state.input;
-  const { uid } = state.myPoos;
+  const { uid } = state.pooReducer;
   return {
     uid,
     currentPooName,

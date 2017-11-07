@@ -32,6 +32,7 @@ class LogScreen extends Component {
             <Text>{datetime}</Text>
             <Text>longitude: {poo.location.longitude}</Text>
             <Text>latitude: {poo.location.latitude}</Text>
+            <Text>UID: {poo.inputUID}</Text> 
           </View>
         </TouchableOpacity>
       );

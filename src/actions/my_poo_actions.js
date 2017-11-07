@@ -1,10 +1,18 @@
-import { ADD_POO, IDENTIFY_STACK_LOCATION, INCREASE_UID } from './types';
+import { ADD_POO, EDIT_POOS, IDENTIFY_STACK_LOCATION, INCREASE_UID } from './types';
 
-export const addPoo = ({ uid, currentPooName, datetime, description, location }) => {
+export const addPoo = ({ inputUID, currentPooName, datetime, description, location }) => {
   console.log('addPoo');
   return {
     type: ADD_POO,
-    payload: { uid, currentPooName, datetime, description, location }
+    payload: { inputUID, currentPooName, datetime, description, location }
+  };
+};
+
+export const editPoos = (newPoos) => {
+  console.log('editPoos');
+  return {
+    type: EDIT_POOS,
+    payload: newPoos
   };
 };
 
