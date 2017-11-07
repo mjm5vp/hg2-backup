@@ -1,11 +1,17 @@
 import React, { Component } from 'react';
-import { View, Text, Image } from 'react-native';
+import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { connect } from 'react-redux';
 import moment from 'moment';
 import _ from 'lodash';
+import { fillInput } from '../actions';
 import allNamedPoos from '../../assets/namedPooExport';
 
 class LogScreen extends Component {
+
+  onLogItemPress = (poo) => {
+    this.props.fillInput(poo);
+    this.props.navigation.navigate('inputEdit');
+  }
 
   renderPooLog() {
     console.log(this.props.myPoos.length);
@@ -17,15 +23,17 @@ class LogScreen extends Component {
       const datetime = moment(poo.datetime).format('MMMM Do YYYY, h:mm a');
       const pooImage = allNamedPoos[poo.currentPooName].image;
       return (
-        <View key={key}>
-          <Image
-            source={pooImage}
-          />
-          <Text>{poo.description}</Text>
-          <Text>{datetime}</Text>
-          <Text>longitude: {poo.location.longitude}</Text>
-          <Text>latitude: {poo.location.latitude}</Text>
-        </View>
+        <TouchableOpacity onPress={() => this.onLogItemPress(poo)}>
+          <View key={key}>
+            <Image
+              source={pooImage}
+            />
+            <Text>{poo.description}</Text>
+            <Text>{datetime}</Text>
+            <Text>longitude: {poo.location.longitude}</Text>
+            <Text>latitude: {poo.location.latitude}</Text>
+          </View>
+        </TouchableOpacity>
       );
     });
   }
@@ -48,4 +56,4 @@ const mapStateToProps = state => {
   return { myPoos: state.pooReducer.myPoos };
 };
 
-export default connect(mapStateToProps)(LogScreen);
+export default connect(mapStateToProps, { fillInput })(LogScreen);

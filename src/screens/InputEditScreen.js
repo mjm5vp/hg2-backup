@@ -5,17 +5,11 @@ import { connect } from 'react-redux';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import moment from 'moment';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
+import { selectPoo, updateDescription, updateDateTime, addPoo, resetInput } from '../actions';
 import allNamedPoos from '../../assets/namedPooExport';
-import {
-  increaseUID,
-  selectPoo,
-  updateDescription,
-  updateDateTime,
-  addPoo,
-  resetInput } from '../actions';
 
 
-class InputScreen extends Component {
+class InputEditScreen extends Component {
   state = {
     date: moment(),
     time: moment(),
@@ -109,9 +103,8 @@ class InputScreen extends Component {
   handleFlush = () => {
     const { uid, currentPooName, datetime, description, location } = this.props;
 
-    this.props.addPoo({ uid, currentPooName, datetime, description, location });
-    this.props.increaseUID();
-    this.props.resetInput();
+    this.props.addPoo({ currentPooName, datetime, description, location });
+    this.props.resetInput()
     this.props.navigation.goBack();
   }
 
@@ -188,8 +181,7 @@ const styles = {
 };
 
 const mapStateToProps = state => {
-  const { currentPooName, description, datetime, location } = state.input;
-  const { uid } = state.myPoos;
+  const { uid, currentPooName, description, datetime, location } = state.input;
   return {
     uid,
     currentPooName,
@@ -200,10 +192,9 @@ const mapStateToProps = state => {
 };
 
 export default connect(mapStateToProps, {
-  increaseUID,
   selectPoo,
   updateDescription,
   updateDateTime,
   addPoo,
   resetInput
-})(InputScreen);
+})(InputEditScreen);
