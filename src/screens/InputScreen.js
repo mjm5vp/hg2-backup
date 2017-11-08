@@ -180,10 +180,12 @@ class InputScreen extends Component {
 
         <Card title='Description'>
           <TextInput
+            multiline
             label='Description'
             placeholder='How did everything go?'
             value={this.props.description}
             onChangeText={text => this.props.updateDescription({ text })}
+            style={{ height: 100 }}
           />
         </Card>
 
