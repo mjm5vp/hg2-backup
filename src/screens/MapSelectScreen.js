@@ -4,6 +4,8 @@ import { Button, ButtonGroup } from 'react-native-elements';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 import { Constants, Location, Permissions } from 'expo';
 import { connect } from 'react-redux';
+import moment from 'moment';
+import _ from 'lodash';
 import { setLocation } from '../actions';
 import allNamedPoos from '../../assets/namedPooExport';
 
@@ -103,7 +105,13 @@ class MapSelectScreen extends Component {
       return poo.location.latitude !== null;
     });
 
-    return poosWithLocation.map((poo, key) => {
+    const sortedPoos = _.sortBy(poosWithLocation, (o) => {
+      return new moment(o.datetime);
+    }).reverse();
+
+    const uniqPoos = _.uniqBy(sortedPoos, 'location.latitude');
+
+    return uniqPoos.map((poo, key) => {
       const pooImage = allNamedPoos[poo.currentPooName].image;
       return (
         <MapView.Marker

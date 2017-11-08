@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, Image, TouchableOpacity, TextInput, Platform } from 'react-native';
+import { View, Text, Image, TouchableOpacity, TextInput, Platform, ScrollView } from 'react-native';
 import { Button, Card } from 'react-native-elements';
 import { connect } from 'react-redux';
 import DateTimePicker from 'react-native-modal-datetime-picker';
@@ -95,7 +95,7 @@ class InputScreen extends Component {
     return (
       <Card>
         <View style={styles.emptyMapView}>
-          <Text>Location Not Set</Text>
+          <Text style={{ width: 200 }}>Location Not Set</Text>
         </View>
 
         <Button
@@ -119,52 +119,74 @@ class InputScreen extends Component {
     const pooImage = allNamedPoos[this.props.currentPooName].image;
 
     return (
-      <View>
-        <Text>Oh hai Input</Text>
-        <Text>Oh hai Input</Text>
-        <Text>Oh hai Input</Text>
-        <Text>Oh hai Input</Text>
-        <Text>Oh hai Input</Text>
+      <ScrollView contentContainerStyle={styles.containerStyle}>
 
-        <Image
-          source={pooImage}
-        />
+        <Card>
+          <View style={styles.selectCard}>
+            <Image
+              source={pooImage}
+              style={styles.pooSelectImage}
+            />
 
-        <Button
-          title='Select'
-          onPress={() => this.props.navigation.navigate('select')}
-        />
+            <View style={styles.selectButtonView}>
+              <Button
+                title='Select Poomoji'
+                onPress={() => this.props.navigation.navigate('select')}
+                buttonStyle={styles.selectButton}
+                fontSize={20}
+              />
+            </View>
+          </View>
 
-        <TouchableOpacity onPress={this.showDatePicker}>
-          <Text>Change Date</Text>
-        </TouchableOpacity>
+        </Card>
 
-        <TouchableOpacity onPress={this.showTimePicker}>
-          <Text>Change Time</Text>
-        </TouchableOpacity>
+        <Card>
+          <View style={styles.datetimeCard}>
 
-        <DateTimePicker
-          mode='date'
-          isVisible={this.state.isDatePickerVisible}
-          onConfirm={this.handleDatePicked}
-          onCancel={this.hideDatePicker}
-        />
+            <Text style={styles.datetimeText}>
+              {this.props.datetime.format('MMMM Do YYYY, h:mm a')}
+            </Text>
 
-        <DateTimePicker
-          mode='time'
-          isVisible={this.state.isTimePickerVisible}
-          onConfirm={this.handleTimePicked}
-          onCancel={this.hideTimePicker}
-        />
+            <View style={styles.changeButtonsView}>
+              <Button
+                title='Change Date'
+                onPress={this.showDatePicker}
+                fontSize={20}
+                buttonStyle={styles.selectButton}
+              />
+              <Button
+                title='Change Time'
+                onPress={this.showTimePicker}
+                fontSize={20}
+                buttonStyle={styles.selectButton}
+              />
+            </View>
 
-        <Text>{this.props.datetime.format('MMMM Do YYYY, h:mm a')} </Text>
+            <DateTimePicker
+              mode='date'
+              isVisible={this.state.isDatePickerVisible}
+              onConfirm={this.handleDatePicked}
+              onCancel={this.hideDatePicker}
+            />
 
-        <TextInput
-          label='Description'
-          placeholder='How did everything go?'
-          value={this.props.description}
-          onChangeText={text => this.props.updateDescription({ text })}
-        />
+            <DateTimePicker
+              mode='time'
+              isVisible={this.state.isTimePickerVisible}
+              onConfirm={this.handleTimePicked}
+              onCancel={this.hideTimePicker}
+            />
+          </View>
+        </Card>
+
+        <Card title='Description'>
+          <TextInput
+            label='Description'
+            placeholder='How did everything go?'
+            value={this.props.description}
+            onChangeText={text => this.props.updateDescription({ text })}
+          />
+        </Card>
+
 
         {this.renderMapPreview()}
 
@@ -173,17 +195,44 @@ class InputScreen extends Component {
           onPress={() => this.handleFlush()}
         />
 
-      </View>
+      </ScrollView>
     );
   }
 }
 
 const styles = {
+  containerStyle: {
+    alignItems: 'stretch',
+    justifyContent: 'center'
+  },
   emptyMapView: {
+    // flex: 1,
     height: 200,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'gray'
+  },
+  selectCard: {
+    alignItems: 'center'
+  },
+  pooSelectImage: {
+
+  },
+  selectButton: {
+    height: 20,
+    borderRadius: 5,
+    backgroundColor: 'rgba(0,150,136,0.5)',
+  },
+  datetimeCard: {
+    alignItems: 'center'
+  },
+  datetimeText: {
+    fontSize: 20
+  },
+  changeButtonsView: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    margin: 10
   }
 };
 

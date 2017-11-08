@@ -74,9 +74,7 @@ class MapScreen extends Component {
       return new moment(o.datetime);
     }).reverse();
 
-    console.log(`before uniq: ${poosWithLocation.length}`)
-    const uniqPoos = _.uniqBy(sortedPoos, 'location.latitude')
-    console.log(`after uniq: ${uniqPoos.length}`)
+    const uniqPoos = _.uniqBy(sortedPoos, 'location.latitude');
 
     return uniqPoos.map((poo, key) => {
       const pooImage = allNamedPoos[poo.currentPooName].image;

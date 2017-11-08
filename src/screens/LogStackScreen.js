@@ -1,18 +1,20 @@
 import React, { Component } from 'react';
-import { View, Text, Image } from 'react-native';
+import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { connect } from 'react-redux';
 import moment from 'moment';
 import _ from 'lodash';
+import { fillInput } from '../actions';
 import allNamedPoos from '../../assets/namedPooExport';
 
 class LogStackScreen extends Component {
 
-  renderPooLog() {
-    console.log(this.props.myPoos.length);
+  onLogItemPress = (poo) => {
+    this.props.fillInput(poo);
+    this.props.navigation.navigate('inputEdit');
+  }
 
+  renderPooLog() {
     const filteredPoos = this.props.myPoos.filter(poo => {
-      console.log(`poo.location.latitude: ${poo.location.latitude}`);
-      console.log(`this.props.selectedStackLocation.latitude: ${this.props.selectedStackLocation.latitude}`);
       return poo.location.latitude === this.props.selectedStackLocation.latitude;
     });
 
@@ -24,15 +26,17 @@ class LogStackScreen extends Component {
       const datetime = moment(poo.datetime).format('MMMM Do YYYY, h:mm a');
       const pooImage = allNamedPoos[poo.currentPooName].image;
       return (
-        <View key={key}>
-          <Image
-            source={pooImage}
-          />
-          <Text>{poo.description}</Text>
-          <Text>{datetime}</Text>
-          <Text>longitude: {poo.location.longitude}</Text>
-          <Text>latitude: {poo.location.latitude}</Text>
-        </View>
+        <TouchableOpacity key={key} onPress={() => this.onLogItemPress(poo)}>
+          <View>
+            <Image
+              source={pooImage}
+            />
+            <Text>{poo.description}</Text>
+            <Text>{datetime}</Text>
+            <Text>longitude: {poo.location.longitude}</Text>
+            <Text>latitude: {poo.location.latitude}</Text>
+          </View>
+        </TouchableOpacity>
       );
     });
   }
@@ -57,4 +61,4 @@ const mapStateToProps = state => {
   return { myPoos, selectedStackLocation };
 };
 
-export default connect(mapStateToProps)(LogStackScreen);
+export default connect(mapStateToProps, { fillInput })(LogStackScreen);
