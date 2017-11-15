@@ -5,8 +5,16 @@ import {
   CHANGE_DATETIME,
   SET_LOCATION,
   FILL_INPUT,
-  RESET_INPUT
+  RESET_INPUT,
+  SET_INPUT_TYPE
 } from './types';
+
+export const setInputType = (inputType) => {
+  return {
+    type: SET_INPUT_TYPE,
+    payload: inputType
+  };
+};
 
 export const setUID = (inputUID) => {
   return {
@@ -44,7 +52,7 @@ export const setLocation = (location) => {
 };
 
 export const fillInput = ({ inputUID, currentPooName, description, datetime, location }) => {
-  console.log(`fillInput inputUID: ${inputUID}`)
+  console.log(`fillInput inputUID: ${inputUID}`);
   return {
     type: FILL_INPUT,
     payload: { inputUID, currentPooName, description, datetime, location }

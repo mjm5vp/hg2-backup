@@ -6,12 +6,15 @@ import DateTimePicker from 'react-native-modal-datetime-picker';
 import moment from 'moment';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 import allNamedPoos from '../../assets/namedPooExport';
+import toiletImage from '../../assets/otherImages/toilet.jpg';
+import styles from '../styles/inputStyles';
 import {
   increaseUID,
   selectPoo,
   updateDescription,
   updateDateTime,
   addPoo,
+  editPoos,
   resetInput } from '../actions';
 
 
@@ -63,8 +66,7 @@ class InputScreen extends Component {
         latitudeDelta: 0.005,
         longitudeDelta: 0.005
       };
-      console.log("region: ")
-      console.log(region)
+      console.log(region);
 
       return (
         <Card>
@@ -87,6 +89,7 @@ class InputScreen extends Component {
           <Button
             title='Change Location'
             onPress={() => this.props.navigation.navigate('map_select')}
+            buttonStyle={styles.mapButton}
           />
         </Card>
       );
@@ -95,15 +98,67 @@ class InputScreen extends Component {
     return (
       <Card>
         <View style={styles.emptyMapView}>
-          <Text style={{ width: 200 }}>Location Not Set</Text>
+          <Text style={{}}>Location Not Set</Text>
         </View>
 
         <Button
           title='Add to Map'
           onPress={() => this.props.navigation.navigate('map_select')}
+          buttonStyle={styles.mapButton}
         />
       </Card>
     );
+  }
+
+  renderFlushButton = () => {
+    if (this.props.inputType === 'new') {
+      return (
+        <Card title='Flush' containerStyle={{ marginBottom: 20 }}>
+          <View style={styles.toiletImageView}>
+            <TouchableOpacity onPress={() => this.handleFlush()}>
+              <Image
+                source={toiletImage}
+                style={styles.toiletImage}
+              />
+            </TouchableOpacity>
+          </View>
+        </Card>
+      );
+    }
+
+    return (
+      <Card title='Update' containerStyle={{ marginBottom: 20 }}>
+        <View style={styles.toiletImageView}>
+          <TouchableOpacity onPress={() => this.handleUpdate()}>
+            <Image
+              source={toiletImage}
+              style={styles.toiletImage}
+            />
+          </TouchableOpacity>
+        </View>
+      </Card>
+    );
+  }
+
+  updateByUID = () => {
+    const { inputUID, currentPooName, datetime, description, location, myPoos } = this.props;
+
+    return myPoos.map(poo => {
+      console.log(`poo.inputUID: ${poo.inputUID}`);
+      console.log(`inputUID: ${inputUID}`);
+      if (poo.inputUID === inputUID) {
+        return { inputUID, currentPooName, datetime, description, location };
+      }
+      return poo;
+    });
+  }
+
+  handleUpdate = () => {
+    const newPoos = this.updateByUID();
+
+    this.props.editPoos(newPoos);
+    this.props.resetInput();
+    this.props.navigation.goBack();
   }
 
   handleFlush = () => {
@@ -192,61 +247,25 @@ class InputScreen extends Component {
 
         {this.renderMapPreview()}
 
-        <Button
-          title='Flush'
-          onPress={() => this.handleFlush()}
-        />
+        {this.renderFlushButton()}
 
       </ScrollView>
     );
   }
 }
 
-const styles = {
-  containerStyle: {
-    alignItems: 'stretch',
-    justifyContent: 'center'
-  },
-  emptyMapView: {
-    // flex: 1,
-    height: 200,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'gray'
-  },
-  selectCard: {
-    alignItems: 'center'
-  },
-  pooSelectImage: {
-
-  },
-  selectButton: {
-    height: 20,
-    borderRadius: 5,
-    backgroundColor: 'rgba(0,150,136,0.5)',
-  },
-  datetimeCard: {
-    alignItems: 'center'
-  },
-  datetimeText: {
-    fontSize: 20
-  },
-  changeButtonsView: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    margin: 10
-  }
-};
-
 const mapStateToProps = state => {
-  const { currentPooName, description, datetime, location } = state.input;
-  const { uid } = state.pooReducer;
+  const { inputType, inputUID, currentPooName, description, datetime, location } = state.input;
+  const { uid, myPoos } = state.pooReducer;
   return {
+    inputType,
     uid,
+    inputUID,
     currentPooName,
     description,
     datetime,
-    location
+    location,
+    myPoos
    };
 };
 
@@ -256,5 +275,6 @@ export default connect(mapStateToProps, {
   updateDescription,
   updateDateTime,
   addPoo,
+  editPoos,
   resetInput
 })(InputScreen);

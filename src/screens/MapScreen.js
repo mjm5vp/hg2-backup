@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 import moment from 'moment';
 import allNamedPoos from '../../assets/namedPooExport';
-import { identifyStackLocation } from '../actions';
+import { identifyStackLocation, setLogType } from '../actions';
 
 class MapScreen extends Component {
 
@@ -97,10 +97,9 @@ class MapScreen extends Component {
   }
 
   onCalloutStack = ({ location }) => {
-    console.log("location")
-    console.log(location)
+    this.props.setLogType('stack')
     this.props.identifyStackLocation(location);
-    this.props.navigation.navigate('logStack');
+    this.props.navigation.navigate('log');
   }
 
   render() {
@@ -128,4 +127,4 @@ const mapStateToProps = state => {
   return { myPoos: state.pooReducer.myPoos };
 };
 
-export default connect(mapStateToProps, { identifyStackLocation })(MapScreen);
+export default connect(mapStateToProps, { identifyStackLocation, setLogType })(MapScreen);

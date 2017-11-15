@@ -3,21 +3,37 @@ import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { connect } from 'react-redux';
 import moment from 'moment';
 import _ from 'lodash';
-import { fillInput } from '../actions';
+import { fillInput, setInputType } from '../actions';
 import allNamedPoos from '../../assets/namedPooExport';
 
 class LogScreen extends Component {
 
+  filterPoos = () => {
+    const { myPoos, selectedStackLocation } = this.props
+
+    return myPoos.filter(poo => {
+      return poo.location.latitude === selectedStackLocation.latitude;
+    });
+  }
+
+  sortPoos = () => {
+    const filteredPoos = this.props.logType === 'stack'
+      ? this.filterPoos()
+      : this.props.myPoos;
+
+    return _.sortBy(filteredPoos, (o) => {
+      return new moment(o.datetime);
+    }).reverse();
+  }
+
   onLogItemPress = (poo) => {
+    this.props.setInputType('edit');
     this.props.fillInput(poo);
-    this.props.navigation.navigate('inputEdit');
+    this.props.navigation.navigate('input');
   }
 
   renderPooLog() {
-    console.log(this.props.myPoos.length);
-    const sortedPoos = _.sortBy(this.props.myPoos, (o) => {
-      return new moment(o.datetime);
-    }).reverse();
+    const sortedPoos = this.sortPoos()
 
     return sortedPoos.map((poo, key) => {
       const datetime = moment(poo.datetime).format('MMMM Do YYYY, h:mm a');
@@ -54,7 +70,9 @@ class LogScreen extends Component {
 }
 
 const mapStateToProps = state => {
-  return { myPoos: state.pooReducer.myPoos };
+  const { myPoos, logType, selectedStackLocation } = state.pooReducer;
+
+  return { myPoos, logType, selectedStackLocation };
 };
 
-export default connect(mapStateToProps, { fillInput })(LogScreen);
+export default connect(mapStateToProps, { fillInput, setInputType })(LogScreen);

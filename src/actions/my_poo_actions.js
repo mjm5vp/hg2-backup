@@ -1,4 +1,11 @@
-import { ADD_POO, EDIT_POOS, IDENTIFY_STACK_LOCATION, INCREASE_UID } from './types';
+import { ADD_POO, EDIT_POOS, IDENTIFY_STACK_LOCATION, INCREASE_UID, SET_LOG_TYPE } from './types';
+
+export const setLogType = (logType) => {
+  return {
+    type: SET_LOG_TYPE,
+    payload: logType
+  };
+};
 
 export const addPoo = ({ inputUID, currentPooName, datetime, description, location }) => {
   console.log('addPoo');

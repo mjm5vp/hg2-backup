@@ -1,22 +1,32 @@
 import React, { Component } from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { Button } from 'react-native-elements';
+import { connect } from 'react-redux';
+
 import feetBackground from '../../assets/backgrounds/feet_background.jpg';
 import allNamedPoos from '../../assets/namedPooExport';
+import { setInputType, setLogType } from '../actions';
 
 class HomeScreen extends Component {
   static navigationOptions = {
     header: null
-
   }
 
-  handleButtonPress() {
+  navToAdd() {
+    this.props.setInputType('new');
+    this.props.navigation.navigate('input');
+  }
+
+  navToMap() {
     this.props.navigation.navigate('map');
   }
 
-  render() {
-    const resizeMode = 'cover';
+  navToLog() {
+    this.props.setLogType('normal');
+    this.props.navigation.navigate('log');
+  }
 
+  render() {
     return (
 
       <Image source={feetBackground} style={styles.backgroundContainer}>
@@ -24,12 +34,12 @@ class HomeScreen extends Component {
         <Text style={styles.headerStyle}>Hoos Going 2</Text>
 
         <TouchableOpacity
-          onPress={() => this.props.navigation.navigate('input')}
+          onPress={() => this.navToAdd()}
         >
           <View style={styles.addView}>
             <Text style={styles.addText}>Take a Poo</Text>
             <Image
-              source={allNamedPoos.cry.image}
+              source={allNamedPoos.sunglasses.image}
               style={styles.addImage}
             />
           </View>
@@ -38,7 +48,7 @@ class HomeScreen extends Component {
           <Button
             title='Map'
             icon={{ name: 'map', type: 'font-awesome' }}
-            onPress={() => this.props.navigation.navigate('map')}
+            onPress={() => this.navToMap()}
             buttonStyle={styles.mapButton}
             raised
           />
@@ -46,7 +56,7 @@ class HomeScreen extends Component {
           <Button
             title='Log'
             icon={{ name: 'list', type: 'font-awesome' }}
-            onPress={() => this.props.navigation.navigate('log')}
+            onPress={() => this.navToLog()}
             buttonStyle={styles.mapButton}
             raised
           />
@@ -124,4 +134,4 @@ const styles = {
   }
 };
 
-export default HomeScreen;
+export default connect(null, { setInputType, setLogType })(HomeScreen);
