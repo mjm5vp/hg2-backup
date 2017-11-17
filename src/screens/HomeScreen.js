@@ -64,7 +64,7 @@ class HomeScreen extends Component {
           <Button
             title='Stats'
             icon={{ name: 'area-chart', type: 'font-awesome' }}
-            onPress={() => this.props.navigation.navigate('log')}
+            onPress={() => this.props.navigation.navigate('stats')}
             buttonStyle={styles.mapButton}
             raised
           />

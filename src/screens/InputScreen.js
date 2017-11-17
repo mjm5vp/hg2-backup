@@ -5,6 +5,8 @@ import { connect } from 'react-redux';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import moment from 'moment';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
+
+import Confirm from '../components/Confirm';
 import allNamedPoos from '../../assets/namedPooExport';
 import toiletImage from '../../assets/otherImages/toilet.jpg';
 import styles from '../styles/inputStyles';
@@ -25,6 +27,7 @@ class InputScreen extends Component {
     isDatePickerVisible: false,
     isTimePickerVisible: false,
     description: '',
+    showModal: false
   }
 
   showDatePicker = () => this.setState({ isDatePickerVisible: true });
@@ -113,30 +116,44 @@ class InputScreen extends Component {
   renderFlushButton = () => {
     if (this.props.inputType === 'new') {
       return (
-        <Card title='Flush' containerStyle={{ marginBottom: 20 }}>
-          <View style={styles.toiletImageView}>
+        <View>
+          <Card title='Flush' containerStyle={{ marginBottom: 20 }}>
             <TouchableOpacity onPress={() => this.handleFlush()}>
-              <Image
-                source={toiletImage}
-                style={styles.toiletImage}
-              />
-            </TouchableOpacity>
-          </View>
-        </Card>
+              <View style={styles.toiletImageView}>
+                <Image
+                  source={toiletImage}
+                  style={styles.toiletImage}
+                />
+              </View>
+          </TouchableOpacity>
+          </Card>
+        </View>
       );
     }
 
     return (
-      <Card title='Update' containerStyle={{ marginBottom: 20 }}>
-        <View style={styles.toiletImageView}>
+      <View>
+        <Card title='Update'>
           <TouchableOpacity onPress={() => this.handleUpdate()}>
-            <Image
-              source={toiletImage}
-              style={styles.toiletImage}
-            />
+            <View style={styles.toiletImageView}>
+              <Image
+                source={toiletImage}
+                style={styles.toiletImage}
+              />
+            </View>
           </TouchableOpacity>
-        </View>
-      </Card>
+        </Card>
+
+        <Card containerStyle={{ marginBottom: 20 }}>
+          <Button
+            title='Delete'
+            onPress={() => this.setState({ showModal: !this.state.showModal })}
+            raised
+            backgroundColor='red'
+          />
+        </Card>
+      </View>
+
     );
   }
 
@@ -161,6 +178,22 @@ class InputScreen extends Component {
     this.props.navigation.goBack();
   }
 
+  deleteByUID = () => {
+    const { inputUID, myPoos } = this.props;
+
+    return myPoos.filter(poo => {
+      return poo.inputUID !== inputUID;
+    });
+  }
+
+  handleDelete = () => {
+    const newPoos = this.deleteByUID();
+
+    this.props.editPoos(newPoos);
+    this.props.resetInput();
+    this.props.navigation.goBack();
+  }
+
   handleFlush = () => {
     const { uid, currentPooName, datetime, description, location } = this.props;
 
@@ -168,6 +201,14 @@ class InputScreen extends Component {
     this.props.increaseUID();
     this.props.resetInput();
     this.props.navigation.goBack();
+  }
+
+  onAccept = () => {
+    this.handleDelete();
+  }
+
+  onDecline = () => {
+    this.setState({ showModal: false });
   }
 
   render() {
@@ -248,6 +289,14 @@ class InputScreen extends Component {
         {this.renderMapPreview()}
 
         {this.renderFlushButton()}
+
+        <Confirm
+          visible={this.state.showModal}
+          onAccept={this.onAccept}
+          onDecline={this.onDecline}
+        >
+          Are you sure you want to delete this?
+        </Confirm>
 
       </ScrollView>
     );

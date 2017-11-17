@@ -13,7 +13,7 @@ class MapSelectScreen extends Component {
 
   static navigationOptions = ({ navigation }) => {
     return {
-      title: 'Map',
+      title: 'Select Location',
       // headerRight: (
       //   <Button
       //     title='Poo'

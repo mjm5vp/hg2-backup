@@ -1,15 +1,30 @@
 import React, { Component } from 'react';
-import { View, Text, Image, TouchableOpacity } from 'react-native';
+import { ScrollView, View, Image } from 'react-native';
+import { Card } from 'react-native-elements';
 import { connect } from 'react-redux';
 import moment from 'moment';
 import _ from 'lodash';
-import { fillInput, setInputType } from '../actions';
+
+import LogItem from '../components/LogItem';
 import allNamedPoos from '../../assets/namedPooExport';
+import { fillInput, setInputType } from '../actions';
 
 class LogScreen extends Component {
 
+  static navigationOptions = () => {
+    return {
+      title: 'Log',
+    };
+  }
+
+  onLogItemPress = (poo) => {
+    this.props.setInputType('edit');
+    this.props.fillInput(poo);
+    this.props.navigation.navigate('input');
+  }
+
   filterPoos = () => {
-    const { myPoos, selectedStackLocation } = this.props
+    const { myPoos, selectedStackLocation } = this.props;
 
     return myPoos.filter(poo => {
       return poo.location.latitude === selectedStackLocation.latitude;
@@ -26,45 +41,37 @@ class LogScreen extends Component {
     }).reverse();
   }
 
-  onLogItemPress = (poo) => {
-    this.props.setInputType('edit');
-    this.props.fillInput(poo);
-    this.props.navigation.navigate('input');
-  }
-
   renderPooLog() {
-    const sortedPoos = this.sortPoos()
+    const sortedPoos = this.sortPoos();
 
     return sortedPoos.map((poo, key) => {
-      const datetime = moment(poo.datetime).format('MMMM Do YYYY, h:mm a');
-      const pooImage = allNamedPoos[poo.currentPooName].image;
       return (
-        <TouchableOpacity key={key} onPress={() => this.onLogItemPress(poo)}>
-          <View>
-            <Image
-              source={pooImage}
-            />
-            <Text>{poo.description}</Text>
-            <Text>{datetime}</Text>
-            <Text>longitude: {poo.location.longitude}</Text>
-            <Text>latitude: {poo.location.latitude}</Text>
-            <Text>UID: {poo.inputUID}</Text>
-          </View>
-        </TouchableOpacity>
+        <LogItem
+          key={key}
+          poo={poo}
+          onLogItemPress={this.onLogItemPress}
+        />
       );
     });
   }
 
   render() {
+    if (this.props.myPoos.length === 0) {
+      return (
+        <Card title='No Poos Yet'>
+          <View style={{ alignItems: 'center' }}>
+            <Image
+              source={allNamedPoos.cry.image}
+            />
+          </View>
+        </Card>
+      );
+    }
+
     return (
-      <View>
-        <Text>oh hai LogScreen</Text>
-        <Text>oh hai LogScreen</Text>
-        <Text>oh hai LogScreen</Text>
-        <Text>oh hai LogScreen</Text>
-        <Text>oh hai LogScreen</Text>
+      <ScrollView>
         {this.renderPooLog()}
-      </View>
+      </ScrollView>
     );
   }
 }
