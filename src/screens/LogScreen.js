@@ -7,7 +7,7 @@ import _ from 'lodash';
 
 import LogItem from '../components/LogItem';
 import allNamedPoos from '../../assets/namedPooExport';
-import { fillInput, setInputType } from '../actions';
+import { fillInput, setInputType, resetInput } from '../actions';
 
 class LogScreen extends Component {
 
@@ -18,6 +18,7 @@ class LogScreen extends Component {
   }
 
   onLogItemPress = (poo) => {
+    this.props.resetInput();
     this.props.setInputType('edit');
     this.props.fillInput(poo);
     this.props.navigation.navigate('input');
@@ -82,4 +83,4 @@ const mapStateToProps = state => {
   return { myPoos, logType, selectedStackLocation };
 };
 
-export default connect(mapStateToProps, { fillInput, setInputType })(LogScreen);
+export default connect(mapStateToProps, { fillInput, setInputType, resetInput })(LogScreen);

@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 
 import feetBackground from '../../assets/backgrounds/feet_background.jpg';
 import allNamedPoos from '../../assets/namedPooExport';
-import { setInputType, setLogType } from '../actions';
+import { setInputType, setLogType, resetInput } from '../actions';
 
 class HomeScreen extends Component {
   static navigationOptions = {
@@ -13,6 +13,7 @@ class HomeScreen extends Component {
   }
 
   navToAdd() {
+    this.props.resetInput();
     this.props.setInputType('new');
     this.props.navigation.navigate('input');
   }
@@ -134,4 +135,4 @@ const styles = {
   }
 };
 
-export default connect(null, { setInputType, setLogType })(HomeScreen);
+export default connect(null, { setInputType, setLogType, resetInput })(HomeScreen);

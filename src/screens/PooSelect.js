@@ -7,7 +7,6 @@ import allPoos from '../../assets/pooExport';
 class PooSelect extends Component {
   static navigationOptions = {
     mode: 'modal'
-
   }
 
   onPressButton = (pooName) => {
@@ -25,11 +24,9 @@ class PooSelect extends Component {
           key={i}
           onPress={() => this.onPressButton(name)}
         >
-
           <Image
             source={image}
           />
-
         </TouchableOpacity>
       );
     });

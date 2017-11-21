@@ -1,3 +1,7 @@
+// import { REHYDRATE } from 'redux-persist/constants';
+import { PERSIST_REHYDRATE } from 'redux-persist/lib/constants';
+
+
 import {
   SET_LOG_TYPE,
   ADD_POO,
@@ -15,6 +19,9 @@ const INITIAL_STATE = {
 
 export default function (state = INITIAL_STATE, action) {
   switch (action.type) {
+    case PERSIST_REHYDRATE:
+      console.log('oh hai PERSIST_REHYDRATE')
+      return action.payload.pooReducer || [];
     case SET_LOG_TYPE:
       return { ...state, logType: action.payload };
     case INCREASE_UID:

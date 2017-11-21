@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Platform, Text, View, StyleSheet, ActivityIndicator } from 'react-native';
+import { Text, View, ActivityIndicator } from 'react-native';
 import { Button } from 'react-native-elements';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps'
 import { Constants, Location, Permissions } from 'expo';
@@ -11,7 +11,7 @@ import { identifyStackLocation, setLogType } from '../actions';
 
 class MapScreen extends Component {
 
-  static navigationOptions = ({ navigation }) => {
+  static navigationOptions = () => {
     return {
       title: 'Map',
     };
@@ -29,31 +29,21 @@ class MapScreen extends Component {
     }
   };
 
-  componentWillMount() {
-    if (Platform.OS === 'android' && !Constants.isDevice) {
-      this.setState({
-        errorMessage: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!',
-      });
-    } else {
-      // this._getLocationAsync();
-    }
-  }
-
   componentDidMount() {
     this.setState({ mapLoaded: true });
-    this._getLocationAsync();
+    this.getLocationAsync();
   }
 
-  _getLocationAsync = async () => {
-    let { status } = await Permissions.askAsync(Permissions.LOCATION);
+  getLocationAsync = async () => {
+    const { status } = await Permissions.askAsync(Permissions.LOCATION);
     if (status !== 'granted') {
       this.setState({
         errorMessage: 'Permission to access location was denied',
       });
     }
 
-    let location = await Location.getCurrentPositionAsync({});
-    const { coords: { latitude, longitude } } = location
+    const location = await Location.getCurrentPositionAsync({});
+    const { coords: { latitude, longitude } } = location;
     this.setState({
       location,
       region: {
@@ -84,7 +74,6 @@ class MapScreen extends Component {
           coordinate={poo.location}
           image={pooImage}
           anchor={{ x: 0.5, y: 0.5 }}
-          // onPress={e => console.log(e.nativeEvent)}
         >
           <MapView.Callout onPress={() => this.onCalloutStack(poo)}>
             <View>
@@ -97,7 +86,7 @@ class MapScreen extends Component {
   }
 
   onCalloutStack = ({ location }) => {
-    this.props.setLogType('stack')
+    this.props.setLogType('stack');
     this.props.identifyStackLocation(location);
     this.props.navigation.navigate('log');
   }
@@ -116,6 +105,14 @@ class MapScreen extends Component {
         provider={PROVIDER_GOOGLE}
         style={{ flex: 1 }}
         region={this.state.region}
+        showsUserLocation
+        showsMyLocationButton
+        showsPointsOfInterest
+        showsBuildings
+        showsIndoors
+        showsIndoorLevelPicker
+        showsCompass
+        moveOnMarkerPress
       >
         {this.renderAllMarkers()}
       </MapView>

@@ -30,6 +30,11 @@ class InputScreen extends Component {
     showModal: false
   }
 
+  componentDidMount() {
+    console.log('typeof this.props.datetime');
+    console.log(typeof this.props.datetime);
+  }
+
   showDatePicker = () => this.setState({ isDatePickerVisible: true });
 
   hideDatePicker = () => this.setState({ isDatePickerVisible: false });

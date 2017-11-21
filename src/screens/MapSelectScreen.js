@@ -11,17 +11,9 @@ import allNamedPoos from '../../assets/namedPooExport';
 
 class MapSelectScreen extends Component {
 
-  static navigationOptions = ({ navigation }) => {
+  static navigationOptions = () => {
     return {
       title: 'Select Location',
-      // headerRight: (
-      //   <Button
-      //     title='Poo'
-      //     onPress={() => navigation.navigate('select')}
-      //     backgroundColor='rgba(0,0,0,0)'
-      //     color='rgba(0, 122, 255, 1)'
-      //   />
-      // )
     };
   }
 
@@ -34,23 +26,14 @@ class MapSelectScreen extends Component {
     region: {
       longitude: -77.31586374342442,
       latitude: 38.77684642130346,
-      longitudeDelta: 1.04,
-      latitudeDelta: 1.09
+      longitudeDelta: 2.04,
+      latitudeDelta: 2.09
     }
   };
 
-  componentWillMount() {
-    if (Platform.OS === 'android' && !Constants.isDevice) {
-      this.setState({
-        errorMessage: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!',
-      });
-    } else {
-      this.props.location.latitude ? this.setRegionToCoordinate() : this._getLocationAsync();
-    }
-  }
-
   componentDidMount() {
     this.setState({ mapLoaded: true });
+    this.getLocationAsync();
   }
 
   onRegionChange = (region) => {
@@ -70,16 +53,16 @@ class MapSelectScreen extends Component {
     });
   }
 
-  _getLocationAsync = async () => {
-    let { status } = await Permissions.askAsync(Permissions.LOCATION);
+  getLocationAsync = async () => {
+    const { status } = await Permissions.askAsync(Permissions.LOCATION);
     if (status !== 'granted') {
       this.setState({
         errorMessage: 'Permission to access location was denied',
       });
     }
 
-    let location = await Location.getCurrentPositionAsync({});
-    const { coords: { latitude, longitude } } = location
+    const location = await Location.getCurrentPositionAsync({});
+    const { coords: { latitude, longitude } } = location;
     this.setState({
       location,
       region: {
@@ -163,7 +146,7 @@ class MapSelectScreen extends Component {
         <View style={styles.buttonContainer}>
           <Button
             title='Place Marker'
-            style={styles.buttonStyle}
+            buttonStyle={styles.buttonStyle}
             onPress={this.handlePlaceMarker}
           />
         </View>
@@ -177,18 +160,10 @@ class MapSelectScreen extends Component {
         <View style={{ flex: 1, justifyContent: 'center' }}>
           <ActivityIndicator size='large' />
         </View>
-      )
-    }
-    let text = 'Waiting..';
-    if (this.state.errorMessage) {
-      text = this.state.errorMessage;
-    } else if (this.state.location) {
-      text = JSON.stringify(this.state.location);
+      );
     }
 
-    const buttons = ['New Marker', 'Add to Existing']
-
-    console.log('selectedIndex: ' + this.state.selectedIndex);
+    const buttons = ['New Marker', 'Add to Existing'];
 
     return (
       <View style={styles.containerStyle}>
@@ -199,6 +174,14 @@ class MapSelectScreen extends Component {
           // initialRegion={this.state.initialRegion}
           region={this.state.region}
           onRegionChange={this.onRegionChange}
+          showsUserLocation
+          showsMyLocationButton
+          showsPointsOfInterest
+          showsBuildings
+          showsIndoors
+          showsIndoorLevelPicker
+          showsCompass
+          moveOnMarkerPress
         >
 
           {this.renderAllMarkers()}
@@ -212,7 +195,6 @@ class MapSelectScreen extends Component {
             onPress={this.updateIndex}
             selectedIndex={this.state.selectedIndex}
             buttons={buttons}
-            // containerStyle={{height: 100}}
           />
         </View>
 
@@ -242,12 +224,11 @@ const styles = {
     width: 50,
   },
   topButtonContainer: {
-    width: '90%',
+    width: '100%',
     flex: 1,
     position: 'absolute',
     top: 20,
-    // left: 0,
-    // right: 0
+    alignItems: 'center'
   },
   topButtonStyle: {
     margin: 20
@@ -255,11 +236,12 @@ const styles = {
   buttonContainer: {
     position: 'absolute',
     bottom: 20,
-    left: 0,
-    right: 0
+    left: 20,
+    right: 20,
+    width: '80%'
   },
   buttonStyle: {
-    flex: 1,
+    flex: 1
   }
 };
 
