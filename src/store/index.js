@@ -1,14 +1,15 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import logger from 'redux-logger';
-import { persistStore, persistCombineReducers, createTransform, traverse } from 'redux-persist';
+import { persistStore, persistCombineReducers, createTransform, } from 'redux-persist';
 import { AsyncStorage } from 'react-native';
 import moment from 'moment';
+import traverse from 'traverse';
 
 import reducers from '../reducers';
 
-// const dateTransform = createTransform(null, (outboundState) => {
-//     return traverse(outboundState).map((val) => {
+// const dateTransform = createTransform(null, (incomingState) => {
+//     return traverse(incomingState).map((val) => {
 //         if (val.datetime.isISOStringDate(val)) {
 //             return new moment(val);
 //         }
@@ -17,10 +18,31 @@ import reducers from '../reducers';
 //     });
 // });
 
+// const dateTransform = createTransform(null, (incomingPooReducer) => {
+//   return incomingPooReducer.myPoos.map(poo => {
+//     const newDateTime = moment(poo.datetime);
+//     const newPoo = poo;
+//     newPoo.datetime = newDateTime;
+//     return newPoo;
+//   });
+// });
+
+const testTransform = createTransform(null, (incomingState) => {
+  const newIncomingState = incomingState;
+  const newPoos = incomingState.myPoos.map(poo => {
+    const newDatetime = moment(poo.datetime);
+    const newPoo = poo;
+    newPoo.datetime = newDatetime;
+    return newPoo;
+  });
+  newIncomingState.myPoos = newPoos;
+  return newIncomingState;
+});
+
 const config = {
  key: 'root',
  storage: AsyncStorage,
- // transforms: [dateTransform],
+ transforms: [testTransform],
  whitelist: ['pooReducer']
 };
 
