@@ -11,3 +11,5 @@ export const FILL_INPUT = 'fill_input';
 export const RESET_INPUT = 'reset_input';
 export const INCREASE_UID = 'increase_uid';
 export const SET_LOG_TYPE = 'set_log_type';
+export const FACEBOOK_LOGIN_SUCCESS = 'facebook_login_success';
+export const FACEBOOK_LOGIN_FAIL = 'facebook_login_fail';

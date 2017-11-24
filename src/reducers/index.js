@@ -1,6 +1,7 @@
 // import { combineReducers } from 'redux';
 import input from './input_reducer';
 import pooReducer from './my_poos_reducer';
+import auth from './auth_reducer';
 
 // export default combineReducers({
 //   input,
@@ -8,5 +9,5 @@ import pooReducer from './my_poos_reducer';
 // });
 
 export default ({
- input, pooReducer
+ input, pooReducer, auth
 });

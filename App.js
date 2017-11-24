@@ -4,6 +4,7 @@ import { PersistGate } from 'redux-persist/es/integration/react';
 import { StyleSheet, Text, View, Alert } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import { Provider } from 'react-redux';
+import firebase from 'firebase';
 
 // import registerForNotifications from './services/push_notifications';
 // import store from './src/store';
@@ -15,11 +16,20 @@ import InputScreen from './src/screens/InputScreen';
 import LogScreen from './src/screens/LogScreen';
 import MapSelectScreen from './src/screens/MapSelectScreen';
 import StatsScreen from './src/screens/StatsScreen';
+import SettingsScreen from './src/screens/SettingsScreen';
 
 
 export default class App extends React.Component {
   componentDidMount() {
-
+    const config = {
+      apiKey: 'AIzaSyBFgYrBpKdTmQMcQu0jY-3PnCkG0HWhlhQ',
+      authDomain: 'hoos-going-2.firebaseapp.com',
+      databaseURL: 'https://hoos-going-2.firebaseio.com',
+      projectId: 'hoos-going-2',
+      storageBucket: 'hoos-going-2.appspot.com',
+      messagingSenderId: '190376141541'
+    };
+    firebase.initializeApp(config);
   }
 
   render() {
@@ -30,7 +40,8 @@ export default class App extends React.Component {
       log: { screen: LogScreen },
       map: { screen: MapScreen },
       select: { screen: PooSelect },
-      stats: { screen: StatsScreen }
+      stats: { screen: StatsScreen },
+      settings: { screen: SettingsScreen }
     });
 
     const { persistor, store } = configureStore();

@@ -1,3 +1,4 @@
+import firebase from 'firebase';
 import { ADD_POO, EDIT_POOS, IDENTIFY_STACK_LOCATION, INCREASE_UID, SET_LOG_TYPE } from './types';
 
 export const setLogType = (logType) => {
@@ -9,6 +10,14 @@ export const setLogType = (logType) => {
 
 export const addPoo = ({ inputUID, currentPooName, datetime, description, location }) => {
   console.log('addPoo');
+  const { currentUser } = firebase.auth();
+
+  if (currentUser) {
+    const stringDatetime = datetime.toString()
+    firebase.database().ref(`/users/${currentUser.uid}/myPoos`)
+      .push({ inputUID, currentPooName, stringDatetime, description, location });
+  }
+
   return {
     type: ADD_POO,
     payload: { inputUID, currentPooName, datetime, description, location }

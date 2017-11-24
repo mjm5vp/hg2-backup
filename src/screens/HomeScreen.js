@@ -73,8 +73,8 @@ class HomeScreen extends Component {
           <Button
             title='Settings'
             icon={{ name: 'gear', type: 'font-awesome' }}
-            onPress={() => this.props.navigation.navigate('log')}
-            buttonStyle={styles.mapButton}
+            onPress={() => this.props.navigation.navigate('settings')}
+            buttonStyle={styles.mapButton} 
             raised
           />
 
