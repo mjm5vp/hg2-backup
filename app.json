@@ -8,9 +8,13 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "primaryColor": "#cccccc",
-    "icon": "./assets/icons/app-icon.png",
+    "icon": "./assets/pooImages/teeth.png",
     "loading": {
-      "icon": "./assets/icons/loading-icon.png"
+      "icon": "./assets/pooImages/teeth.png"
+    },
+    "splash": {
+      "image": "./assets/pooImages/teeth.png",
+      "backgroundColor": "#FEF9B0"
     },
     "packagerOpts": {
       "assetExts": ["ttf", "mp4"]

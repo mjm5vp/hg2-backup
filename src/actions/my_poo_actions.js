@@ -13,7 +13,7 @@ export const addPoo = ({ inputUID, currentPooName, datetime, description, locati
   const { currentUser } = firebase.auth();
 
   if (currentUser) {
-    const stringDatetime = datetime.toString()
+    const stringDatetime = datetime.toString();
     firebase.database().ref(`/users/${currentUser.uid}/myPoos`)
       .push({ inputUID, currentPooName, stringDatetime, description, location });
   }

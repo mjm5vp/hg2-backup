@@ -45,6 +45,10 @@ const doFacebookLogin = async dispatch => {
 export const facebookLogout = () => {
   console.log('facebookLogout action');
   firebase.auth().signOut();
-  AsyncStorage.setItem('fb_token', '');
+  AsyncStorage.removeItem('fb_token', () => {});
   return { type: FACEBOOK_LOGIN_FAIL };
+};
+
+export const googleLogin = () => {
+
 };

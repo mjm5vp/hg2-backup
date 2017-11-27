@@ -17,17 +17,19 @@ import LogScreen from './src/screens/LogScreen';
 import MapSelectScreen from './src/screens/MapSelectScreen';
 import StatsScreen from './src/screens/StatsScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
+import SignInForm from './src/components/SignInForm';
+import SignUpForm from './src/components/SignUpForm';
 
 
 export default class App extends React.Component {
   componentDidMount() {
     const config = {
-      apiKey: 'AIzaSyBFgYrBpKdTmQMcQu0jY-3PnCkG0HWhlhQ',
-      authDomain: 'hoos-going-2.firebaseapp.com',
-      databaseURL: 'https://hoos-going-2.firebaseio.com',
-      projectId: 'hoos-going-2',
-      storageBucket: 'hoos-going-2.appspot.com',
-      messagingSenderId: '190376141541'
+      apiKey: 'AIzaSyAB6ioNX2EZn0Z8exCVMoLZeWpFswluVyM',
+      authDomain: 'one-time-password-698fc.firebaseapp.com',
+      databaseURL: 'https://one-time-password-698fc.firebaseio.com',
+      projectId: 'one-time-password-698fc',
+      storageBucket: 'one-time-password-698fc.appspot.com',
+      messagingSenderId: '1035913942891'
     };
     firebase.initializeApp(config);
   }
@@ -41,7 +43,9 @@ export default class App extends React.Component {
       map: { screen: MapScreen },
       select: { screen: PooSelect },
       stats: { screen: StatsScreen },
-      settings: { screen: SettingsScreen }
+      settings: { screen: SettingsScreen },
+      signIn: { screen: SignInForm },
+      signUp: { screen: SignUpForm }
     });
 
     const { persistor, store } = configureStore();

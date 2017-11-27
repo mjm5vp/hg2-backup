@@ -15,12 +15,16 @@ class SettingsScreen extends Component {
     console.log(currentUser);
   }
 
-  onFacebookLoginPress = () => {
-    this.props.facebookLogin();
+  // onFacebookLoginPress = () => {
+  //   this.props.facebookLogin();
+  // }
+  //
+  onSignOutPress = () => {
+    this.props.facebookLogout();
   }
 
-  onFacebookLogoutPress = () => {
-    this.props.facebookLogout();
+  onSignInPress = () => {
+    this.props.navigation.navigate('signUp');
   }
 
   renderFacebookButton = () => {
@@ -28,18 +32,23 @@ class SettingsScreen extends Component {
 
     if (currentUser) {
       return (
-        <Button
-          title='Log out of Facebook'
-          onPress={() => this.onFacebookLogoutPress()}
-        />
+        <View>
+          <Button
+            title='Sign Out'
+            onPress={() => this.onSignOutPress()}
+          />
+        </View>
       );
     }
 
     return (
-      <Button
-        title='Log in with Facebook'
-        onPress={() => this.onFacebookLoginPress()}
-      />
+      <View>
+        <Button
+          title='Sign In'
+          onPress={() => this.onSignInPress()}
+        />
+      </View>
+
     );
   }
 
