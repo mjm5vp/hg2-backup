@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { FormLabel, FormInput, Button } from 'react-native-elements';
 import axios from 'axios';
 import firebase from 'firebase';
@@ -14,8 +14,18 @@ class SignUpForm extends Component {
   state = {
     phone: '',
     code: '',
+    message: '',
+    codeMessage: '',
+    showSpinner: false,
     phoneEntered: false
    };
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.token) {
+      this.setState({ showSpinner: false });
+      this.props.navigation.goBack();
+    }
+  }
 
   handleSubmit = async () => {
     const { phone } = this.state;
@@ -29,6 +39,10 @@ class SignUpForm extends Component {
       .once('value', snapshot => {
         if (snapshot.val()) {
           console.log('user exists');
+          this.setState({ message: 'Welcome back' });
+          this.setState({
+            codeMessage: 'You will recieve a text message shortly with a 4-digit code.'
+          });
           this.userExists(phone);
         } else {
           console.log('user does not exist');
@@ -40,6 +54,7 @@ class SignUpForm extends Component {
   newUser = async (phone) => {
     try {
       await axios.post(`${ROOT_URL}/createUser`, { phone });
+      console.log('user created');
       await axios.post(`${ROOT_URL}/requestOneTimePassword`, { phone });
     } catch (err) {
       console.log(err);
@@ -53,8 +68,8 @@ class SignUpForm extends Component {
   signIn = async () => {
     const { phone, code } = this.state;
     const { myPoos } = this.props;
-
-    this.props.authLogin({ myPoos, phone, code });
+    this.setState({ showSpinner: true });
+    await this.props.authLogin({ myPoos, phone, code });
   }
 
   renderPhoneOrCode = () => {
@@ -62,7 +77,7 @@ class SignUpForm extends Component {
       return (
         <View>
           <View style={{ marginBottom: 10 }}>
-            <FormLabel>Enter a phone number:</FormLabel>
+            <FormLabel>Enter your phone number:</FormLabel>
             <FormInput
               value={this.state.phone}
               onChangeText={phone => this.setState({ phone })}
@@ -96,10 +111,26 @@ class SignUpForm extends Component {
     );
   }
 
+  renderSpinner = () => {
+    if (this.state.showSpinner) {
+      return (
+        <View>
+          <ActivityIndicator />
+        </View>
+      );
+    }
+    return (
+      <View />
+    );
+  }
+
   render() {
     return (
       <View style={styles.viewContainer}>
+        {this.renderSpinner()}
+        <Text>{this.state.message}</Text>
         {this.renderPhoneOrCode()}
+        <Text>{this.state.codeMessage}</Text>
       </View>
     );
   }
@@ -114,8 +145,9 @@ const styles = {
 
 const mapStateToProps = state => {
   const { myPoos } = state.pooReducer;
+  const { token } = state.auth;
 
-  return { myPoos };
+  return { myPoos, token };
 };
 
 export default connect(mapStateToProps, { authLogin })(SignUpForm);

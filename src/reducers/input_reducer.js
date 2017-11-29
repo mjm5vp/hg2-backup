@@ -11,11 +11,15 @@ import {
   RESET_INPUT,
  } from '../actions/types';
 
+ const initialTime = moment().format('HH:mm');
+ const initialDate = moment().format('YYYY-MM-DD');
+ const initialDatetime = `${initialDate}T${initialTime}`;
+
 const INITIAL_STATE = {
   inputType: 'new',
   inputUID: null,
   currentPooName: 'basketball',
-  datetime: moment(),
+  datetime: initialDatetime,
   description: '',
   location: {
     latitude: '',

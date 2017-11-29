@@ -9,15 +9,12 @@ export const setLogType = (logType) => {
 };
 
 export const addPoo = ({ inputUID, currentPooName, datetime, description, location }) => {
-  console.log('addPoo');
   const { currentUser } = firebase.auth();
 
   if (currentUser) {
-    // console.log('added poo to database');
-    // const stringDatetime = datetime.toString();
-    // const stringDatetime = datetime.format('MMMM Do YYYY, h:mm a');
-    // firebase.database().ref(`/users/${currentUser.uid}/myPoos/${inputUID}`)
-    //   .update({ inputUID, currentPooName, datetime: stringDatetime, description, location });
+    console.log('added poo to database');
+    firebase.database().ref(`/users/${currentUser.uid}/myPoos/${inputUID}`)
+      .update({ inputUID, currentPooName, datetime, description, location });
       // .push({inputUID, currentPooName, stringDatetime, description, location });
   }
 
@@ -28,7 +25,14 @@ export const addPoo = ({ inputUID, currentPooName, datetime, description, locati
 };
 
 export const editPoos = (newPoos) => {
-  console.log('editPoos');
+  const { currentUser } = firebase.auth();
+
+  if (currentUser) {
+    console.log('edited poos in database');
+    firebase.database().ref(`/users/${currentUser.uid}`)
+      .update({ myPoos: newPoos });
+  }
+
   return {
     type: EDIT_POOS,
     payload: newPoos

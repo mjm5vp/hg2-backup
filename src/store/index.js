@@ -28,9 +28,9 @@ const testTransform = createTransform(null, (incomingState) => {
 const config = {
  key: 'root',
  storage: AsyncStorage,
- transforms: [testTransform],
+ // transforms: [testTransform],
  whitelist: ['pooReducer', 'auth']
-}; 
+};
 
 const reducer = persistCombineReducers(config, reducers);
 

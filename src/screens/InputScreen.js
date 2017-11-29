@@ -43,7 +43,7 @@ class InputScreen extends Component {
     const newDate = moment(date).format('YYYY-MM-DD');
     const datetime = `${newDate}T${time}`;
 
-    this.props.updateDateTime(moment(datetime));
+    this.props.updateDateTime(datetime);
     this.setState({ date: moment(date) });
     this.hideDatePicker();
   };
@@ -57,7 +57,7 @@ class InputScreen extends Component {
     const newTime = moment(time).format('HH:mm');
     const datetime = `${date}T${newTime}`;
 
-    this.props.updateDateTime(moment(datetime));
+    this.props.updateDateTime(datetime);
     this.setState({ time: moment(time) });
     this.hideTimePicker();
   };
@@ -250,7 +250,7 @@ class InputScreen extends Component {
           <View style={styles.datetimeCard}>
 
             <Text style={styles.datetimeText}>
-              {this.props.datetime.format('MMMM Do YYYY, h:mm a')}
+              {moment(this.props.datetime).format('MMMM Do YYYY, h:mm a')}
             </Text>
 
             <View style={styles.changeButtonsView}>
