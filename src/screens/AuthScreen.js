@@ -17,14 +17,20 @@ class SignUpForm extends Component {
     message: '',
     codeMessage: '',
     showSpinner: false,
-    phoneEntered: false
+    phoneEntered: false,
+    fail: false
    };
 
   componentWillReceiveProps(nextProps) {
+    console.log('componentWillReceiveProps');
     if (nextProps.token) {
       this.setState({ showSpinner: false });
       this.props.navigation.goBack();
     }
+  }
+
+  componentDidMount() {
+    this.setState({ fail: false });
   }
 
   handleSubmit = async () => {
@@ -55,9 +61,18 @@ class SignUpForm extends Component {
     try {
       await axios.post(`${ROOT_URL}/createUser`, { phone });
       console.log('user created');
-      await axios.post(`${ROOT_URL}/requestOneTimePassword`, { phone });
     } catch (err) {
       console.log(err);
+      this.setState({ message: 'An error occurred. Please try again later.' });
+    }
+
+    try {
+      await axios.post(`${ROOT_URL}/requestOneTimePassword`, { phone });
+    } catch (err) {
+      this.setState({
+        message: 'Phone number not valid.  Please try again.',
+        phoneEntered: false
+      });
     }
   };
 
@@ -69,7 +84,17 @@ class SignUpForm extends Component {
     const { phone, code } = this.state;
     const { myPoos } = this.props;
     this.setState({ showSpinner: true });
-    await this.props.authLogin({ myPoos, phone, code });
+
+    try {
+      const { data } = await axios.post(`${ROOT_URL}/verifyOneTimePassword`, { phone, code });
+      await this.props.authLogin({ data, myPoos, phone, code });
+    } catch (err) {
+      this.setState({
+        message: 'Code not valid. Please try again',
+        showSpinner: false,
+        code: ''
+      });
+    }
   }
 
   renderPhoneOrCode = () => {
@@ -124,7 +149,23 @@ class SignUpForm extends Component {
     );
   }
 
+  renderSpinnerOrButton = () => {
+    if (this.state.showButtonSpinner) {
+      return (
+        <View>
+          <ActivityIndicator />
+        </View>
+      );
+    }
+    return (
+      <View />
+    );
+  }
+
   render() {
+    console.log('this.props.fail')
+    console.log(this.props.fail)
+
     return (
       <View style={styles.viewContainer}>
         {this.renderSpinner()}
@@ -145,9 +186,9 @@ const styles = {
 
 const mapStateToProps = state => {
   const { myPoos } = state.pooReducer;
-  const { token } = state.auth;
+  const { token, fail } = state.auth;
 
-  return { myPoos, token };
+  return { myPoos, token, fail };
 };
 
 export default connect(mapStateToProps, { authLogin })(SignUpForm);

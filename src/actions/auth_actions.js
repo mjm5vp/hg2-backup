@@ -1,29 +1,22 @@
 import { AsyncStorage } from 'react-native';
 import firebase from 'firebase';
-import axios from 'axios';
 import _ from 'lodash';
 import { LOGIN_SUCCESS, LOGIN_FAIL, EDIT_POOS } from './types';
 
-const ROOT_URL = 'https://us-central1-one-time-password-698fc.cloudfunctions.net';
-
-export const authLogin = ({ myPoos, phone, code }) => async dispatch => {
+export const authLogin = ({ data, myPoos, phone }) => async dispatch => {
   let dbMyPoos = [];
   //async await
   try {
-    const { data } = await axios.post(`${ROOT_URL}/verifyOneTimePassword`, { phone, code });
     await firebase.auth().signInWithCustomToken(data.token);
 
     await firebase.database().ref(`/users/${phone}/myPoos`)
-    .once('value', snapshot => {
-      dbMyPoos = snapshot.val() ? snapshot.val() : [];
-    });
+      .once('value', snapshot => {
+        dbMyPoos = snapshot.val() ? snapshot.val() : [];
+      });
 
     dbMyPoos = typeof dbMyPoos === 'object' ? _.values(dbMyPoos) : dbMyPoos;
 
     const combinedAndReducedPoos = combineAndDeleteDuplicates({ dbMyPoos, myPoos });
-
-    // const newReducerPoos = convertStringToDatetime(combinedAndReducedPoos);
-    // const newDbPoos = convertDatetimeToString(combinedAndReducedPoos);
 
     firebase.database().ref(`/users/${phone}`)
       .update({ myPoos: combinedAndReducedPoos });
@@ -39,8 +32,6 @@ export const authLogin = ({ myPoos, phone, code }) => async dispatch => {
       type: EDIT_POOS,
       payload: combinedAndReducedPoos
     });
-
-
   } catch (err) {
     console.log('authLogin action error');
     console.log(err);
