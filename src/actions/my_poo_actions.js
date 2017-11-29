@@ -13,9 +13,12 @@ export const addPoo = ({ inputUID, currentPooName, datetime, description, locati
   const { currentUser } = firebase.auth();
 
   if (currentUser) {
-    const stringDatetime = datetime.toString();
-    firebase.database().ref(`/users/${currentUser.uid}/myPoos`)
-      .push({ inputUID, currentPooName, stringDatetime, description, location });
+    // console.log('added poo to database');
+    // const stringDatetime = datetime.toString();
+    // const stringDatetime = datetime.format('MMMM Do YYYY, h:mm a');
+    // firebase.database().ref(`/users/${currentUser.uid}/myPoos/${inputUID}`)
+    //   .update({ inputUID, currentPooName, datetime: stringDatetime, description, location });
+      // .push({inputUID, currentPooName, stringDatetime, description, location });
   }
 
   return {

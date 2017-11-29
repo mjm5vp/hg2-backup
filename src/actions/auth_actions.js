@@ -1,54 +1,107 @@
 import { AsyncStorage } from 'react-native';
-import { Facebook } from 'expo';
 import firebase from 'firebase';
-import { FACEBOOK_LOGIN_SUCCESS, FACEBOOK_LOGIN_FAIL } from './types';
+import axios from 'axios';
+import _ from 'lodash';
+import moment from 'moment';
+import { NavigationActions } from 'react-navigation';
+import { LOGIN_SUCCESS, LOGIN_FAIL, EDIT_POOS } from './types';
 
-export const facebookLogin = () => async dispatch => {
-  // const token = await AsyncStorage.getItem('fb_token');
+const ROOT_URL = 'https://us-central1-one-time-password-698fc.cloudfunctions.net';
 
-  // if (token) {
-  //   // Dispatch an action saying FB login is done
-  //   console.log('token already exists');
-  //   dispatch({ type: FACEBOOK_LOGIN_SUCCESS, payload: token });
-  // } else {
-    // console.log('no facebook token');
-    // Start up FB Login process
-    doFacebookLogin(dispatch);
-  // }
-};
+export const authLogin = ({ myPoos, phone, code }) => async dispatch => {
+  var dbMyPoos = [];
+  //async await
+  try {
+    const { data } = await axios.post(`${ROOT_URL}/verifyOneTimePassword`, { phone, code });
+    await firebase.auth().signInWithCustomToken(data.token);
 
-const doFacebookLogin = async dispatch => {
-  const { type, token } = await Facebook.logInWithReadPermissionsAsync('528976100796092', {
-    permissions: ['public_profile']
-  });
+    await firebase.database().ref(`/users/${phone}/myPoos`)
+    .once('value', snapshot => {
+      dbMyPoos = snapshot.val() ? snapshot.val() : [];
+    });
 
-  if (type === 'cancel') {
-    return dispatch({ type: FACEBOOK_LOGIN_FAIL });
+    dbMyPoos = typeof dbMyPoos === 'object' ? _.values(dbMyPoos) : dbMyPoos;
+
+    // const combinedAndReducedPoos = combineAndDeleteDuplicates({ dbMyPoos, myPoos });
+
+    const newReducerPoos = convertStringToDatetime(myPoos);
+    const newDbPoos = convertDatetimeToString(myPoos);
+
+    // firebase.database().ref(`/users/${phone}`)
+    //   .update({ myPoos: newDbPoos });
+
+    console.log('success');
+
+    // dispatch({
+    //   type: EDIT_POOS,
+    //   payload: newReducerPoos
+    // });
+
+    dispatch({
+      type: LOGIN_SUCCESS,
+      payload: data.token
+    });
+  } catch (err) {
+    console.log('authLogin action error');
+    console.log(err);
+    dispatch({ type: LOGIN_FAIL });
   }
-
-  if (type === 'success') {
-    // Build Firebase credential with the Facebook access token.
-    const credential = firebase.auth.FacebookAuthProvider.credential(token);
-
-    // Sign in with credential from the Facebook user.
-    firebase.auth().signInWithCredential(credential).catch((error) => {
-      // Handle Errors here.
-      console.log('error: signInWithCredential');
-      console.log(error);
-  });
-}
-
-  await AsyncStorage.setItem('fb_token', token);
-  dispatch({ type: FACEBOOK_LOGIN_SUCCESS, payload: token });
 };
 
-export const facebookLogout = () => {
-  console.log('facebookLogout action');
+export const authLogout = () => {
+  console.log('authLogout action');
   firebase.auth().signOut();
   AsyncStorage.removeItem('fb_token', () => {});
-  return { type: FACEBOOK_LOGIN_FAIL };
+  return { type: LOGIN_FAIL };
 };
 
-export const googleLogin = () => {
+const convertStringToDatetime = (inputPoos) => {
+  return inputPoos.map(poo => {
+    const newPoo = poo;
+    console.log('newPoo');
+    console.log(newPoo);
+    console.log('typeof newPoo.datetime')
+    console.log(typeof newPoo.datetime)
+    let newDatetime = newPoo.datetime;
 
+    if (typeof newPoo.datetime === 'string') {
+      console.log('its a string');
+      newDatetime = moment(newPoo.datetime);
+    }
+
+
+    // const newDatetime = typeof newPoo.datetime === 'string'
+    //   ? moment(newPoo.datetime)
+    //   : newPoo.datetime;
+
+    console.log("newDatetime");
+    console.log(newDatetime);
+
+    console.log('typeof newDatetime')
+    console.log(typeof newDatetime)
+
+    newPoo.datetime = newDatetime;
+    return newPoo;
+  });
+};
+
+const convertDatetimeToString = (inputPoos) => {
+  return inputPoos.map(poo => {
+    const newPoo = poo;
+
+    if (typeof newPoo.datetime === 'object') {
+      const date = newPoo.datetime.format('YYYY-MM-DD');
+      const newTime = newPoo.datetime.format('HH:mm');
+      const newDatetime = `${date}T${newTime}`;
+      newPoo.datetime = newDatetime;
+    }
+
+    return newPoo;
+  });
+};
+
+const combineAndDeleteDuplicates = ({ dbMyPoos, myPoos }) => {
+  const combinedPoos = dbMyPoos.concat(myPoos);
+
+  return _.uniqWith(combinedPoos, _.isEqual);
 };

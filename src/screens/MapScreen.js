@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import { Text, View, ActivityIndicator } from 'react-native';
-import { Button } from 'react-native-elements';
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps'
-import { Constants, Location, Permissions } from 'expo';
+import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
+import { Location, Permissions } from 'expo';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import moment from 'moment';

@@ -18,8 +18,8 @@ const INITIAL_STATE = {
   datetime: moment(),
   description: '',
   location: {
-    latitude: null,
-    longitude: null
+    latitude: '',
+    longitude: ''
   }
 };
 

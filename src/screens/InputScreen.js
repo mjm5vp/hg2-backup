@@ -31,8 +31,7 @@ class InputScreen extends Component {
   }
 
   componentDidMount() {
-    console.log('typeof this.props.datetime');
-    console.log(typeof this.props.datetime);
+
   }
 
   showDatePicker = () => this.setState({ isDatePickerVisible: true });
@@ -218,6 +217,12 @@ class InputScreen extends Component {
 
   render() {
     const pooImage = allNamedPoos[this.props.currentPooName].image;
+
+    console.log("this.props.datetime");
+    console.log(this.props.datetime);
+
+    console.log('typeof this.props.datetime');
+    console.log(typeof this.props.datetime);
 
     return (
       <ScrollView contentContainerStyle={styles.containerStyle}>

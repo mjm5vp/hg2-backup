@@ -1,13 +1,17 @@
+import { PERSIST_REHYDRATE } from 'redux-persist/lib/constants';
+
 import {
-  FACEBOOK_LOGIN_SUCCESS,
-  FACEBOOK_LOGIN_FAIL
+  LOGIN_SUCCESS,
+  LOGIN_FAIL
  } from '../actions/types';
 
 export default function (state = {}, action) {
   switch (action.type) {
-    case FACEBOOK_LOGIN_SUCCESS:
+    case PERSIST_REHYDRATE:
+      return action.payload.auth;
+    case LOGIN_SUCCESS:
       return { token: action.payload };
-    case FACEBOOK_LOGIN_FAIL:
+    case LOGIN_FAIL:
       return { token: null };
     default:
       return state;

@@ -1,15 +1,48 @@
 import React, { Component } from 'react';
-import { View, Text, Image, TouchableOpacity } from 'react-native';
-import { Button } from 'react-native-elements';
+import { View, Text, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { Button, Card } from 'react-native-elements';
 import { connect } from 'react-redux';
+import firebase from 'firebase';
 
 import feetBackground from '../../assets/backgrounds/feet_background.jpg';
 import allNamedPoos from '../../assets/namedPooExport';
-import { setInputType, setLogType, resetInput } from '../actions';
+import { setInputType, setLogType, resetInput, authLogout } from '../actions';
+import styles from '../styles/homeStyles';
 
 class HomeScreen extends Component {
   static navigationOptions = {
     header: null
+  }
+
+  state = {
+    currentUser: null
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.token) {
+      this.setState({ currentUser: true });
+    } else {
+      this.setState({ currentUser: false });
+    }
+  }
+
+  componentDidMount() {
+    console.log('home componentDidMount currentUser');
+    console.log(firebase.auth().currentUser);
+    if (this.props.token) {
+      console.log('token exists');
+      this.authLoginWithToken(this.props.token);
+    }
+  }
+
+  authLoginWithToken = async (token) => {
+    try {
+      await firebase.auth().signInWithCustomToken(token);
+      this.setState({ currentUser: true });
+      console.log('authLoginWithToken success');
+    } catch (err) {
+      console.log('authLoginWithToken failed');
+    }
   }
 
   navToAdd() {
@@ -27,12 +60,41 @@ class HomeScreen extends Component {
     this.props.navigation.navigate('log');
   }
 
+  renderAuthButton = () => {
+    console.log('renderAuthButton');
+    console.log(this.state.currentUser);
+    if (this.state.currentUser) {
+      return (
+        <Card>
+          <Text>You're signed In</Text>
+          <Button
+            title='Sign Out'
+            onPress={() => this.props.authLogout()}
+          />
+        </Card>
+      );
+    }
+    return (
+      <Card>
+        <Button
+          title='Sign In'
+          icon={{ name: 'gear', type: 'font-awesome' }}
+          onPress={() => this.props.navigation.navigate('auth')}
+          buttonStyle={styles.mapButton}
+          raised
+        />
+      </Card>
+    );
+  }
+
   render() {
     return (
 
       <Image source={feetBackground} style={styles.backgroundContainer}>
 
         <Text style={styles.headerStyle}>Hoos Going 2</Text>
+
+        <ScrollView style={styles.scrollViewContainer}>
 
         <TouchableOpacity
           onPress={() => this.navToAdd()}
@@ -70,69 +132,24 @@ class HomeScreen extends Component {
             raised
           />
 
-          <Button
-            title='Settings'
-            icon={{ name: 'gear', type: 'font-awesome' }}
-            onPress={() => this.props.navigation.navigate('settings')}
-            buttonStyle={styles.mapButton} 
-            raised
-          />
+          {this.renderAuthButton()}
+
+        </ScrollView>
 
       </Image>
     );
   }
 }
 
-const styles = {
-  containerStyle: {
-    flex: 1,
-    backgroundColor: '#eee',
-  },
-  backgroundContainer: {
-    flex: 1,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    width: null,
-    height: null,
-  },
-  headerStyle: {
-    marginTop: 60,
-    marginBottom: 10,
-    fontSize: 60,
-    fontWeight: '900',
-    fontFamily: 'Bradley Hand',
-    color: 'orange',
-    backgroundColor: 'rgba(0,0,0,0)',
-  },
-  addView: {
-    borderWidth: 2,
-    borderColor: 'black',
-    height: 150,
-    width: 150,
-    margin: 10,
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,150,136,0.5)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  addText: {
-    backgroundColor: 'rgba(0,0,0,0)',
-    color: 'white'
-  },
-  addImage: {
-    height: 125,
-    width: 125
-  },
-  mapButton: {
-    backgroundColor: 'rgba(0,150,136,0.5)',
-    width: 250,
-    height: 30,
-    margin: 10,
+const mapStateToProps = state => {
+  const { token } = state.auth;
 
-  }
+  return { token };
 };
 
-export default connect(null, { setInputType, setLogType, resetInput })(HomeScreen);
+export default connect(mapStateToProps, {
+  setInputType,
+  setLogType,
+  resetInput,
+  authLogout
+})(HomeScreen);

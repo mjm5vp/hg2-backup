@@ -1,29 +1,36 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import logger from 'redux-logger';
+// import logger from 'redux-logger';
 import { persistStore, persistCombineReducers, createTransform, } from 'redux-persist';
 import { AsyncStorage } from 'react-native';
 import moment from 'moment';
 import reducers from '../reducers';
 
 const testTransform = createTransform(null, (incomingState) => {
-  const newIncomingState = incomingState;
-  const newPoos = incomingState.myPoos.map(poo => {
-    const newDatetime = moment(poo.datetime);
-    const newPoo = poo;
-    newPoo.datetime = newDatetime;
-    return newPoo;
-  });
-  newIncomingState.myPoos = newPoos;
-  return newIncomingState;
+  console.log('incomingState');
+  console.log(incomingState);
+
+  if (incomingState.myPoos) {
+    const newIncomingState = incomingState;
+    const newPoos = incomingState.myPoos.map(poo => {
+      const newDatetime = moment(poo.datetime);
+      const newPoo = poo;
+      newPoo.datetime = newDatetime;
+      return newPoo;
+    });
+    newIncomingState.myPoos = newPoos;
+    return newIncomingState;
+  }
+
+  return incomingState;
 });
 
 const config = {
  key: 'root',
  storage: AsyncStorage,
  transforms: [testTransform],
- whitelist: ['pooReducer']
-};
+ whitelist: ['pooReducer', 'auth']
+}; 
 
 const reducer = persistCombineReducers(config, reducers);
 

@@ -1,6 +1,5 @@
 // import { REHYDRATE } from 'redux-persist/constants';
 import { PERSIST_REHYDRATE } from 'redux-persist/lib/constants';
-import moment from 'moment';
 
 import {
   SET_LOG_TYPE,
@@ -20,15 +19,7 @@ const INITIAL_STATE = {
 export default function (state = INITIAL_STATE, action) {
   switch (action.type) {
     case PERSIST_REHYDRATE:
-      // console.log('oh hai PERSIST_REHYDRATE')
       return action.payload.pooReducer || [];
-      // return action.payload.pooReducer.myPoos.map((poo) => {
-      //   console.log('poo.datetime');
-      //   console.log(poo.datetime);
-      //     return Object.assign({}, poo, {
-      //         datetime: moment(poo.datetime),
-      //     });
-      // });
     case SET_LOG_TYPE:
       return { ...state, logType: action.payload };
     case INCREASE_UID:

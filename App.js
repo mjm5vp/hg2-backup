@@ -1,7 +1,7 @@
 import { Notifications } from 'expo';
 import React from 'react';
 import { PersistGate } from 'redux-persist/es/integration/react';
-import { StyleSheet, Text, View, Alert } from 'react-native';
+import { StyleSheet, View, Alert } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import { Provider } from 'react-redux';
 import firebase from 'firebase';
@@ -17,8 +17,7 @@ import LogScreen from './src/screens/LogScreen';
 import MapSelectScreen from './src/screens/MapSelectScreen';
 import StatsScreen from './src/screens/StatsScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
-import SignInForm from './src/components/SignInForm';
-import SignUpForm from './src/components/SignUpForm';
+import AuthScreen from './src/screens/AuthScreen';
 
 
 export default class App extends React.Component {
@@ -44,8 +43,7 @@ export default class App extends React.Component {
       select: { screen: PooSelect },
       stats: { screen: StatsScreen },
       settings: { screen: SettingsScreen },
-      signIn: { screen: SignInForm },
-      signUp: { screen: SignUpForm }
+      auth: { screen: AuthScreen }
     });
 
     const { persistor, store } = configureStore();
