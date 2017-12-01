@@ -16,8 +16,9 @@ import InputScreen from './src/screens/InputScreen';
 import LogScreen from './src/screens/LogScreen';
 import MapSelectScreen from './src/screens/MapSelectScreen';
 import StatsScreen from './src/screens/StatsScreen';
-import SettingsScreen from './src/screens/SettingsScreen';
+// import SettingsScreen from './src/screens/SettingsScreen';
 import AuthScreen from './src/screens/AuthScreen';
+import FriendsScreen from './src/screens/FriendsScreen';
 
 
 export default class App extends React.Component {
@@ -42,8 +43,9 @@ export default class App extends React.Component {
       map: { screen: MapScreen },
       select: { screen: PooSelect },
       stats: { screen: StatsScreen },
-      settings: { screen: SettingsScreen },
-      auth: { screen: AuthScreen }
+      // settings: { screen: SettingsScreen },
+      auth: { screen: AuthScreen },
+      friends: { screen: FriendsScreen }
     });
 
     const { persistor, store } = configureStore();

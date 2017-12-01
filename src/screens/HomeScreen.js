@@ -3,6 +3,7 @@ import { View, Text, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { Button, Card } from 'react-native-elements';
 import { connect } from 'react-redux';
 import firebase from 'firebase';
+import { Ionicons } from '@expo/vector-icons';
 
 import feetBackground from '../../assets/backgrounds/feet_background.jpg';
 import allNamedPoos from '../../assets/namedPooExport';
@@ -128,6 +129,14 @@ class HomeScreen extends Component {
             title='Stats'
             icon={{ name: 'area-chart', type: 'font-awesome' }}
             onPress={() => this.props.navigation.navigate('stats')}
+            buttonStyle={styles.mapButton}
+            raised
+          />
+
+          <Button
+            title='Friends'
+            // icon={{ name: 'ios-people', type: 'font-awesome' }}
+            onPress={() => this.props.navigation.navigate('friends')}
             buttonStyle={styles.mapButton}
             raised
           />
