@@ -1,4 +1,4 @@
-// import { REHYDRATE } from 'redux-persist/constants';
+import _ from 'lodash';
 import { PERSIST_REHYDRATE } from 'redux-persist/lib/constants';
 
 import {
@@ -6,14 +6,16 @@ import {
   ADD_POO,
   EDIT_POOS,
   IDENTIFY_STACK_LOCATION,
-  INCREASE_UID
+  INCREASE_UID,
+  ADD_FRIEND
 } from '../actions/types';
 
 const INITIAL_STATE = {
   logType: 'normal',
   uid: 0,
   myPoos: [],
-  selectedStackLocation: {}
+  selectedStackLocation: {},
+  friends: []
 };
 
 export default function (state = INITIAL_STATE, action) {
@@ -31,6 +33,8 @@ export default function (state = INITIAL_STATE, action) {
       return { ...state, myPoos: action.payload };
     case IDENTIFY_STACK_LOCATION:
       return { ...state, selectedStackLocation: action.payload };
+    case ADD_FRIEND:
+      return { ...state, friends: _.uniqBy([...state.friends, action.payload], 'number') };
     default:
       return state;
   }

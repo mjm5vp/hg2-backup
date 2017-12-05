@@ -11,5 +11,12 @@ export const FILL_INPUT = 'fill_input';
 export const RESET_INPUT = 'reset_input';
 export const INCREASE_UID = 'increase_uid';
 export const SET_LOG_TYPE = 'set_log_type';
+
+//Auth
 export const LOGIN_SUCCESS = 'login_success';
 export const LOGIN_FAIL = 'login_fail';
+
+//Friends
+export const EDIT_MY_INFO = 'edit_my_info';
+export const ADD_FRIEND = 'add_friend';
+export const ADDED_ME = 'added_me';

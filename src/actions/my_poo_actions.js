@@ -1,5 +1,12 @@
 import firebase from 'firebase';
-import { ADD_POO, EDIT_POOS, IDENTIFY_STACK_LOCATION, INCREASE_UID, SET_LOG_TYPE } from './types';
+import {
+  ADD_POO,
+  EDIT_POOS,
+  IDENTIFY_STACK_LOCATION,
+  INCREASE_UID,
+  SET_LOG_TYPE,
+  ADD_FRIEND
+} from './types';
 
 export const setLogType = (logType) => {
   return {
