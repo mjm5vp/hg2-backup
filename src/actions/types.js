@@ -20,3 +20,5 @@ export const LOGIN_FAIL = 'login_fail';
 export const EDIT_MY_INFO = 'edit_my_info';
 export const ADD_FRIEND = 'add_friend';
 export const ADDED_ME = 'added_me';
+export const ACCEPT_FRIEND = 'accept_friend';
+export const SET_FRIENDS = 'set_friends';

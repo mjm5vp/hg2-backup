@@ -56,9 +56,9 @@ class AddFriends extends Component {
       pageOffset: 0,
     });
     this.formatContacts(contacts);
-    console.log(contacts.data[1].phoneNumbers[0].number);
+    // console.log(contacts.data[1].phoneNumbers[0].number);
     this.setState({ contacts: contacts.data });
-    console.log('firebase users');
+    // console.log('firebase users');
     let usersNumbers = null;
     await firebase.database().ref('/users')
       .once('value', snapshot => {
@@ -71,10 +71,14 @@ formatContacts = (contacts) => {
   const contactsNumbers = [];
   let contactsNamesAndNumbers = [];
 
+  console.log(typeof this.props.myFriends[0].number)
+
   contacts.data.filter(contact => contact.phoneNumbers[0])
     .forEach(contact => contact.phoneNumbers.forEach(phoneNumber => {
-      const number = String(phoneNumber.number).replace(/[^\d]/g, '');
-      if (number.length > 9) {
+      const number = this.formatPhone(phoneNumber.number);
+      console.log(typeof number);
+      console.log(!_.some(this.props.myFriends, ['number', number]) === false ? 'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM' : '');
+      if (number.length === 10 && !_.some(this.props.myFriends, ['number', number])) {
         contactsNumbers.push(number);
         contactsNamesAndNumbers.push({ name: contact.name, number });
       }
@@ -83,6 +87,11 @@ formatContacts = (contacts) => {
   contactsNamesAndNumbers = _.sortBy(contactsNamesAndNumbers, contact => contact.name);
   this.createDataSource(contactsNamesAndNumbers);
   this.setState({ contactsNumbers, contactsNamesAndNumbers });
+}
+
+formatPhone = (phone) => {
+  const number = String(phone).replace(/[^\d]/g, '');
+  return number.charAt(0) === '1' ? number.substring(1) : number;
 }
 
 // renderContactList = () => {
@@ -288,4 +297,10 @@ const styles = {
   }
 };
 
-export default connect(null, { addFriend })(AddFriends);
+const mapStateToProps = state => {
+  const { myFriends } = state.friends;
+
+  return { myFriends };
+};
+
+export default connect(mapStateToProps, { addFriend })(AddFriends);

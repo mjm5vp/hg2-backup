@@ -1,23 +1,25 @@
 import React, { Component } from 'react';
-import { View, Text, ActivityIndicator } from 'react-native';
+import { View, Text, ActivityIndicator, Keyboard } from 'react-native';
 import { FormLabel, FormInput, Button } from 'react-native-elements';
 import axios from 'axios';
 import firebase from 'firebase';
 import { connect } from 'react-redux';
 
-import { authLogin } from '../actions';
+import { authLogin, editMyInfo } from '../actions';
 
 const ROOT_URL = 'https://us-central1-one-time-password-698fc.cloudfunctions.net';
 
 class SignUpForm extends Component {
 
   state = {
+    name: '',
     phone: '',
     code: '',
     message: '',
     codeMessage: '',
     showSpinner: false,
     phoneEntered: false,
+    showName: false,
     fail: false
    };
 
@@ -36,23 +38,46 @@ class SignUpForm extends Component {
   handleSubmit = async () => {
     const { phone } = this.state;
 
-    this.checkIfUserIdExists(phone);
-    this.setState({ phoneEntered: true });
+    const number = this.formatPhone(phone);
+
+    if (number.length === 10) {
+      this.checkIfUserIdExists(number);
+      // this.setState({ phoneEntered: true, phone: number });
+    } else {
+      this.setState({
+        message: 'Phone number not valid.  Please try again.'
+      });
+    }
+  }
+
+  formatPhone = (phone) => {
+    const number = String(phone).replace(/[^\d]/g, '');
+    return number.charAt(0) === '1' ? number.substring(1) : number;
   }
 
   checkIfUserIdExists = async (phone) => {
     await firebase.database().ref(`/users/${phone}`)
       .once('value', snapshot => {
         if (snapshot.val()) {
-          console.log('user exists');
-          this.setState({ message: 'Welcome back' });
+          // console.log('user exists');
+          const myInfo = snapshot.val().myInfo;
+          this.props.editMyInfo(myInfo);
           this.setState({
+            showName: false,
+            phoneEntered: true,
+            name: myInfo.name,
+            message: `Welcome back ${myInfo.name}`,
             codeMessage: 'You will recieve a text message shortly with a 4-digit code.'
           });
           this.userExists(phone);
         } else {
           console.log('user does not exist');
-          this.newUser(phone);
+          Keyboard.dismiss();
+          this.setState({
+            showName: true,
+            message: 'Welcome to Hoos Going 2!'
+           });
+          // this.newUser(phone);
         }
       });
   }
@@ -97,7 +122,38 @@ class SignUpForm extends Component {
     }
   }
 
-  renderPhoneOrCode = () => {
+  handleNameSubmit = () => {
+    const { name, phone } = this.state;
+
+    if (name.length > 0) {
+      this.props.editMyInfo({ name, number: phone });
+      this.setState({ showName: false });
+      this.newUser(this.state.phone);
+    } else {
+      this.setState({ message: 'Please enter you Name' });
+    }
+  }
+
+  renderPhoneNameOrCode = () => {
+    if (this.state.showName) {
+      return (
+        <View>
+          <View style={{ marginBottom: 10 }}>
+            <FormLabel>Enter your name:</FormLabel>
+            <FormInput
+              value={this.state.name}
+              onChangeText={name => this.setState({ name })}
+              keyboardType='default'
+            />
+          </View>
+          <Button
+            title="Submit"
+            onPress={this.handleNameSubmit}
+          />
+        </View>
+      );
+    }
+
     if (!this.state.phoneEntered) {
       return (
         <View>
@@ -163,14 +219,14 @@ class SignUpForm extends Component {
   }
 
   render() {
-    console.log('this.props.fail')
-    console.log(this.props.fail)
+    // console.log('this.props.fail');
+    // console.log(this.props.fail);
 
     return (
       <View style={styles.viewContainer}>
         {this.renderSpinner()}
         <Text>{this.state.message}</Text>
-        {this.renderPhoneOrCode()}
+        {this.renderPhoneNameOrCode()}
         <Text>{this.state.codeMessage}</Text>
       </View>
     );
@@ -191,4 +247,4 @@ const mapStateToProps = state => {
   return { myPoos, token, fail };
 };
 
-export default connect(mapStateToProps, { authLogin })(SignUpForm);
+export default connect(mapStateToProps, { authLogin, editMyInfo })(SignUpForm);

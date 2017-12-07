@@ -1,31 +1,38 @@
 import React, { Component } from 'react';
-import { View, Text } from 'react-native';
-import { Button } from 'react-native-elements';
+import { ScrollView, View, Text } from 'react-native';
+import { Button, Card, Icon, List, ListItem } from 'react-native-elements';
 import { connect } from 'react-redux';
 import firebase from 'firebase';
 import _ from 'lodash';
 
-import { checkAddedMe } from '../actions';
+import { checkAddedMe, acceptFriend, setFriendsFromDb } from '../actions';
 
 class FriendsScreen extends Component {
   static navigationOptions = ({ navigation }) => {
     return {
       title: 'Friends',
-      // headerRight: (
-      //   <Button
-      //     title='Add Friend'
-      //     onPress={() => navigation.navigate('add_friends')}
-      //   />
-      // )
+      headerRight: (
+        <Button
+          title='Add Friend'
+          onPress={() => navigation.navigate('add_friends')}
+        />
+      )
     };
   }
 
   state = {
-    addedMe: []
+    addedMe: [],
+    currentUser: null
   }
 
   componentWillMount() {
-    this.checkAddedMe();
+    const { currentUser } = firebase.auth();
+
+    if (currentUser) {
+      this.setState({ currentUser });
+      this.props.setFriendsFromDb();
+      this.checkAddedMe();
+    }
   }
 
   checkAddedMe = async () => {
@@ -40,7 +47,12 @@ class FriendsScreen extends Component {
           }
         });
     }
+    console.log('addedMe after database check');
+    console.log(addedMe);
     addedMe = typeof addedMe === 'object' ? _.values(addedMe) : addedMe;
+    // addedMe = addedMe.map(add => {
+    //   return { ...add, number: String(add.number) };
+    // });
     this.setState({ addedMe });
   }
 
@@ -52,27 +64,65 @@ class FriendsScreen extends Component {
       return (
         <View>
           <Text>Nobody added me</Text>
-          <Text>Nobody added me</Text>
-          <Text>Nobody added me</Text>
-          <Text>Nobody added me</Text>
-          <Text>Nobody added me</Text>
-          <Text>Nobody added me</Text>
-
         </View>
       );
     }
 
-    return addedMe.map(add => {
+    const addedMeList = addedMe.map((add, i) => {
+      const { name, number } = add;
       return (
-          <Text>{add.name}</Text>
+        <View style={styles.addView} key={i}>
+          <Text>{name}</Text>
+          <View style={styles.iconView}>
+            <Icon
+              raised
+              name='check'
+              type='font-awesome'
+              color='green'
+              onPress={() => this.acceptFriend({ name, number })}
+            />
+            <Icon
+              raised
+              name='remove'
+              type='font-awesome'
+              color='red'
+              onPress={() => this.declineFriend({ number })}
+            />
+          </View>
+        </View>
       );
     });
 
+    return (
+      <Card title='Added Me'>
+        {addedMeList}
+      </Card>
+    );
+  }
 
+  acceptFriend = ({ name, number }) => {
+    this.props.acceptFriend({ name, number });
+    this.removeFromAddedMe({ number });
+  }
+
+  declineFriend = ({ number }) => {
+    this.removeFromAddedMe({ number });
+  }
+
+  removeFromAddedMe = async ({ number }) => {
+    const { currentUser } = this.state;
+    const addedMe = this.state.addedMe.filter(add => {
+      return add.number !== number;
+    });
+    await firebase.database().ref(`/users/${currentUser.uid}/addedMe/`)
+      .set(addedMe);
+    this.setState({ addedMe });
   }
 
   renderFriendsList = () => {
     const { myFriends } = this.props;
+    console.log('myFriends');
+    console.log(myFriends);
 
     return myFriends.map(friend => {
       return (
@@ -85,25 +135,44 @@ class FriendsScreen extends Component {
   }
 
   render() {
+    const { currentUser } = firebase.auth();
+    console.log('currentUser');
+    console.log(currentUser);
+    if (!currentUser) {
+      return (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text>You must be signed in to use this feature.</Text>
+        </View>
+      );
+    }
     return (
-      <View>
+      <ScrollView>
         {this.renderAddedMe()}
-        <View style={styles.menuView}>
+        {/* <View style={styles.menuView}> */}
 
-          <Button
+          {/* <Button
             title='Add Friends'
             onPress={() => this.props.navigation.navigate('add_friends')}
-          />
-        </View>
+          /> */}
+        {/* </View> */}
         <Text>Friends</Text>
         {this.renderFriendsList()}
-      </View>
+
+      </ScrollView>
     );
   }
 }
 
 const styles = {
   menuView: {
+    flexDirection: 'row'
+  },
+  addView: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  iconView: {
     flexDirection: 'row'
   }
 };
@@ -114,4 +183,8 @@ const mapStateToProps = state => {
   return { myFriends, addedMe };
 };
 
-export default connect(mapStateToProps, { checkAddedMe })(FriendsScreen);
+export default connect(mapStateToProps, {
+  checkAddedMe,
+  acceptFriend,
+  setFriendsFromDb
+})(FriendsScreen);

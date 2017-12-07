@@ -1,7 +1,17 @@
 import { AsyncStorage } from 'react-native';
 import firebase from 'firebase';
 import _ from 'lodash';
-import { LOGIN_SUCCESS, LOGIN_FAIL, EDIT_POOS } from './types';
+import { LOGIN_SUCCESS, LOGIN_FAIL, EDIT_POOS, EDIT_MY_INFO } from './types';
+
+export const editMyInfo = ({ name, number }) => {
+  firebase.database().ref(`users/${number}/myInfo`)
+    .set({ name, number });
+
+  return {
+    type: EDIT_MY_INFO,
+    payload: { name, number }
+  };
+};
 
 export const authLogin = ({ data, myPoos, phone }) => async dispatch => {
   let dbMyPoos = [];

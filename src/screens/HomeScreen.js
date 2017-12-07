@@ -38,11 +38,13 @@ class HomeScreen extends Component {
 
   authLoginWithToken = async (token) => {
     try {
+      await firebase.auth().signOut();
       await firebase.auth().signInWithCustomToken(token);
       this.setState({ currentUser: true });
       console.log('authLoginWithToken success');
     } catch (err) {
       console.log('authLoginWithToken failed');
+      console.log(err);
     }
   }
 
@@ -61,16 +63,22 @@ class HomeScreen extends Component {
     this.props.navigation.navigate('log');
   }
 
+  authLogout = async () => {
+    await this.props.authLogout();
+    this.setState({ currentUser: false });
+  }
+
   renderAuthButton = () => {
-    console.log('renderAuthButton');
-    console.log(this.state.currentUser);
-    if (this.state.currentUser) {
+    const { currentUser } = firebase.auth();
+    console.log('renderAuthButton currentUser');
+    console.log(currentUser);
+      if (this.state.currentUser || currentUser) {
       return (
         <Card>
           <Text>You're signed In</Text>
           <Button
             title='Sign Out'
-            onPress={() => this.props.authLogout()}
+            onPress={() => this.authLogout()}
           />
         </Card>
       );

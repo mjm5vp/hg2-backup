@@ -28,8 +28,8 @@ const testTransform = createTransform(null, (incomingState) => {
 const config = {
  key: 'root',
  storage: AsyncStorage,
- // transforms: [testTransform],
- whitelist: ['pooReducer', 'auth']
+ // transforms: [adfadf],
+ whitelist: ['pooReducer', 'auth', 'friends']
 };
 
 const reducer = persistCombineReducers(config, reducers);
