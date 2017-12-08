@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import feetBackground from '../../assets/backgrounds/feet_background.jpg';
 import allNamedPoos from '../../assets/namedPooExport';
-import { setInputType, setLogType, resetInput, authLogout } from '../actions';
+import { setInputType, setLogType, resetInput, authLogout, authLogin } from '../actions';
 import styles from '../styles/homeStyles';
 
 class HomeScreen extends Component {
@@ -21,24 +21,32 @@ class HomeScreen extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.token) {
+      console.log(nextProps.token);
       this.setState({ currentUser: true });
     } else {
       this.setState({ currentUser: false });
     }
   }
 
-  componentDidMount() {
+  componentWillMount() {
+    const { token, myPoos, myFriends } = this.props;
+    const { currentUser } = firebase.auth();
     console.log('home componentDidMount currentUser');
-    console.log(firebase.auth().currentUser);
-    if (this.props.token) {
+    console.log(currentUser);
+
+    if (token) {
       console.log('token exists');
-      this.authLoginWithToken(this.props.token);
+      console.log(token);
+      this.authLoginWithToken(token);
+      // this.props.authLogin({ token, myPoos, phone, myFriends });
+    } else {
+      console.log('token does not exist');
     }
   }
 
   authLoginWithToken = async (token) => {
     try {
-      await firebase.auth().signOut();
+      // await firebase.auth().signOut();
       await firebase.auth().signInWithCustomToken(token);
       this.setState({ currentUser: true });
       console.log('authLoginWithToken success');
@@ -97,6 +105,8 @@ class HomeScreen extends Component {
   }
 
   render() {
+    console.log('home render currentUser');
+    console.log(firebase.auth().currentUser);
     return (
 
       <Image source={feetBackground} style={styles.backgroundContainer}>
@@ -160,13 +170,15 @@ class HomeScreen extends Component {
 
 const mapStateToProps = state => {
   const { token } = state.auth;
+  const { myFriends } = state.friends;
 
-  return { token };
+  return { token, myFriends };
 };
 
 export default connect(mapStateToProps, {
   setInputType,
   setLogType,
   resetInput,
-  authLogout
+  authLogout,
+  authLogin
 })(HomeScreen);

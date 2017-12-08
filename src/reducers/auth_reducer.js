@@ -21,6 +21,8 @@ export default function (state = INITIAL_STATE, action) {
     case EDIT_MY_INFO:
       return { ...state, myInfo: { name: action.payload.name, number: action.payload.number } };
     case LOGIN_SUCCESS:
+      console.log('auth reducer action.payload');
+      console.log(action.payload);
       return { token: action.payload };
     case LOGIN_FAIL:
       return { token: null };

@@ -28,9 +28,12 @@ class FriendsScreen extends Component {
   componentWillMount() {
     const { currentUser } = firebase.auth();
 
+    console.log('friends screen current user');
+    console.log(currentUser);
+
     if (currentUser) {
       this.setState({ currentUser });
-      this.props.setFriendsFromDb();
+      // this.props.setFriendsFromDb();
       this.checkAddedMe();
     }
   }
@@ -124,9 +127,9 @@ class FriendsScreen extends Component {
     console.log('myFriends');
     console.log(myFriends);
 
-    return myFriends.map(friend => {
+    return myFriends.map((friend, i) => {
       return (
-        <View>
+        <View key={i}>
           <Text>{friend.name}</Text>
           <Text>{friend.number}</Text>
         </View>

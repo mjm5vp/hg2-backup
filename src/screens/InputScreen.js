@@ -298,6 +298,15 @@ class InputScreen extends Component {
 
         {this.renderMapPreview()}
 
+        <Card>
+          <Button
+            title='Send to friends'
+            raised
+            iconRight={{ name: 'cached' }}
+            onPress={() => this.props.navigation.navigate('send_to_friends')}
+          />
+        </Card>
+
         {this.renderFlushButton()}
 
         <Confirm

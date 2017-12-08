@@ -71,19 +71,18 @@ formatContacts = (contacts) => {
   const contactsNumbers = [];
   let contactsNamesAndNumbers = [];
 
-  console.log(typeof this.props.myFriends[0].number)
+  console.log(typeof this.props.myFriends[0].number);
 
   contacts.data.filter(contact => contact.phoneNumbers[0])
     .forEach(contact => contact.phoneNumbers.forEach(phoneNumber => {
       const number = this.formatPhone(phoneNumber.number);
-      console.log(typeof number);
-      console.log(!_.some(this.props.myFriends, ['number', number]) === false ? 'MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM' : '');
       if (number.length === 10 && !_.some(this.props.myFriends, ['number', number])) {
         contactsNumbers.push(number);
         contactsNamesAndNumbers.push({ name: contact.name, number });
       }
     }));
 
+  contactsNamesAndNumbers = _.uniqWith(contactsNamesAndNumbers, _.isEqual);
   contactsNamesAndNumbers = _.sortBy(contactsNamesAndNumbers, contact => contact.name);
   this.createDataSource(contactsNamesAndNumbers);
   this.setState({ contactsNumbers, contactsNamesAndNumbers });

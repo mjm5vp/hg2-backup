@@ -1,11 +1,12 @@
 import { AsyncStorage } from 'react-native';
 import firebase from 'firebase';
 import _ from 'lodash';
-import { LOGIN_SUCCESS, LOGIN_FAIL, EDIT_POOS, EDIT_MY_INFO } from './types';
+import { LOGIN_SUCCESS, LOGIN_FAIL, EDIT_POOS, EDIT_MY_INFO, SET_FRIENDS } from './types';
 
 export const editMyInfo = ({ name, number }) => {
+  const strNumber = String(number);
   firebase.database().ref(`users/${number}/myInfo`)
-    .set({ name, number });
+    .set({ name, number: strNumber });
 
   return {
     type: EDIT_MY_INFO,
@@ -13,34 +14,50 @@ export const editMyInfo = ({ name, number }) => {
   };
 };
 
-export const authLogin = ({ data, myPoos, phone }) => async dispatch => {
+export const authLogin = ({ token, myPoos, phone, myFriends }) => async dispatch => {
   let dbMyPoos = [];
+  let dbMyFriends = [];
   //async await
   try {
-    await firebase.auth().signInWithCustomToken(data.token);
+    await firebase.auth().signInWithCustomToken(token);
 
-    await firebase.database().ref(`/users/${phone}/myPoos`)
+    console.log('token');
+    console.log(token);
+
+    console.log('phone');
+    console.log(phone);
+
+    await firebase.database().ref(`/users/${phone}`)
       .once('value', snapshot => {
-        dbMyPoos = snapshot.val() ? snapshot.val() : [];
+        dbMyPoos = snapshot.val().myPoos ? snapshot.val().myPoos : [];
+        dbMyFriends = snapshot.val().myFriends ? snapshot.val().myFriends : [];
       });
 
     dbMyPoos = typeof dbMyPoos === 'object' ? _.values(dbMyPoos) : dbMyPoos;
+    dbMyFriends = typeof dbMyFriends === 'object' ? _.values(dbMyFriends) : dbMyFriends;
 
-    const combinedAndReducedPoos = combineAndDeleteDuplicates({ dbMyPoos, myPoos });
+
+    const combinedAndReducedPoos = combineAndDeleteDuplicates(dbMyPoos, myPoos);
+    const combinedAndReducedFriends = combineAndDeleteDuplicates(dbMyFriends, myFriends);
 
     firebase.database().ref(`/users/${phone}`)
-      .update({ myPoos: combinedAndReducedPoos });
+      .update({ myPoos: combinedAndReducedPoos, myFriends: combinedAndReducedFriends });
 
     console.log('success');
 
     dispatch({
       type: LOGIN_SUCCESS,
-      payload: data.token
+      payload: token
     });
 
     dispatch({
       type: EDIT_POOS,
       payload: combinedAndReducedPoos
+    });
+
+    dispatch({
+      type: SET_FRIENDS,
+      payload: combinedAndReducedFriends
     });
   } catch (err) {
     console.log('authLogin action error');
@@ -101,8 +118,8 @@ export const authLogout = () => {
 //   });
 // };
 
-const combineAndDeleteDuplicates = ({ dbMyPoos, myPoos }) => {
-  const combinedPoos = dbMyPoos.concat(myPoos);
+const combineAndDeleteDuplicates = (array1, array2) => {
+  const combinedArray = array1.concat(array2);
 
-  return _.uniqWith(combinedPoos, _.isEqual);
+  return _.uniqWith(combinedArray, _.isEqual);
 };

@@ -31,7 +31,7 @@ class SignUpForm extends Component {
     }
   }
 
-  componentDidMount() {
+  componentWillMount() {
     this.setState({ fail: false });
   }
 
@@ -107,12 +107,13 @@ class SignUpForm extends Component {
 
   signIn = async () => {
     const { phone, code } = this.state;
-    const { myPoos } = this.props;
+    const { myPoos, myFriends } = this.props;
     this.setState({ showSpinner: true });
 
     try {
-      const { data } = await axios.post(`${ROOT_URL}/verifyOneTimePassword`, { phone, code });
-      await this.props.authLogin({ data, myPoos, phone, code });
+      const { data: { token } } = await axios
+        .post(`${ROOT_URL}/verifyOneTimePassword`, { phone, code });
+      await this.props.authLogin({ token, myPoos, phone, myFriends });
     } catch (err) {
       this.setState({
         message: 'Code not valid. Please try again',
@@ -243,8 +244,9 @@ const styles = {
 const mapStateToProps = state => {
   const { myPoos } = state.pooReducer;
   const { token, fail } = state.auth;
+  const { myFriends } = state.friends;
 
-  return { myPoos, token, fail };
+  return { myPoos, token, fail, myFriends };
 };
 
 export default connect(mapStateToProps, { authLogin, editMyInfo })(SignUpForm);
