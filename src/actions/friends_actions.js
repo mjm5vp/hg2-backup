@@ -1,7 +1,7 @@
 import firebase from 'firebase';
 import _ from 'lodash';
 
-import { SET_FRIENDS, ADD_FRIEND, ADDED_ME, ACCEPT_FRIEND } from './types';
+import { SET_FRIENDS, ADD_FRIEND, ADDED_ME, ACCEPT_FRIEND, SET_SENT_TO_ME } from './types';
 
 export const setFriendsFromDb = () => async dispatch => {
   const { currentUser } = firebase.auth();
@@ -24,22 +24,32 @@ export const setFriendsFromDb = () => async dispatch => {
 
 export const acceptFriend = ({ name, number }) => async dispatch => {
   const { currentUser } = firebase.auth();
-  firebase.database().ref(`/users/${currentUser.uid}/myFriends/`)
-    .push({ name, number });
 
-  dispatch({ type: ACCEPT_FRIEND, payload: { name, number } });
+  try {
+    firebase.database().ref(`/users/${currentUser.uid}/myFriends/`)
+      .push({ name, number });
+
+    dispatch({ type: ACCEPT_FRIEND, payload: { name, number } });
+  } catch (err) {
+    console.log('could not accept friend');
+    return {};
+  }
 };
 
 export const addFriend = (friend) => {
-  console.log(friend);
   const { name, number } = friend;
-  firebase.database().ref(`/users/${friend.number}/addedMe/`)
-    .push({ name, number });
+  try {
+    firebase.database().ref(`/users/${friend.number}/addedMe/`)
+      .push({ name, number });
 
-  return {
-    type: ADD_FRIEND,
-    payload: null
-  };
+    return {
+      type: ADD_FRIEND,
+      payload: null
+    };
+  } catch (err) {
+    console.log('could not add friend');
+    return {};
+  }
 };
 
 export const checkAddedMe = async dispatch => {
@@ -56,4 +66,41 @@ export const checkAddedMe = async dispatch => {
     type: ADDED_ME,
     payload: addedMe
   });
+};
+
+export const sendToFriendsAction = (friends, poo, myInfo) => async dispatch => {
+  // const { currentUser } = firebase.auth();
+
+  friends.forEach(async friend => {
+    try {
+      await firebase.database().ref(`users/${friend.number}/sentToMe`)
+        .push({ from: myInfo, poo });
+    } catch (err) {
+      console.log(`could not send to ${friend.name}`);
+    }
+  });
+};
+
+export const fetchSentToMe = () => async dispatch => {
+  const { currentUser } = firebase.auth();
+
+  let sentToMe = [];
+
+  try {
+    await firebase.database().ref(`users/${currentUser.uid}/sentToMe`)
+      .once('value', snapshot => {
+        if (snapshot.val()) {
+          sentToMe = snapshot.val();
+        }
+      });
+
+    sentToMe = typeof sentToMe === 'object' ? _.values(sentToMe) : sentToMe;
+
+    console.log('sentToMe');
+    console.log(sentToMe);
+
+    dispatch({ type: SET_SENT_TO_ME, payload: sentToMe });
+  } catch (err) {
+    console.log('could not fetch sentToMe');
+  }
 };

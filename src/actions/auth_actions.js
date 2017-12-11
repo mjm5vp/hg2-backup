@@ -14,51 +14,12 @@ export const editMyInfo = ({ name, number }) => {
   };
 };
 
-export const authLogin = ({ token, myPoos, phone, myFriends }) => async dispatch => {
-  let dbMyPoos = [];
-  let dbMyFriends = [];
+export const authLogin = ({ token, myPoos, phone, myFriends, myInfo }) => async dispatch => {
   //async await
   try {
     await firebase.auth().signInWithCustomToken(token);
-
-    console.log('token');
-    console.log(token);
-
-    console.log('phone');
-    console.log(phone);
-
-    await firebase.database().ref(`/users/${phone}`)
-      .once('value', snapshot => {
-        dbMyPoos = snapshot.val().myPoos ? snapshot.val().myPoos : [];
-        dbMyFriends = snapshot.val().myFriends ? snapshot.val().myFriends : [];
-      });
-
-    dbMyPoos = typeof dbMyPoos === 'object' ? _.values(dbMyPoos) : dbMyPoos;
-    dbMyFriends = typeof dbMyFriends === 'object' ? _.values(dbMyFriends) : dbMyFriends;
-
-
-    const combinedAndReducedPoos = combineAndDeleteDuplicates(dbMyPoos, myPoos);
-    const combinedAndReducedFriends = combineAndDeleteDuplicates(dbMyFriends, myFriends);
-
-    firebase.database().ref(`/users/${phone}`)
-      .update({ myPoos: combinedAndReducedPoos, myFriends: combinedAndReducedFriends });
-
-    console.log('success');
-
-    dispatch({
-      type: LOGIN_SUCCESS,
-      payload: token
-    });
-
-    dispatch({
-      type: EDIT_POOS,
-      payload: combinedAndReducedPoos
-    });
-
-    dispatch({
-      type: SET_FRIENDS,
-      payload: combinedAndReducedFriends
-    });
+    await syncPropsWithDb({ token, myPoos, phone, myFriends, myInfo });
+    dispatch({ type: LOGIN_SUCCESS, payload: token });
   } catch (err) {
     console.log('authLogin action error');
     console.log(err);
@@ -71,6 +32,58 @@ export const authLogout = () => {
   firebase.auth().signOut();
   AsyncStorage.removeItem('fb_token', () => {});
   return { type: LOGIN_FAIL };
+};
+
+export const syncPropsWithDb = ({ phone, myPoos, myFriends, myInfo }) => async dispatch => {
+  let dbMyPoos = [];
+  let dbMyFriends = [];
+
+  console.log('phone');
+  console.log(phone);
+
+  try {
+    await firebase.database().ref(`/users/${phone}`)
+      .once('value', snapshot => {
+        dbMyPoos = snapshot.val().myPoos ? snapshot.val().myPoos : [];
+        dbMyFriends = snapshot.val().myFriends ? snapshot.val().myFriends : [];
+        dbMyInfo = snapshot.val().myInfo ? snapshot.val().myInfo : {};
+      });
+
+    // console.log('look here');
+    // console.log(myPoos);
+    // console.log(myFriends);
+    //
+    // console.log('db look here');
+    // console.log(dbMyPoos);
+    // console.log(dbMyFriends);
+
+    dbMyPoos = typeof dbMyPoos === 'object' ? _.values(dbMyPoos) : dbMyPoos;
+    dbMyFriends = typeof dbMyFriends === 'object' ? _.values(dbMyFriends) : dbMyFriends;
+
+    const combinedAndReducedPoos = combineAndDeleteDuplicates(dbMyPoos, myPoos);
+    const combinedAndReducedFriends = combineAndDeleteDuplicates(dbMyFriends, myFriends);
+
+    firebase.database().ref(`/users/${phone}`)
+      .update({
+        myPoos: combinedAndReducedPoos,
+        myFriends: combinedAndReducedFriends,
+        // myInfo
+      });
+
+    console.log('success');
+
+    dispatch({
+      type: EDIT_POOS,
+      payload: combinedAndReducedPoos
+    });
+
+    dispatch({
+      type: SET_FRIENDS,
+      payload: combinedAndReducedFriends
+    });
+  } catch (err) {
+    console.log('sync error');
+  }
 };
 
 // const convertStringToDatetime = (inputPoos) => {

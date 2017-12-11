@@ -4,6 +4,7 @@ import {
   CHANGE_DESCRIPTION_TEXT,
   CHANGE_DATETIME,
   SET_LOCATION,
+  SET_SEND_TO_FRIENDS,
   FILL_INPUT,
   RESET_INPUT,
   SET_INPUT_TYPE
@@ -48,6 +49,13 @@ export const setLocation = (location) => {
   return {
     type: SET_LOCATION,
     payload: location
+  };
+};
+
+export const setSendToFriends = (friends) => {
+  return {
+    type: SET_SEND_TO_FRIENDS,
+    payload: friends
   };
 };
 

@@ -7,8 +7,15 @@ import { Ionicons } from '@expo/vector-icons';
 
 import feetBackground from '../../assets/backgrounds/feet_background.jpg';
 import allNamedPoos from '../../assets/namedPooExport';
-import { setInputType, setLogType, resetInput, authLogout, authLogin } from '../actions';
 import styles from '../styles/homeStyles';
+import {
+  setInputType,
+  setLogType,
+  resetInput,
+  authLogout,
+  authLogin,
+  syncPropsWithDb
+} from '../actions';
 
 class HomeScreen extends Component {
   static navigationOptions = {
@@ -29,19 +36,28 @@ class HomeScreen extends Component {
   }
 
   componentWillMount() {
-    const { token, myPoos, myFriends } = this.props;
+    const { token, myPoos, myFriends, myInfo } = this.props;
     const { currentUser } = firebase.auth();
     console.log('home componentDidMount currentUser');
     console.log(currentUser);
 
-    if (token) {
-      console.log('token exists');
-      console.log(token);
-      this.authLoginWithToken(token);
-      // this.props.authLogin({ token, myPoos, phone, myFriends });
-    } else {
-      console.log('token does not exist');
-    }
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        const phone = user.uid;
+        // this.props.authLogin({ token, myPoos, phone, myFriends, myInfo });
+        this.props.syncPropsWithDb({ phone, myPoos, myFriends, myInfo });
+        this.setState({ currentUser: true });
+      }
+    });
+
+    // if (token) {
+    //   console.log('token exists');
+    //   console.log(token);
+    //   this.authLoginWithToken(token);
+    //   // this.props.authLogin({ token, myPoos, phone, myFriends });
+    // } else {
+    //   console.log('token does not exist');
+    // }
   }
 
   authLoginWithToken = async (token) => {
@@ -159,6 +175,22 @@ class HomeScreen extends Component {
             raised
           />
 
+          <Button
+            title='Sent To Me'
+            // icon={{ name: 'ios-people', type: 'font-awesome' }}
+            onPress={() => this.props.navigation.navigate('sent_to_me')}
+            buttonStyle={styles.mapButton}
+            raised
+          />
+
+          <Button
+            title='Profile'
+            // icon={{ name: 'ios-people', type: 'font-awesome' }}
+            onPress={() => this.props.navigation.navigate('profile')}
+            buttonStyle={styles.mapButton}
+            raised
+          />
+
           {this.renderAuthButton()}
 
         </ScrollView>
@@ -170,9 +202,10 @@ class HomeScreen extends Component {
 
 const mapStateToProps = state => {
   const { token } = state.auth;
-  const { myFriends } = state.friends;
+  const { myFriends, myInfo } = state.friends;
+  const { myPoos } = state.pooReducer;
 
-  return { token, myFriends };
+  return { token, myFriends, myInfo, myPoos };
 };
 
 export default connect(mapStateToProps, {
@@ -180,5 +213,6 @@ export default connect(mapStateToProps, {
   setLogType,
   resetInput,
   authLogout,
-  authLogin
+  authLogin,
+  syncPropsWithDb
 })(HomeScreen);

@@ -21,6 +21,8 @@ import AuthScreen from './src/screens/AuthScreen';
 import FriendsScreen from './src/screens/FriendsScreen';
 import AddFriendsScreen from './src/screens/AddFriendsScreen';
 import SendToFriendsScreen from './src/screens/SendToFriendsScreen';
+import ProfileScreen from './src/screens/ProfileScreen';
+import SentToMeScreen from './src/screens/SentToMeScreen';
 
 
 export default class App extends React.Component {
@@ -49,7 +51,9 @@ export default class App extends React.Component {
       auth: { screen: AuthScreen },
       friends: { screen: FriendsScreen },
       add_friends: { screen: AddFriendsScreen },
-      send_to_friends: { screen: SendToFriendsScreen }
+      send_to_friends: { screen: SendToFriendsScreen },
+      sent_to_me: { screen: SentToMeScreen },
+      profile: { screen: ProfileScreen }
     });
 
     const { persistor, store } = configureStore();

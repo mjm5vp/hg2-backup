@@ -9,6 +9,7 @@ import {
   SET_LOCATION,
   FILL_INPUT,
   RESET_INPUT,
+  SET_SEND_TO_FRIENDS
  } from '../actions/types';
 
  const initialTime = moment().format('HH:mm');
@@ -24,7 +25,8 @@ const INITIAL_STATE = {
   location: {
     latitude: '',
     longitude: ''
-  }
+  },
+  sendToFriends: []
 };
 
 export default function (state = INITIAL_STATE, action) {
@@ -41,6 +43,8 @@ export default function (state = INITIAL_STATE, action) {
       return { ...state, datetime: action.payload };
     case SET_LOCATION:
       return { ...state, location: action.payload };
+    case SET_SEND_TO_FRIENDS:
+      return { ...state, sendToFriends: action.payload };
     case FILL_INPUT:
       const { inputUID, currentPooName, description, datetime, location } = action.payload;
       return { ...state, inputUID, currentPooName, description, datetime, location };

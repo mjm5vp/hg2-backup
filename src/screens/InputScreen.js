@@ -17,10 +17,17 @@ import {
   updateDateTime,
   addPoo,
   editPoos,
-  resetInput } from '../actions';
+  resetInput,
+  sendToFriendsAction
+ } from '../actions';
 
 
 class InputScreen extends Component {
+  static navigationOptions = {
+    title: 'Send to Friends',
+    headerBackTitle: 'Cancel'
+  }
+
   state = {
     date: moment(),
     time: moment(),
@@ -117,6 +124,14 @@ class InputScreen extends Component {
     );
   }
 
+  renderSendingToList = () => {
+    return this.props.sendToFriends.map((friend, i) => {
+      return (
+        <Text key={i}>{friend.name}</Text>
+      );
+    });
+  }
+
   renderFlushButton = () => {
     if (this.props.inputType === 'new') {
       return (
@@ -199,10 +214,23 @@ class InputScreen extends Component {
   }
 
   handleFlush = () => {
-    const { uid, currentPooName, datetime, description, location } = this.props;
+    const {
+      uid,
+      currentPooName,
+      datetime,
+      description,
+      location,
+      sendToFriends,
+      myInfo
+    } = this.props;
+    const poo = { inputUID: uid, currentPooName, datetime, description, location };
 
-    this.props.addPoo({ inputUID: uid, currentPooName, datetime, description, location });
+    this.props.addPoo(poo);
     this.props.increaseUID();
+
+    if (sendToFriends.length > 0) {
+      this.props.sendToFriendsAction(sendToFriends, poo, myInfo);
+    }
     this.props.resetInput();
     this.props.navigation.goBack();
   }
@@ -305,6 +333,7 @@ class InputScreen extends Component {
             iconRight={{ name: 'cached' }}
             onPress={() => this.props.navigation.navigate('send_to_friends')}
           />
+          {this.renderSendingToList()}
         </Card>
 
         {this.renderFlushButton()}
@@ -323,8 +352,17 @@ class InputScreen extends Component {
 }
 
 const mapStateToProps = state => {
-  const { inputType, inputUID, currentPooName, description, datetime, location } = state.input;
   const { uid, myPoos } = state.pooReducer;
+  const { myInfo } = state.auth;
+  const { inputType,
+    inputUID,
+    currentPooName,
+    description,
+    datetime,
+    location,
+    sendToFriends
+  } = state.input;
+
   return {
     inputType,
     uid,
@@ -333,7 +371,9 @@ const mapStateToProps = state => {
     description,
     datetime,
     location,
-    myPoos
+    sendToFriends,
+    myPoos,
+    myInfo
    };
 };
 
@@ -344,5 +384,6 @@ export default connect(mapStateToProps, {
   updateDateTime,
   addPoo,
   editPoos,
-  resetInput
+  resetInput,
+  sendToFriendsAction
 })(InputScreen);

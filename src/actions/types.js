@@ -1,8 +1,11 @@
+//Input
 export const SET_INPUT_TYPE = 'set_input_type';
 export const SET_UID = 'set_uid';
 export const SELECT_POO = 'select_poo';
 export const CHANGE_DESCRIPTION_TEXT = 'change_description_text';
 export const CHANGE_DATETIME = 'change_datetime';
+export const SET_SEND_TO_FRIENDS = 'set_send_to_friends';
+
 export const ADD_POO = 'add_poo';
 export const EDIT_POOS = 'edit_poos';
 export const SET_LOCATION = 'set_location';
@@ -22,3 +25,4 @@ export const ADD_FRIEND = 'add_friend';
 export const ADDED_ME = 'added_me';
 export const ACCEPT_FRIEND = 'accept_friend';
 export const SET_FRIENDS = 'set_friends';
+export const SET_SENT_TO_ME = 'set_sent_to_me';

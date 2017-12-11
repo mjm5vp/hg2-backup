@@ -1,24 +1,46 @@
 import React, { Component } from 'react';
-import { View, Text } from 'react-native';
+import { ScrollView, View, Text } from 'react-native';
 import { Card, Button, CheckBox } from 'react-native-elements';
 import { connect } from 'react-redux';
+import _ from 'lodash';
+
+import { setSendToFriends } from '../actions';
 
 
 class SendToFriends extends Component {
+  static navigationOptions = {
+    title: 'Send to Friends',
+    headerBackTitle: 'Cancel'
+  }
+
   state = {
-    checked: true
+    checked: true,
+    myFriends: [],
+    checkedFriends: []
   }
 
   componentWillMount() {
     const { myFriends } = this.props;
-    this.setState({ myFriends });
+
+    const sortedFriends = _.sortBy(myFriends, friend => friend.name).reverse();
+    this.setState({ myFriends: sortedFriends });
   }
 
   checkBox = i => {
     const newMyFriends = this.state.myFriends;
     newMyFriends[i].checked = !newMyFriends[i].checked;
 
-    this.setState({ myFriends: newMyFriends });
+    const checkedFriends = newMyFriends.filter(friend => friend.checked);
+
+    this.setState({
+      myFriends: newMyFriends,
+      checkedFriends
+     });
+  }
+
+  onSubmit = () => {
+    this.props.setSendToFriends(this.state.checkedFriends);
+    this.props.navigation.goBack();
   }
 
   renderFriendsList = () => {
@@ -32,7 +54,7 @@ class SendToFriends extends Component {
               <Text>{friend.number}</Text>
             </View>
             <CheckBox
-              onIconPress={() => this.checkBox(i)}
+              onPress={() => this.checkBox(i)}
               checked={checked}
             />
           </View>
@@ -42,11 +64,47 @@ class SendToFriends extends Component {
     });
   }
 
+  renderSubmitButton = () => {
+    const { checkedFriends } = this.state;
+
+    if (checkedFriends.length === 0) {
+      return (
+        <View>
+          <Text>No friends selected</Text>
+        </View>
+      );
+    }
+
+    const checkedFriendsList = checkedFriends.map((friend, i) => {
+      return (
+        <Text key={i}>{friend.name}</Text>
+      );
+    });
+
+    return (
+      <View style={styles.submitButtonContainer}>
+        <ScrollView horizontal style={{ flexDirection: 'row' }}>
+          {checkedFriendsList}
+        </ScrollView>
+        <Button
+          title='Done'
+          onPress={() => this.onSubmit()}
+        />
+      </View>
+    );
+  }
+
   render() {
     return (
-      <View>
-        {this.renderFriendsList()}
+      <View style={{ flex: 1 }}>
+        <ScrollView>
+          {this.renderFriendsList()}
+        </ScrollView>
+
+        {this.renderSubmitButton()}
+
       </View>
+
     );
   }
 }
@@ -55,7 +113,15 @@ const styles = {
   cardView: {
     flexDirection: 'row',
     justifyContent: 'space-between'
-  }
+  },
+  submitButtonContainer: {
+    flexDirection: 'row',
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    right: 20,
+    width: '80%'
+  },
 };
 
 const mapStateToProps = state => {
@@ -64,4 +130,4 @@ const mapStateToProps = state => {
   return { myFriends };
 };
 
-export default connect(mapStateToProps, {})(SendToFriends);
+export default connect(mapStateToProps, { setSendToFriends })(SendToFriends);

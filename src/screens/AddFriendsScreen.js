@@ -71,7 +71,7 @@ formatContacts = (contacts) => {
   const contactsNumbers = [];
   let contactsNamesAndNumbers = [];
 
-  console.log(typeof this.props.myFriends[0].number);
+  // console.log(typeof this.props.myFriends[0].number);
 
   contacts.data.filter(contact => contact.phoneNumbers[0])
     .forEach(contact => contact.phoneNumbers.forEach(phoneNumber => {
