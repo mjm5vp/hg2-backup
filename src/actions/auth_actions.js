@@ -37,6 +37,7 @@ export const authLogout = () => {
 export const syncPropsWithDb = ({ phone, myPoos, myFriends, myInfo }) => async dispatch => {
   let dbMyPoos = [];
   let dbMyFriends = [];
+  let dbMyInfo = {};
 
   console.log('phone');
   console.log(phone);
@@ -48,14 +49,6 @@ export const syncPropsWithDb = ({ phone, myPoos, myFriends, myInfo }) => async d
         dbMyFriends = snapshot.val().myFriends ? snapshot.val().myFriends : [];
         dbMyInfo = snapshot.val().myInfo ? snapshot.val().myInfo : {};
       });
-
-    // console.log('look here');
-    // console.log(myPoos);
-    // console.log(myFriends);
-    //
-    // console.log('db look here');
-    // console.log(dbMyPoos);
-    // console.log(dbMyFriends);
 
     dbMyPoos = typeof dbMyPoos === 'object' ? _.values(dbMyPoos) : dbMyPoos;
     dbMyFriends = typeof dbMyFriends === 'object' ? _.values(dbMyFriends) : dbMyFriends;
@@ -71,6 +64,11 @@ export const syncPropsWithDb = ({ phone, myPoos, myFriends, myInfo }) => async d
       });
 
     console.log('success');
+
+    dispatch({
+      type: EDIT_MY_INFO,
+      payload: dbMyInfo
+    });
 
     dispatch({
       type: EDIT_POOS,

@@ -69,7 +69,8 @@ class SignUpForm extends Component {
             message: `Welcome back ${myInfo.name}`,
             codeMessage: 'You will recieve a text message shortly with a 4-digit code.'
           });
-          this.userExists(phone);
+          // this.userExists(phone);
+          this.requestPassword(phone);
         } else {
           console.log('user does not exist');
           Keyboard.dismiss();
@@ -86,24 +87,33 @@ class SignUpForm extends Component {
     try {
       await axios.post(`${ROOT_URL}/createUser`, { phone });
       console.log('user created');
+      this.setState({
+        showName: false,
+        phoneEntered: true,
+        codeMessage: 'You will recieve a text message shortly with a 4-digit code.'
+      });
+      this.requestPassword(phone);
     } catch (err) {
       console.log(err);
       this.setState({ message: 'An error occurred. Please try again later.' });
     }
+  };
 
+  requestPassword = async (phone) => {
     try {
       await axios.post(`${ROOT_URL}/requestOneTimePassword`, { phone });
+      Keyboard.dismiss();
     } catch (err) {
       this.setState({
         message: 'Phone number not valid.  Please try again.',
         phoneEntered: false
       });
     }
-  };
-
-  userExists = async (phone) => {
-    await axios.post(`${ROOT_URL}/requestOneTimePassword`, { phone });
   }
+
+  // userExists = async (phone) => {
+  //   await axios.post(`${ROOT_URL}/requestOneTimePassword`, { phone });
+  // }
 
   signIn = async () => {
     const { phone, code } = this.state;
@@ -128,8 +138,8 @@ class SignUpForm extends Component {
 
     if (name.length > 0) {
       this.props.editMyInfo({ name, number: phone });
-      this.setState({ showName: false });
-      this.newUser(this.state.phone);
+      this.setState({ showName: false, phoneEntered: true });
+      this.newUser(phone);
     } else {
       this.setState({ message: 'Please enter you Name' });
     }

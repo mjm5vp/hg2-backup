@@ -96,8 +96,8 @@ export const fetchSentToMe = () => async dispatch => {
 
     sentToMe = typeof sentToMe === 'object' ? _.values(sentToMe) : sentToMe;
 
-    console.log('sentToMe');
-    console.log(sentToMe);
+    // console.log('sentToMe');
+    // console.log(sentToMe);
 
     dispatch({ type: SET_SENT_TO_ME, payload: sentToMe });
   } catch (err) {

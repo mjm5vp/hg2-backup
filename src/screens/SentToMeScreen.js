@@ -3,6 +3,7 @@ import { View, Text, Image } from 'react-native';
 import { Card, Divider } from 'react-native-elements';
 import { connect } from 'react-redux';
 import moment from 'moment';
+import _ from 'lodash';
 
 import { fetchSentToMe } from '../actions';
 import allNamedPoos from '../../assets/namedPooExport';
@@ -23,17 +24,19 @@ class SentToMeScreen extends Component {
   }
 
   renderList = () => {
-    console.log('sent to me renderList');
-    console.log(this.state.sentToMe);
-
     return this.state.sentToMe.map(item => {
+      // console.log(this.props.myFriends);
+      // console.log(item.from.number);
+      const matchedFriend = _.find(this.props.myFriends, ['number', item.from.number]);
+      // console.log('matchedFriend');
+      // console.log(matchedFriend);
       const datetime = moment(item.poo.datetime).format('MMMM Do YYYY, h:mm a');
       const pooImage = allNamedPoos[item.poo.currentPooName].image;
       const description = item.poo.description === '' ? 'No description' : item.poo.description;
 
       return (
         <Card>
-          <Text>From: {item.from.name}</Text>
+          <Text>From: {matchedFriend.name}</Text>
           <View style={styles.containerView}>
             <Image
               source={pooImage}
@@ -73,9 +76,9 @@ const styles = {
 };
 
 const mapStateToProps = state => {
-  const { sentToMe } = state.friends;
+  const { sentToMe, myFriends } = state.friends;
 
-  return { sentToMe };
+  return { sentToMe, myFriends };
 };
 
 export default connect(mapStateToProps, { fetchSentToMe })(SentToMeScreen);
