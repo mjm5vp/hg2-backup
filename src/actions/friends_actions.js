@@ -104,3 +104,19 @@ export const fetchSentToMe = () => async dispatch => {
     console.log('could not fetch sentToMe');
   }
 };
+
+export const deleteFriends = () => async dispatch => {
+  console.log('deleteAllFriends action');
+  const noFriends = [];
+  const { currentUser } = firebase.auth();
+
+  try {
+    await firebase.database().ref(`users/${currentUser.uid}/myFriends`)
+      .set(noFriends);
+
+    dispatch({ type: SET_FRIENDS, payload: noFriends });
+  } catch (err) {
+    console.log(err);
+    console.log('could not reset friends');
+  }
+};

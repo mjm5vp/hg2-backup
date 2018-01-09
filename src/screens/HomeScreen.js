@@ -184,9 +184,9 @@ class HomeScreen extends Component {
           />
 
           <Button
-            title='Profile'
+            title='Settings'
             // icon={{ name: 'ios-people', type: 'font-awesome' }}
-            onPress={() => this.props.navigation.navigate('profile')}
+            onPress={() => this.props.navigation.navigate('settings')}
             buttonStyle={styles.mapButton}
             raised
           />

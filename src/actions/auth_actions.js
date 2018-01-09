@@ -14,6 +14,21 @@ export const editMyInfo = ({ name, number }) => {
   };
 };
 
+export const deleteUser = (token) => async dispatch => {
+  const { currentUser } = firebase.auth();
+
+  try {
+    await firebase.auth().signInWithCustomToken(token);
+    await currentUser.delete();
+    await firebase.database().ref(`users/${currentUser.uid}`)
+      .remove();
+    authLogout();
+  } catch (err) {
+    console.log(err);
+    console.log('could not delete account');
+  }
+};
+
 export const authLogin = ({ token, myPoos, phone, myFriends, myInfo }) => async dispatch => {
   //async await
   try {
