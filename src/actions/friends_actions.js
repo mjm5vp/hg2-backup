@@ -3,6 +3,19 @@ import _ from 'lodash';
 
 import { SET_FRIENDS, ADD_FRIEND, ADDED_ME, ACCEPT_FRIEND, SET_SENT_TO_ME } from './types';
 
+export const setFriends = (myFriends) => async dispatch => {
+  const { currentUser } = firebase.auth();
+
+  try {
+    await firebase.database().ref(`users/${currentUser.uid}/myFriends`)
+      .set(myFriends);
+
+    dispatch({ type: SET_FRIENDS, payload: myFriends });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 export const setFriendsFromDb = () => async dispatch => {
   const { currentUser } = firebase.auth();
   let dbMyFriends = [];

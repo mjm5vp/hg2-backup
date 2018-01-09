@@ -2,14 +2,15 @@ import React, { Component } from 'react';
 import { View, Text, Image, TouchableOpacity, TextInput, Platform, ScrollView } from 'react-native';
 import { Button, Card } from 'react-native-elements';
 import { connect } from 'react-redux';
+import Modal from 'react-native-modal';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import moment from 'moment';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 
-import Confirm from '../components/Confirm';
 import allNamedPoos from '../../assets/namedPooExport';
 import toiletImage from '../../assets/otherImages/toilet.jpg';
 import styles from '../styles/inputStyles';
+import modalStyles from '../styles/modalStyles';
 import {
   increaseUID,
   selectPoo,
@@ -84,7 +85,7 @@ class InputScreen extends Component {
 
       return (
         <Card>
-          <View style={{ height: 200 }}>
+          <View style={{ height: 200, marginBottom: 10 }}>
             <MapView
               provider={PROVIDER_GOOGLE}
               style={{ flex: 1 }}
@@ -102,8 +103,11 @@ class InputScreen extends Component {
 
           <Button
             title='Change Location'
+            style={{ marginTop: 10 }}
             onPress={() => this.props.navigation.navigate('map_select')}
-            buttonStyle={styles.mapButton}
+            buttonStyle={styles.selectButton}
+            iconRight={{ name: 'google-maps', type: 'material-community' }}
+            raised
           />
         </Card>
       );
@@ -117,19 +121,44 @@ class InputScreen extends Component {
 
         <Button
           title='Add to Map'
+          style={{ marginTop: 10 }}
           onPress={() => this.props.navigation.navigate('map_select')}
-          buttonStyle={styles.mapButton}
+          buttonStyle={styles.selectButton}
+          raised
+          iconRight={{ name: 'google-maps', type: 'material-community' }}
         />
       </Card>
     );
   }
 
   renderSendingToList = () => {
-    return this.props.sendToFriends.map((friend, i) => {
-      return (
-        <Text key={i}>{friend.name}</Text>
+    const { sendToFriends } = this.props;
+    let sendToFriendsList = null;
+
+    if (sendToFriends.length === 0) {
+      sendToFriendsList = (
+        <Text>No friends selected</Text>
       );
-    });
+    } else {
+      sendToFriendsList = sendToFriends.map((friend, i) => {
+        if (i === 0) {
+          return (
+            <Text key={i}>{friend.name}</Text>
+          );
+        }
+        return (
+          <Text key={i}>, {friend.name}</Text>
+        );
+      });
+    }
+
+    return (
+      <View style={styles.sendToFriendsContainer}>
+        <ScrollView horizontal style={{ flexDirection: 'row' }}>
+          {sendToFriendsList}
+        </ScrollView>
+      </View>
+    );
   }
 
   renderFlushButton = () => {
@@ -246,12 +275,6 @@ class InputScreen extends Component {
   render() {
     const pooImage = allNamedPoos[this.props.currentPooName].image;
 
-    console.log("this.props.datetime");
-    console.log(this.props.datetime);
-
-    console.log('typeof this.props.datetime');
-    console.log(typeof this.props.datetime);
-
     return (
       <ScrollView contentContainerStyle={styles.containerStyle}>
 
@@ -268,6 +291,7 @@ class InputScreen extends Component {
                 onPress={() => this.props.navigation.navigate('select')}
                 buttonStyle={styles.selectButton}
                 fontSize={20}
+                raised
               />
             </View>
           </View>
@@ -287,12 +311,14 @@ class InputScreen extends Component {
                 onPress={this.showDatePicker}
                 fontSize={20}
                 buttonStyle={styles.selectButton}
+                raised
               />
               <Button
                 title='Change Time'
                 onPress={this.showTimePicker}
                 fontSize={20}
                 buttonStyle={styles.selectButton}
+                raised
               />
             </View>
 
@@ -327,24 +353,49 @@ class InputScreen extends Component {
         {this.renderMapPreview()}
 
         <Card>
-          <Button
-            title='Send to friends'
-            raised
-            iconRight={{ name: 'cached' }}
-            onPress={() => this.props.navigation.navigate('send_to_friends')}
-          />
+          <View>
+            <Button
+              title='Send to friends'
+              buttonStyle={styles.selectButton}
+              raised
+              iconRight={{ name: 'send', type: 'font-awesome' }}
+              onPress={() => this.props.navigation.navigate('send_to_friends')}
+            />
+          </View>
+
           {this.renderSendingToList()}
         </Card>
 
         {this.renderFlushButton()}
 
-        <Confirm
-          visible={this.state.showModal}
-          onAccept={this.onAccept}
-          onDecline={this.onDecline}
+        <Modal
+          isVisible={this.state.showModal}
+          backdropColor={'black'}
+          backdropOpacity={0.5}
+          animationIn={'slideInLeft'}
+          animationOut={'slideOutRight'}
+          animationInTiming={250}
+          animationOutTiming={250}
+          backdropTransitionInTiming={250}
+          backdropTransitionOutTiming={250}
         >
-          Are you sure you want to delete this?
-        </Confirm>
+          <View style={modalStyles.modalContent}>
+            <Text>Are you sure you want to delete this?</Text>
+            <View style={modalStyles.buttonView}>
+              <TouchableOpacity onPress={() => this.onDecline()}>
+                <View style={modalStyles.cancelButton}>
+                  <Text>Cancel</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => this.onAccept()}>
+                <View style={modalStyles.dangerButton}>
+                  <Text style={modalStyles.dangerButtonText}>Delete</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+        </Modal>
 
       </ScrollView>
     );

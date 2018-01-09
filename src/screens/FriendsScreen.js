@@ -1,35 +1,45 @@
 import React, { Component } from 'react';
-import { ScrollView, View, Text } from 'react-native';
-import { Button, Card, Icon, List, ListItem } from 'react-native-elements';
+import { ScrollView, View, Text, TouchableOpacity } from 'react-native';
+import { Button, Card, Icon, List, ListItem, Divider, FormLabel, FormInput } from 'react-native-elements';
 import { connect } from 'react-redux';
+import Modal from 'react-native-modal';
 import firebase from 'firebase';
 import _ from 'lodash';
 
-import { checkAddedMe, acceptFriend, setFriendsFromDb } from '../actions';
+import { checkAddedMe, acceptFriend, setFriendsFromDb, setFriends } from '../actions';
+import modalStyles from '../styles/modalStyles';
 
 class FriendsScreen extends Component {
   static navigationOptions = ({ navigation }) => {
     return {
       title: 'Friends',
       headerRight: (
-        <Button
-          title='Add Friend'
+        <Icon
+          raised
+          style={{ marginRight: 10 }}
+          name='add-user'
+          type='entypo'
           onPress={() => navigation.navigate('add_friends')}
         />
+        // <Button
+        //   title='Add Friend'
+        //   onPress={() => navigation.navigate('add_friends')}
+        // />
       )
     };
   }
 
   state = {
     addedMe: [],
-    currentUser: null
+    currentUser: null,
+    showModal: false,
+    editName: '',
+    editNumber: '',
+    id: ''
   }
 
   componentWillMount() {
     const { currentUser } = firebase.auth();
-
-    console.log('friends screen current user');
-    console.log(currentUser);
 
     if (currentUser) {
       this.setState({ currentUser });
@@ -61,13 +71,10 @@ class FriendsScreen extends Component {
 
   renderAddedMe = () => {
     const { addedMe } = this.state;
-    console.log('addedMe');
-    console.log(addedMe);
+
     if (addedMe.length === 0) {
       return (
-        <View>
-          <Text>Nobody added me</Text>
-        </View>
+        <Card title='Nobody added me' />
       );
     }
 
@@ -122,19 +129,60 @@ class FriendsScreen extends Component {
     this.setState({ addedMe });
   }
 
+  editContactInfo = (name, number, i) => {
+    this.setState({ showModal: true, editName: name, editNumber: number, id: i });
+  }
+
   renderFriendsList = () => {
     const { myFriends } = this.props;
-    console.log('myFriends');
-    console.log(myFriends);
 
-    return myFriends.map((friend, i) => {
+    myFriends.forEach(friend => {
+      console.log(friend.name);
+      console.log(friend.checked);
+    });
+
+    const myFriendsList = myFriends.map((friend, i) => {
       return (
-        <View key={i}>
-          <Text>{friend.name}</Text>
-          <Text>{friend.number}</Text>
-        </View>
+        <TouchableOpacity onPress={() => this.editContactInfo(friend.name, friend.number, i)}>
+          <View key={i}>
+            <Text>{friend.name}</Text>
+            <Text>{friend.number}</Text>
+            <Divider style={{ backgroundColor: 'blue' }} />
+          </View>
+        </TouchableOpacity>
       );
     });
+
+    return (
+      <Card
+        title='My Friends'
+      >
+        {myFriendsList}
+      </Card>
+    );
+  }
+
+  onEditAccept = () => {
+    const { editName, editNumber, id } = this.state;
+
+    const newMyFriends = this.props.myFriends;
+    newMyFriends[id] = { name: editName, number: editNumber };
+
+    this.props.setFriends(newMyFriends);
+    this.setState({ showModal: false });
+  }
+
+  onDelete = () => {
+    const { id } = this.state;
+    const newMyFriends = this.props.myFriends;
+    newMyFriends.splice(id, 1);
+
+    this.props.setFriends(newMyFriends);
+    this.setState({ showModal: false });
+  }
+
+  onCancel = () => {
+    this.setState({ showModal: false });
   }
 
   render() {
@@ -150,6 +198,60 @@ class FriendsScreen extends Component {
     }
     return (
       <ScrollView>
+
+        <Modal
+          isVisible={this.state.showModal}
+          backdropColor={'black'}
+          backdropOpacity={0.5}
+          animationIn={'slideInLeft'}
+          animationOut={'slideOutRight'}
+          animationInTiming={250}
+          animationOutTiming={250}
+          backdropTransitionInTiming={250}
+          backdropTransitionOutTiming={250}
+        >
+          <View style={modalStyles.modalContent}>
+            <View style={modalStyles.inputView}>
+
+              <Text>Edit contact info</Text>
+
+              <FormLabel>Name</FormLabel>
+              <FormInput
+                value={this.state.editName}
+                onChangeText={editName => this.setState({ editName })}
+              />
+
+              <FormLabel>Number</FormLabel>
+              <FormInput
+                value={this.state.editNumber}
+                onChangeText={editNumber => this.setState({ editNumber })}
+              />
+
+            </View>
+            <View style={modalStyles.buttonView}>
+              <TouchableOpacity onPress={this.onEditAccept}>
+                <View style={modalStyles.button}>
+                  <Text>Edit</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={this.onCancel}>
+                <View style={modalStyles.cancelButton}>
+                  <Text>Cancel</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+            <View style={modalStyles.buttonView}>
+              <TouchableOpacity onPress={this.onDelete}>
+                <View style={modalStyles.dangerButton}>
+                  <Text style={modalStyles.dangerButtonText}>Delete</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+
+          </View>
+
+        </Modal>
+
         {this.renderAddedMe()}
         {/* <View style={styles.menuView}> */}
 
@@ -158,7 +260,6 @@ class FriendsScreen extends Component {
             onPress={() => this.props.navigation.navigate('add_friends')}
           /> */}
         {/* </View> */}
-        <Text>Friends</Text>
         {this.renderFriendsList()}
 
       </ScrollView>
@@ -189,5 +290,6 @@ const mapStateToProps = state => {
 export default connect(mapStateToProps, {
   checkAddedMe,
   acceptFriend,
-  setFriendsFromDb
+  setFriendsFromDb,
+  setFriends
 })(FriendsScreen);

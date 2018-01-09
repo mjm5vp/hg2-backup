@@ -56,7 +56,7 @@ class MapScreen extends Component {
 
   renderAllMarkers = () => {
     const poosWithLocation = this.props.myPoos.filter(poo => {
-      return poo.location.latitude !== null;
+      return poo.location.latitude;
     });
 
     const sortedPoos = _.sortBy(poosWithLocation, (o) => {

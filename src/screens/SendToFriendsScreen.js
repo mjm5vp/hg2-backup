@@ -14,44 +14,65 @@ class SendToFriends extends Component {
   }
 
   state = {
-    checked: true,
-    myFriends: [],
+    myFriendsList: [],
     checkedFriends: []
   }
 
   componentWillMount() {
-    const { myFriends } = this.props;
+    const { myFriends, sendToFriends } = this.props;
+    const newMyFriends = myFriends;
 
-    const sortedFriends = _.sortBy(myFriends, friend => friend.name).reverse();
-    this.setState({ myFriends: sortedFriends });
+    const sortedFriends = _.sortBy(newMyFriends, friend => friend.name);
+
+    // const checkedFriends = myFriends.filter(friend => friend.checked);
+    // const sortedCheckedFriends = _.sortBy(checkedFriends, friend => friend.name);
+
+    this.setState({ myFriendsList: sortedFriends, checkedFriends: sendToFriends });
   }
 
   checkBox = i => {
-    const newMyFriends = this.state.myFriends;
-    newMyFriends[i].checked = !newMyFriends[i].checked;
+    const newMyFriends = this.state.myFriendsList;
+    const newNew = newMyFriends
 
-    const checkedFriends = newMyFriends.filter(friend => friend.checked);
+    this.props.myFriends.forEach(friend => {
+      console.log('after defining')
+      console.log(friend.name);
+      console.log(friend.checked);
+    });
+
+    // newMyFriends[i].checked = !newMyFriends[i].checked;
+    newNew[i].name = 'billbob';
+
+    this.props.myFriends.forEach(friend => {
+      console.log('after !')
+      console.log(friend.name);
+      console.log(friend.checked);
+    });
+
+    const checkedFriends = newNew.filter(friend => friend.checked);
 
     this.setState({
-      myFriends: newMyFriends,
+      myFriendsList: newNew, 
       checkedFriends
      });
   }
 
   onSubmit = () => {
+
+
+
     this.props.setSendToFriends(this.state.checkedFriends);
     this.props.navigation.goBack();
   }
 
   renderFriendsList = () => {
-    return this.state.myFriends.map((friend, i) => {
+    return this.state.myFriendsList.map((friend, i) => {
       const checked = friend.checked;
       return (
         <Card key={i}>
           <View style={styles.cardView}>
             <View>
               <Text>{friend.name}</Text>
-              <Text>{friend.number}</Text>
             </View>
             <CheckBox
               onPress={() => this.checkBox(i)}
@@ -66,20 +87,24 @@ class SendToFriends extends Component {
 
   renderSubmitButton = () => {
     const { checkedFriends } = this.state;
+    let checkedFriendsList = null;
 
     if (checkedFriends.length === 0) {
-      return (
-        <View>
-          <Text>No friends selected</Text>
-        </View>
+      checkedFriendsList = (
+        <Text>No friends selected</Text>
       );
+    } else {
+      checkedFriendsList = checkedFriends.map((friend, i) => {
+        if (i === 0) {
+          return (
+            <Text key={i}>{friend.name}</Text>
+          );
+        }
+        return (
+          <Text key={i}>, {friend.name}</Text>
+        );
+      });
     }
-
-    const checkedFriendsList = checkedFriends.map((friend, i) => {
-      return (
-        <Text key={i}>{friend.name}</Text>
-      );
-    });
 
     return (
       <View style={styles.submitButtonContainer}>
@@ -87,7 +112,7 @@ class SendToFriends extends Component {
           {checkedFriendsList}
         </ScrollView>
         <Button
-          title='Done'
+          title='Confirm'
           onPress={() => this.onSubmit()}
         />
       </View>
@@ -95,6 +120,10 @@ class SendToFriends extends Component {
   }
 
   render() {
+    this.props.myFriends.forEach(friend => {
+      console.log(friend.name);
+      console.log(friend.checked);
+    });
     return (
       <View style={{ flex: 1 }}>
         <ScrollView>
@@ -126,8 +155,9 @@ const styles = {
 
 const mapStateToProps = state => {
   const { myFriends } = state.friends;
+  const { sendToFriends } = state.input;
 
-  return { myFriends };
+  return { myFriends, sendToFriends };
 };
 
 export default connect(mapStateToProps, { setSendToFriends })(SendToFriends);

@@ -17,15 +17,16 @@ const styles = {
 
   },
   selectButton: {
-    height: 20,
+    height: 40,
     borderRadius: 5,
+    // marginTop: 10,
     backgroundColor: 'rgba(0,150,136,0.5)',
   },
   mapButton: {
     height: 30,
     borderRadius: 5,
     backgroundColor: 'rgba(0,150,136,0.5)',
-    marginTop: 10
+
   },
   datetimeCard: {
     alignItems: 'center'
@@ -45,6 +46,11 @@ const styles = {
   toiletImage: {
     height: 150,
     width: 125
+  },
+  sendToFriendsContainer: {
+    flexDirection: 'row',
+    flex: 1,
+    margin: 10
   }
 };
 
