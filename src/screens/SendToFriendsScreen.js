@@ -20,13 +20,17 @@ class SendToFriends extends Component {
 
   componentWillMount() {
     const { myFriends, sendToFriends } = this.props;
-    const newMyFriends = myFriends;
+
+    const newMyFriends = [];
+    myFriends.forEach(friend => {
+      newMyFriends.push({ name: friend.name, number: friend.number, checked: friend.checked });
+    });
 
     const sendToFriendsNumbers = sendToFriends.map(friend => {
       return friend.number;
     });
 
-    const sortedFriends = _.sortBy(newMyFriends, friend => friend.name);
+    const sortedFriends = _.orderBy(newMyFriends, [friend => friend.name.toLowerCase()]);
     const sortedCheckedFriends = sortedFriends.filter(friend => {
       const newFriend = friend;
       if (sendToFriendsNumbers.includes(friend.number)) {
@@ -55,6 +59,7 @@ class SendToFriends extends Component {
       myFriendsList: newMyFriends,
       checkedFriends
      });
+
   }
 
   onSubmit = () => {
@@ -74,6 +79,7 @@ class SendToFriends extends Component {
             <CheckBox
               onPress={() => this.checkBox(i)}
               checked={checked}
+              center
             />
           </View>
 
@@ -104,26 +110,33 @@ class SendToFriends extends Component {
     }
 
     return (
-      <View style={styles.submitButtonContainer}>
-        <ScrollView horizontal style={{ flexDirection: 'row' }}>
-          {checkedFriendsList}
-        </ScrollView>
-        <Button
-          title='Confirm'
-          onPress={() => this.onSubmit()}
-        />
-      </View>
+      <Card containerStyle={styles.checkedFriendsCard}>
+        <View style={styles.submitButtonContainer}>
+          <ScrollView
+            horizontal
+            style={styles.checkedFriendsStyle}
+            contentContainerStyle={{ alignItems: 'center' }}
+            ref={ref => this.scrollView = ref}
+            onContentSizeChange={() => {
+              this.scrollView.scrollToEnd({ animated: true });
+            }}
+          >
+            {checkedFriendsList}
+          </ScrollView>
+          <Button
+            title='Confirm'
+            onPress={() => this.onSubmit()}
+            buttonStyle={styles.submitButton}
+          />
+        </View>
+      </Card>
     );
   }
 
   render() {
-    this.props.myFriends.forEach(friend => {
-      console.log(friend.name);
-      console.log(friend.checked);
-    });
     return (
       <View style={{ flex: 1 }}>
-        <ScrollView>
+        <ScrollView style={styles.friendsList}>
           {this.renderFriendsList()}
         </ScrollView>
 
@@ -136,18 +149,40 @@ class SendToFriends extends Component {
 }
 
 const styles = {
+  checkedFriendsCard: {
+    position: 'absolute',
+    bottom: 10,
+    left: 0,
+    right: 0,
+    // flex: 1,
+    // width: '100%'
+  },
   cardView: {
     flexDirection: 'row',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  friendsList: {
+    marginBottom: 100
   },
   submitButtonContainer: {
     flexDirection: 'row',
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    right: 20,
-    width: '80%'
+    // position: 'absolute',
+    // left: 20,
+    // right: 10,
+    // flex: 1,
+    alignItems: 'center'
+    // width: '80%'
   },
+  submitButton: {
+    height: 40,
+    borderRadius: 5,
+    backgroundColor: 'rgba(0,150,136,0.5)',
+  },
+  checkedFriendsStyle: {
+    flexDirection: 'row',
+    height: 40
+  }
 };
 
 const mapStateToProps = state => {

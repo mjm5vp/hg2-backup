@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import Modal from 'react-native-modal';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import moment from 'moment';
+import firebase from 'firebase';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 
 import allNamedPoos from '../../assets/namedPooExport';
@@ -35,11 +36,15 @@ class InputScreen extends Component {
     isDatePickerVisible: false,
     isTimePickerVisible: false,
     description: '',
-    showModal: false
+    showModal: false,
+    showInfoModal: false,
+    currentUser: null
   }
 
-  componentDidMount() {
+  componentWillMount() {
+    const { currentUser } = firebase.auth();
 
+    this.setState({ currentUser });
   }
 
   showDatePicker = () => this.setState({ isDatePickerVisible: true });
@@ -154,7 +159,11 @@ class InputScreen extends Component {
 
     return (
       <View style={styles.sendToFriendsContainer}>
-        <ScrollView horizontal style={{ flexDirection: 'row' }}>
+        <ScrollView
+          horizontal
+          style={{ flexDirection: 'row', height: 40 }}
+          contentContainerStyle={{ alignItems: 'center' }}
+        >
           {sendToFriendsList}
         </ScrollView>
       </View>
@@ -264,12 +273,23 @@ class InputScreen extends Component {
     this.props.navigation.goBack();
   }
 
+  onSendToFriendsPress = () => {
+    if (this.state.currentUser) {
+      this.props.navigation.navigate('send_to_friends');
+    } else {
+      this.setState({
+        showInfoModal: true,
+      });
+    }
+
+  }
+
   onAccept = () => {
     this.handleDelete();
   }
 
   onDecline = () => {
-    this.setState({ showModal: false });
+    this.setState({ showModal: false, showInfoModal: false });
   }
 
   render() {
@@ -359,7 +379,7 @@ class InputScreen extends Component {
               buttonStyle={styles.selectButton}
               raised
               iconRight={{ name: 'send', type: 'font-awesome' }}
-              onPress={() => this.props.navigation.navigate('send_to_friends')}
+              onPress={() => this.onSendToFriendsPress()}
             />
           </View>
 
@@ -390,6 +410,30 @@ class InputScreen extends Component {
               <TouchableOpacity onPress={() => this.onAccept()}>
                 <View style={modalStyles.dangerButton}>
                   <Text style={modalStyles.dangerButtonText}>Delete</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+        </Modal>
+
+        <Modal
+          isVisible={this.state.showInfoModal}
+          backdropColor={'black'}
+          backdropOpacity={0.5}
+          animationIn={'slideInLeft'}
+          animationOut={'slideOutRight'}
+          animationInTiming={250}
+          animationOutTiming={250}
+          backdropTransitionInTiming={250}
+          backdropTransitionOutTiming={250}
+        >
+          <View style={modalStyles.modalContent}>
+            <Text>You must create an account or be signed in to use this feature.</Text>
+            <View style={modalStyles.buttonView}>
+              <TouchableOpacity onPress={() => this.onDecline()}>
+                <View style={modalStyles.button}>
+                  <Text>OK</Text>
                 </View>
               </TouchableOpacity>
             </View>

@@ -9,6 +9,10 @@ import { fetchSentToMe } from '../actions';
 import allNamedPoos from '../../assets/namedPooExport';
 
 class SentToMeScreen extends Component {
+  static navigationOptions = {
+    title: 'Sent to me'
+  }
+
   state = {
     sentToMe: []
   }
@@ -28,7 +32,7 @@ class SentToMeScreen extends Component {
       return new moment(o.datetime);
     }).reverse();
 
-    return sortedSentToMe.map(item => {
+    return sortedSentToMe.map((item, i) => {
       // console.log(this.props.myFriends);
       // console.log(item.from.number);
       const matchedFriend = _.find(this.props.myFriends, ['number', item.from.number]);
@@ -39,7 +43,7 @@ class SentToMeScreen extends Component {
       const description = item.poo.description === '' ? 'No description' : item.poo.description;
 
       return (
-        <Card>
+        <Card key={i}>
           <Text>From: {matchedFriend.name}</Text>
           <View style={styles.containerView}>
             <Image

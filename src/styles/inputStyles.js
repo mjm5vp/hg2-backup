@@ -50,7 +50,9 @@ const styles = {
   sendToFriendsContainer: {
     flexDirection: 'row',
     flex: 1,
-    margin: 10
+    height: 40,
+    margin: 10,
+    alignItems: 'center'
   }
 };
 
