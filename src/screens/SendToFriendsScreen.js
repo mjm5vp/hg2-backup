@@ -22,45 +22,42 @@ class SendToFriends extends Component {
     const { myFriends, sendToFriends } = this.props;
     const newMyFriends = myFriends;
 
+    const sendToFriendsNumbers = sendToFriends.map(friend => {
+      return friend.number;
+    });
+
     const sortedFriends = _.sortBy(newMyFriends, friend => friend.name);
+    const sortedCheckedFriends = sortedFriends.filter(friend => {
+      const newFriend = friend;
+      if (sendToFriendsNumbers.includes(friend.number)) {
+        newFriend.checked = true;
+      }
+      return newFriend;
+    });
 
     // const checkedFriends = myFriends.filter(friend => friend.checked);
     // const sortedCheckedFriends = _.sortBy(checkedFriends, friend => friend.name);
 
-    this.setState({ myFriendsList: sortedFriends, checkedFriends: sendToFriends });
+    this.setState({ myFriendsList: sortedCheckedFriends, checkedFriends: sendToFriends });
   }
 
   checkBox = i => {
-    const newMyFriends = this.state.myFriendsList;
-    const newNew = newMyFriends
-
-    this.props.myFriends.forEach(friend => {
-      console.log('after defining')
-      console.log(friend.name);
-      console.log(friend.checked);
+    const newMyFriends = [];
+    this.state.myFriendsList.forEach(friend => {
+      newMyFriends.push({ name: friend.name, number: friend.number, checked: friend.checked });
     });
 
-    // newMyFriends[i].checked = !newMyFriends[i].checked;
-    newNew[i].name = 'billbob';
+    newMyFriends[i].checked = !newMyFriends[i].checked;
 
-    this.props.myFriends.forEach(friend => {
-      console.log('after !')
-      console.log(friend.name);
-      console.log(friend.checked);
-    });
-
-    const checkedFriends = newNew.filter(friend => friend.checked);
+    const checkedFriends = newMyFriends.filter(friend => friend.checked);
 
     this.setState({
-      myFriendsList: newNew, 
+      myFriendsList: newMyFriends,
       checkedFriends
      });
   }
 
   onSubmit = () => {
-
-
-
     this.props.setSendToFriends(this.state.checkedFriends);
     this.props.navigation.goBack();
   }

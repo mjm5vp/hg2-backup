@@ -24,6 +24,12 @@ import SendToFriendsScreen from './src/screens/SendToFriendsScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import SentToMeScreen from './src/screens/SentToMeScreen';
 
+console.ignoredYellowBox = [
+  'Warning: PropTypes',
+  'Warning: checkPropTypes', 
+  'Warning: React.createClass'
+];
+
 
 export default class App extends React.Component {
   componentDidMount() {
@@ -70,10 +76,10 @@ export default class App extends React.Component {
   }
 }
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
     flex: 1,
     backgroundColor: '#fff'
 
   },
-});
+};

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, Image } from 'react-native';
+import { View, Text, Image, ScrollView } from 'react-native';
 import { Card, Divider } from 'react-native-elements';
 import { connect } from 'react-redux';
 import moment from 'moment';
@@ -24,7 +24,11 @@ class SentToMeScreen extends Component {
   }
 
   renderList = () => {
-    return this.state.sentToMe.map(item => {
+    const sortedSentToMe = _.sortBy(this.state.sentToMe, (o) => {
+      return new moment(o.datetime);
+    }).reverse();
+
+    return sortedSentToMe.map(item => {
       // console.log(this.props.myFriends);
       // console.log(item.from.number);
       const matchedFriend = _.find(this.props.myFriends, ['number', item.from.number]);
@@ -55,9 +59,9 @@ class SentToMeScreen extends Component {
 
   render() {
     return (
-      <View>
+      <ScrollView>
         {this.renderList()}
-      </View>
+      </ScrollView>
     );
   }
 }
