@@ -30,8 +30,8 @@ class SendToFriends extends Component {
       return friend.number;
     });
 
-    const sortedFriends = _.orderBy(newMyFriends, [friend => friend.name.toLowerCase()]);
-    const sortedCheckedFriends = sortedFriends.filter(friend => {
+    // const sortedFriends = _.orderBy(newMyFriends, [friend => friend.name.toLowerCase()]);
+    const sortedCheckedFriends = newMyFriends.filter(friend => {
       const newFriend = friend;
       if (sendToFriendsNumbers.includes(friend.number)) {
         newFriend.checked = true;
@@ -59,7 +59,6 @@ class SendToFriends extends Component {
       myFriendsList: newMyFriends,
       checkedFriends
      });
-
   }
 
   onSubmit = () => {

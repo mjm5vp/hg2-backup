@@ -54,10 +54,11 @@ export const syncPropsWithDb = ({ phone, myPoos, myFriends, myInfo }) => async d
   let dbMyFriends = [];
   let dbMyInfo = {};
 
-  console.log('phone');
-  console.log(phone);
+  console.log('myPoos');
+  console.log(myPoos);
 
   try {
+    console.log('1')
     await firebase.database().ref(`/users/${phone}`)
       .once('value', snapshot => {
         dbMyPoos = snapshot.val().myPoos ? snapshot.val().myPoos : [];
@@ -65,11 +66,16 @@ export const syncPropsWithDb = ({ phone, myPoos, myFriends, myInfo }) => async d
         dbMyInfo = snapshot.val().myInfo ? snapshot.val().myInfo : {};
       });
 
+      console.log('2')
+
+
     dbMyPoos = typeof dbMyPoos === 'object' ? _.values(dbMyPoos) : dbMyPoos;
     dbMyFriends = typeof dbMyFriends === 'object' ? _.values(dbMyFriends) : dbMyFriends;
 
     const combinedAndReducedPoos = combineAndDeleteDuplicates(dbMyPoos, myPoos);
     const combinedAndReducedFriends = combineAndDeleteDuplicates(dbMyFriends, myFriends);
+
+    console.log('3')
 
     firebase.database().ref(`/users/${phone}`)
       .update({
@@ -96,6 +102,7 @@ export const syncPropsWithDb = ({ phone, myPoos, myFriends, myInfo }) => async d
     });
   } catch (err) {
     console.log('sync error');
+    console.log(err);
   }
 };
 

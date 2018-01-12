@@ -7,6 +7,8 @@ import { Ionicons } from '@expo/vector-icons';
 
 import feetBackground from '../../assets/backgrounds/feet_background.jpg';
 import allNamedPoos from '../../assets/namedPooExport';
+import OKModal from '../modals/OKModal';
+import Confirm from '../components/Confirm';
 import styles from '../styles/homeStyles';
 import {
   setInputType,
@@ -23,7 +25,9 @@ class HomeScreen extends Component {
   }
 
   state = {
-    currentUser: null
+    currentUser: null,
+    okModalVisible: false,
+    okModalText: ''
   }
 
   componentWillReceiveProps(nextProps) {
@@ -36,28 +40,15 @@ class HomeScreen extends Component {
   }
 
   componentWillMount() {
-    const { token, myPoos, myFriends, myInfo } = this.props;
-    const { currentUser } = firebase.auth();
-    console.log('home componentDidMount currentUser');
-    console.log(currentUser);
-
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         const phone = user.uid;
-        // this.props.authLogin({ token, myPoos, phone, myFriends, myInfo });
+        const { myPoos, myFriends, myInfo } = this.props;
+
         this.props.syncPropsWithDb({ phone, myPoos, myFriends, myInfo });
         this.setState({ currentUser: true });
       }
     });
-
-    // if (token) {
-    //   console.log('token exists');
-    //   console.log(token);
-    //   this.authLoginWithToken(token);
-    //   // this.props.authLogin({ token, myPoos, phone, myFriends });
-    // } else {
-    //   console.log('token does not exist');
-    // }
   }
 
   authLoginWithToken = async (token) => {
@@ -85,6 +76,28 @@ class HomeScreen extends Component {
   navToLog() {
     this.props.setLogType('normal');
     this.props.navigation.navigate('log');
+  }
+
+  navToFriends = () => {
+    if (this.state.currentUser) {
+      this.props.navigation.navigate('friends');
+    } else {
+      this.setState({
+        okModalVisible: true,
+        okModalText: 'You must create an acount or sign in to use this feature.'
+      });
+    }
+  }
+
+  navToSentToMe = () => {
+    if (this.state.currentUser) {
+      this.props.navigation.navigate('sent_to_me');
+    } else {
+      this.setState({
+        okModalVisible: true,
+        okModalText: 'You must create an acount or sign in to use this feature.'
+      });
+    }
   }
 
   authLogout = async () => {
@@ -118,6 +131,10 @@ class HomeScreen extends Component {
         />
       </Card>
     );
+  }
+
+  okModalAccept = () => {
+    this.setState({ okModalVisible: false, okModalText: '' });
   }
 
   render() {
@@ -170,7 +187,7 @@ class HomeScreen extends Component {
           <Button
             title='Friends'
             // icon={{ name: 'ios-people', type: 'font-awesome' }}
-            onPress={() => this.props.navigation.navigate('friends')}
+            onPress={() => this.navToFriends()}
             buttonStyle={styles.mapButton}
             raised
           />
@@ -178,7 +195,7 @@ class HomeScreen extends Component {
           <Button
             title='Sent To Me'
             // icon={{ name: 'ios-people', type: 'font-awesome' }}
-            onPress={() => this.props.navigation.navigate('sent_to_me')}
+            onPress={() => this.navToSentToMe()}
             buttonStyle={styles.mapButton}
             raised
           />
@@ -194,6 +211,13 @@ class HomeScreen extends Component {
           {this.renderAuthButton()}
 
         </ScrollView>
+
+        <OKModal
+          infoText={this.state.okModalText}
+          buttonText='OK'
+          onAccept={this.okModalAccept}
+          visible={this.state.okModalVisible}
+        />
 
       </Image>
     );

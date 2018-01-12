@@ -30,7 +30,6 @@ export default function (state = INITIAL_STATE, action) {
       return { ...state, addedMe: _.uniqBy([...state.addedMe, action.payload], 'number') };
     case SET_SENT_TO_ME:
       console.log('set sent to me reducer');
-      console.log(action.payload);
       return { ...state, sentToMe: action.payload };
     default:
       return state;

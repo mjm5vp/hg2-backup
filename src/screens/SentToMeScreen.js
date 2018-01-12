@@ -18,11 +18,15 @@ class SentToMeScreen extends Component {
   }
 
   componentDidMount() {
+    console.log('componentDidMount');
     this.props.fetchSentToMe();
   }
 
   componentWillReceiveProps(nextProps) {
     const { sentToMe } = nextProps;
+
+    console.log('sentToMe.length');
+    console.log(sentToMe.length);
 
     this.setState({ sentToMe });
   }
@@ -36,15 +40,17 @@ class SentToMeScreen extends Component {
       // console.log(this.props.myFriends);
       // console.log(item.from.number);
       const matchedFriend = _.find(this.props.myFriends, ['number', item.from.number]);
-      // console.log('matchedFriend');
-      // console.log(matchedFriend);
+      const friendName = matchedFriend
+        ? matchedFriend.name
+        : `${item.from.name} (${item.from.number})`;
+
       const datetime = moment(item.poo.datetime).format('MMMM Do YYYY, h:mm a');
       const pooImage = allNamedPoos[item.poo.currentPooName].image;
       const description = item.poo.description === '' ? 'No description' : item.poo.description;
 
       return (
         <Card key={i}>
-          <Text>From: {matchedFriend.name}</Text>
+          <Text>From: {friendName}</Text>
           <View style={styles.containerView}>
             <Image
               source={pooImage}

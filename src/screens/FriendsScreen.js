@@ -21,16 +21,13 @@ class FriendsScreen extends Component {
           type='entypo'
           onPress={() => navigation.navigate('add_friends')}
         />
-        // <Button
-        //   title='Add Friend'
-        //   onPress={() => navigation.navigate('add_friends')}
-        // />
       )
     };
   }
 
   state = {
     addedMe: [],
+    myFriends: [],
     currentUser: null,
     showModal: false,
     editName: '',
@@ -40,12 +37,12 @@ class FriendsScreen extends Component {
 
   componentWillMount() {
     const { currentUser } = firebase.auth();
+    const { myFriends } = this.props;
 
-    if (currentUser) {
-      this.setState({ currentUser });
-      // this.props.setFriendsFromDb();
-      this.checkAddedMe();
-    }
+    const sortedFriends = _.orderBy(myFriends, [friend => friend.name.toLowerCase()]);
+
+    this.setState({ currentUser, myFriends: sortedFriends });
+    this.checkAddedMe();
   }
 
   checkAddedMe = async () => {
@@ -111,7 +108,9 @@ class FriendsScreen extends Component {
   }
 
   acceptFriend = ({ name, number }) => {
-    this.props.acceptFriend({ name, number });
+    const { myInfo } = this.props;
+
+    this.props.acceptFriend({ name, number, myName: myInfo.name, myNumber: myInfo.number });
     this.removeFromAddedMe({ number });
   }
 
@@ -134,21 +133,19 @@ class FriendsScreen extends Component {
   }
 
   renderFriendsList = () => {
-    const { myFriends } = this.props;
-
-    myFriends.forEach(friend => {
-      console.log(friend.name);
-      console.log(friend.checked);
-    });
+    const { myFriends } = this.state;
 
     const myFriendsList = myFriends.map((friend, i) => {
       return (
-        <TouchableOpacity onPress={() => this.editContactInfo(friend.name, friend.number, i)}>
-          <View key={i}>
+        <TouchableOpacity
+          key={i}
+          onPress={() => this.editContactInfo(friend.name, friend.number, i)}
+        >
+          <View style={styles.friendView}>
             <Text>{friend.name}</Text>
             <Text>{friend.number}</Text>
-            <Divider style={{ backgroundColor: 'blue' }} />
           </View>
+          <Divider />
         </TouchableOpacity>
       );
     });
@@ -163,22 +160,22 @@ class FriendsScreen extends Component {
   }
 
   onEditAccept = () => {
-    const { editName, editNumber, id } = this.state;
+    const { editName, editNumber, id, myFriends } = this.state;
 
-    const newMyFriends = this.props.myFriends;
+    const newMyFriends = myFriends;
     newMyFriends[id] = { name: editName, number: editNumber };
 
     this.props.setFriends(newMyFriends);
-    this.setState({ showModal: false });
+    this.setState({ showModal: false, myFriends: newMyFriends });
   }
 
   onDelete = () => {
-    const { id } = this.state;
-    const newMyFriends = this.props.myFriends;
+    const { id, myFriends } = this.state;
+    const newMyFriends = myFriends;
     newMyFriends.splice(id, 1);
 
     this.props.setFriends(newMyFriends);
-    this.setState({ showModal: false });
+    this.setState({ showModal: false, myFriends: newMyFriends });
   }
 
   onCancel = () => {
@@ -187,8 +184,7 @@ class FriendsScreen extends Component {
 
   render() {
     const { currentUser } = firebase.auth();
-    console.log('currentUser');
-    console.log(currentUser);
+
     if (!currentUser) {
       return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -278,13 +274,18 @@ const styles = {
   },
   iconView: {
     flexDirection: 'row'
+  },
+  friendView: {
+    marginTop: 10,
+    marginBottom: 10
   }
 };
 
 const mapStateToProps = state => {
   const { myFriends, addedMe } = state.friends;
+  const { myInfo } = state.auth;
 
-  return { myFriends, addedMe };
+  return { myFriends, addedMe, myInfo };
 };
 
 export default connect(mapStateToProps, {

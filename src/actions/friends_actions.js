@@ -6,6 +6,8 @@ import { SET_FRIENDS, ADD_FRIEND, ADDED_ME, ACCEPT_FRIEND, SET_SENT_TO_ME } from
 export const setFriends = (myFriends) => async dispatch => {
   const { currentUser } = firebase.auth();
 
+  // const sortedFriends = _.orderBy(myFriends, [friend => friend.name.toLowerCase()]);
+
   try {
     await firebase.database().ref(`users/${currentUser.uid}/myFriends`)
       .set(myFriends);
@@ -31,20 +33,25 @@ export const setFriendsFromDb = () => async dispatch => {
   dbMyFriends = dbMyFriends.map(friend => {
     return { ...friend, number: String(friend.number) };
   });
+  const sortedFriends = _.orderBy(dbMyFriends, [friend => friend.name.toLowerCase()]);
 
-  dispatch({ type: SET_FRIENDS, payload: dbMyFriends });
+  dispatch({ type: SET_FRIENDS, payload: sortedFriends });
 };
 
-export const acceptFriend = ({ name, number }) => async dispatch => {
+export const acceptFriend = ({ name, number, myName, myNumber }) => async dispatch => {
   const { currentUser } = firebase.auth();
 
   try {
     firebase.database().ref(`/users/${currentUser.uid}/myFriends/`)
       .push({ name, number });
 
+    firebase.database().ref(`/users/${String(number)}/myFriends/`)
+      .push({ name: myName, number: myNumber });
+
     dispatch({ type: ACCEPT_FRIEND, payload: { name, number } });
   } catch (err) {
     console.log('could not accept friend');
+    console.log(err);
     return {};
   }
 };
@@ -100,12 +107,14 @@ export const fetchSentToMe = () => async dispatch => {
   let sentToMe = [];
 
   try {
+    console.log('before firebase')
     await firebase.database().ref(`users/${currentUser.uid}/sentToMe`)
       .once('value', snapshot => {
         if (snapshot.val()) {
           sentToMe = snapshot.val();
         }
       });
+    console.log('after firebase')
 
     sentToMe = typeof sentToMe === 'object' ? _.values(sentToMe) : sentToMe;
 
@@ -115,6 +124,7 @@ export const fetchSentToMe = () => async dispatch => {
     dispatch({ type: SET_SENT_TO_ME, payload: sentToMe });
   } catch (err) {
     console.log('could not fetch sentToMe');
+    console.log(err);
   }
 };
 
