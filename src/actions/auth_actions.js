@@ -1,7 +1,17 @@
+import { Notifications, Permissions } from 'expo';
 import { AsyncStorage } from 'react-native';
 import firebase from 'firebase';
 import _ from 'lodash';
-import { LOGIN_SUCCESS, LOGIN_FAIL, EDIT_POOS, EDIT_MY_INFO, SET_FRIENDS } from './types';
+import {
+  LOGIN_SUCCESS,
+  LOGIN_FAIL,
+  EDIT_POOS,
+  EDIT_MY_INFO,
+  SET_FRIENDS,
+  ADDED_ME
+} from './types';
+
+const { currentUser } = firebase.auth();
 
 export const editMyInfo = ({ name, number }) => {
   const strNumber = String(number);
@@ -15,8 +25,6 @@ export const editMyInfo = ({ name, number }) => {
 };
 
 export const deleteUser = (token) => async dispatch => {
-  const { currentUser } = firebase.auth();
-
   try {
     await firebase.auth().signInWithCustomToken(token);
     await currentUser.delete();
@@ -49,42 +57,39 @@ export const authLogout = () => {
   return { type: LOGIN_FAIL };
 };
 
-export const syncPropsWithDb = ({ phone, myPoos, myFriends, myInfo }) => async dispatch => {
+export const syncPropsWithDb = ({ phone, myPoos, myFriends }) => async dispatch => {
   let dbMyPoos = [];
   let dbMyFriends = [];
   let dbMyInfo = {};
+  let dbAddedMe = [];
 
   console.log('myPoos');
   console.log(myPoos);
 
   try {
-    console.log('1')
     await firebase.database().ref(`/users/${phone}`)
       .once('value', snapshot => {
         dbMyPoos = snapshot.val().myPoos ? snapshot.val().myPoos : [];
         dbMyFriends = snapshot.val().myFriends ? snapshot.val().myFriends : [];
         dbMyInfo = snapshot.val().myInfo ? snapshot.val().myInfo : {};
+        dbAddedMe = snapshot.val().addedMe ? snapshot.val().myInfo : [];
       });
-
-      console.log('2')
-
 
     dbMyPoos = typeof dbMyPoos === 'object' ? _.values(dbMyPoos) : dbMyPoos;
     dbMyFriends = typeof dbMyFriends === 'object' ? _.values(dbMyFriends) : dbMyFriends;
+    dbAddedMe = typeof dbAddedMe === 'object' ? _.values(dbAddedMe) : dbAddedMe;
 
     const combinedAndReducedPoos = combineAndDeleteDuplicates(dbMyPoos, myPoos);
     const combinedAndReducedFriends = combineAndDeleteDuplicates(dbMyFriends, myFriends);
-
-    console.log('3')
 
     firebase.database().ref(`/users/${phone}`)
       .update({
         myPoos: combinedAndReducedPoos,
         myFriends: combinedAndReducedFriends,
-        // myInfo
+        // myInfo,
       });
 
-    console.log('success');
+    console.log('syncPropsWithDb success');
 
     dispatch({
       type: EDIT_MY_INFO,
@@ -100,56 +105,50 @@ export const syncPropsWithDb = ({ phone, myPoos, myFriends, myInfo }) => async d
       type: SET_FRIENDS,
       payload: combinedAndReducedFriends
     });
+
+    dispatch({
+      type: ADDED_ME,
+      payload: dbAddedMe
+    });
   } catch (err) {
     console.log('sync error');
     console.log(err);
   }
 };
 
-// const convertStringToDatetime = (inputPoos) => {
-//   return inputPoos.map(poo => {
-//     const newPoo = poo;
-//     console.log('newPoo');
-//     console.log(newPoo);
-//     console.log('typeof newPoo.datetime')
-//     console.log(typeof newPoo.datetime)
-//     let newDatetime = newPoo.datetime;
-//
-//     if (typeof newPoo.datetime === 'string') {
-//       console.log('its a string');
-//       newDatetime = moment(newPoo.datetime);
-//     }
+export const registerForPushNotificationsAsync = () => async dispatch => {
+  const { status: existingStatus } = await Permissions.getAsync(
+    Permissions.NOTIFICATIONS
+  );
+  let finalStatus = existingStatus;
 
+  // only ask if permissions have not already been determined, because
+  // iOS won't necessarily prompt the user a second time.
+  if (existingStatus !== 'granted') {
+    // Android remote notification permissions are granted during the app
+    // install, so this will only ask on iOS
+    const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+    finalStatus = status;
+  }
 
-    // const newDatetime = typeof newPoo.datetime === 'string'
-    //   ? moment(newPoo.datetime)
-    //   : newPoo.datetime;
+  // Stop here if the user did not grant permissions
+  if (finalStatus !== 'granted') {
+    return;
+  }
 
-//     console.log("newDatetime");
-//     console.log(newDatetime);
-//
-//     console.log('typeof newDatetime')
-//     console.log(typeof newDatetime)
-//
-//     newPoo.datetime = newDatetime;
-//     return newPoo;
-//   });
-// };
-//
-// const convertDatetimeToString = (inputPoos) => {
-//   return inputPoos.map(poo => {
-//     const newPoo = poo;
-//
-//     if (typeof newPoo.datetime === 'object') {
-//       const date = newPoo.datetime.format('YYYY-MM-DD');
-//       const newTime = newPoo.datetime.format('HH:mm');
-//       const newDatetime = `${date}T${newTime}`;
-//       newPoo.datetime = newDatetime;
-//     }
-//
-//     return newPoo;
-//   });
-// };
+  // Get the token that uniquely identifies this device
+  const token = await Notifications.getExpoPushTokenAsync();
+
+  // POST the token to your backend server from where you
+  // can retrieve it to send push notifications.
+  try {
+    firebase.database().ref(`users/${currentUser.uid}/notifications`)
+      .set({ token });
+  } catch (err) {
+    console.log(err);
+    console.log('could not save notification token');
+  }
+};
 
 const combineAndDeleteDuplicates = (array1, array2) => {
   const combinedArray = array1.concat(array2);

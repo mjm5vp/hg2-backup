@@ -6,7 +6,13 @@ import Modal from 'react-native-modal';
 import firebase from 'firebase';
 import _ from 'lodash';
 
-import { checkAddedMe, acceptFriend, setFriendsFromDb, setFriends } from '../actions';
+import {
+  checkAddedMe,
+  acceptFriend,
+  setFriendsFromDb,
+  setFriends,
+  registerForPushNotificationsAsync
+} from '../actions';
 import modalStyles from '../styles/modalStyles';
 
 class FriendsScreen extends Component {
@@ -292,5 +298,6 @@ export default connect(mapStateToProps, {
   checkAddedMe,
   acceptFriend,
   setFriendsFromDb,
-  setFriends
+  setFriends,
+  registerForPushNotificationsAsync
 })(FriendsScreen);

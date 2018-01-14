@@ -11,7 +11,7 @@ const styles = {
     height: null,
   },
   scrollViewContainer: {
-    // flex: 1,
+    flex: 1,
     // justifyContent: 'flex-start',
     // alignItems: 'center'
   },
@@ -52,6 +52,12 @@ const styles = {
     height: 30,
     margin: 10,
 
+  },
+  bigButton: {
+    backgroundColor: 'rgba(0,150,136,0.5)',
+    width: 250,
+    height: 200,
+    margin: 10
   }
 };
 

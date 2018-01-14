@@ -33,9 +33,9 @@ export const setFriendsFromDb = () => async dispatch => {
   dbMyFriends = dbMyFriends.map(friend => {
     return { ...friend, number: String(friend.number) };
   });
-  const sortedFriends = _.orderBy(dbMyFriends, [friend => friend.name.toLowerCase()]);
+  // const sortedFriends = _.orderBy(dbMyFriends, [friend => friend.name.toLowerCase()]);
 
-  dispatch({ type: SET_FRIENDS, payload: sortedFriends });
+  dispatch({ type: SET_FRIENDS, payload: dbMyFriends });
 };
 
 export const acceptFriend = ({ name, number, myName, myNumber }) => async dispatch => {
@@ -107,14 +107,12 @@ export const fetchSentToMe = () => async dispatch => {
   let sentToMe = [];
 
   try {
-    console.log('before firebase')
     await firebase.database().ref(`users/${currentUser.uid}/sentToMe`)
       .once('value', snapshot => {
         if (snapshot.val()) {
           sentToMe = snapshot.val();
         }
       });
-    console.log('after firebase')
 
     sentToMe = typeof sentToMe === 'object' ? _.values(sentToMe) : sentToMe;
 

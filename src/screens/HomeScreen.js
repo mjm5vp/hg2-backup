@@ -1,14 +1,12 @@
 import React, { Component } from 'react';
 import { View, Text, Image, TouchableOpacity, ScrollView } from 'react-native';
-import { Button, Card } from 'react-native-elements';
+import { Button, Card, Badge } from 'react-native-elements';
 import { connect } from 'react-redux';
 import firebase from 'firebase';
-import { Ionicons } from '@expo/vector-icons';
 
 import feetBackground from '../../assets/backgrounds/feet_background.jpg';
 import allNamedPoos from '../../assets/namedPooExport';
 import OKModal from '../modals/OKModal';
-import Confirm from '../components/Confirm';
 import styles from '../styles/homeStyles';
 import {
   setInputType,
@@ -16,7 +14,8 @@ import {
   resetInput,
   authLogout,
   authLogin,
-  syncPropsWithDb
+  syncPropsWithDb,
+  fetchSentToMe
 } from '../actions';
 
 class HomeScreen extends Component {
@@ -26,6 +25,7 @@ class HomeScreen extends Component {
 
   state = {
     currentUser: null,
+    addedMe: [],
     okModalVisible: false,
     okModalText: ''
   }
@@ -33,7 +33,7 @@ class HomeScreen extends Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.token) {
       console.log(nextProps.token);
-      this.setState({ currentUser: true });
+      this.setState({ currentUser: true, addedMe: nextProps.addedMe });
     } else {
       this.setState({ currentUser: false });
     }
@@ -146,19 +146,22 @@ class HomeScreen extends Component {
 
         <Text style={styles.headerStyle}>Hoos Going 2</Text>
 
-        <ScrollView style={styles.scrollViewContainer}>
-
-        <TouchableOpacity
-          onPress={() => this.navToAdd()}
+        <ScrollView
+          style={styles.scrollViewContainer}
+          contentContainerStyle={{ alignItems: 'center' }}
         >
-          <View style={styles.addView}>
-            <Text style={styles.addText}>Take a Poo</Text>
-            <Image
-              source={allNamedPoos.sunglasses.image}
-              style={styles.addImage}
-            />
-          </View>
-        </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => this.navToAdd()}
+          >
+            <View style={styles.addView}>
+              <Text style={styles.addText}>Take a Poo</Text>
+              <Image
+                source={allNamedPoos.sunglasses.image}
+                style={styles.addImage}
+              />
+            </View>
+          </TouchableOpacity>
 
           <Button
             title='Map'
@@ -184,13 +187,20 @@ class HomeScreen extends Component {
             raised
           />
 
-          <Button
-            title='Friends'
-            // icon={{ name: 'ios-people', type: 'font-awesome' }}
+          <TouchableOpacity
             onPress={() => this.navToFriends()}
-            buttonStyle={styles.mapButton}
-            raised
-          />
+          >
+            <View style={styles.bigButton}>
+              <View style={{ alignItems: 'flex-end' }}>
+                <Badge
+                  value={this.state.addedMe.length}
+                  containerStyle={{ width: 30 }}
+                />
+              </View>
+
+              <Text>Friends</Text>
+            </View>
+          </TouchableOpacity>
 
           <Button
             title='Sent To Me'
@@ -226,10 +236,10 @@ class HomeScreen extends Component {
 
 const mapStateToProps = state => {
   const { token } = state.auth;
-  const { myFriends, myInfo } = state.friends;
+  const { myFriends, myInfo, addedMe } = state.friends;
   const { myPoos } = state.pooReducer;
 
-  return { token, myFriends, myInfo, myPoos };
+  return { token, myFriends, myInfo, myPoos, addedMe };
 };
 
 export default connect(mapStateToProps, {
@@ -238,5 +248,6 @@ export default connect(mapStateToProps, {
   resetInput,
   authLogout,
   authLogin,
-  syncPropsWithDb
+  syncPropsWithDb,
+  fetchSentToMe
 })(HomeScreen);
