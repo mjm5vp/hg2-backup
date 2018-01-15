@@ -32,7 +32,7 @@ class HomeScreen extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.token) {
-      console.log(nextProps.token);
+      // console.log(nextProps.token);
       this.setState({ currentUser: true, addedMe: nextProps.addedMe });
     } else {
       this.setState({ currentUser: false });
@@ -107,8 +107,8 @@ class HomeScreen extends Component {
 
   renderAuthButton = () => {
     const { currentUser } = firebase.auth();
-    console.log('renderAuthButton currentUser');
-    console.log(currentUser);
+    // console.log('renderAuthButton currentUser');
+    // console.log(currentUser);
       if (this.state.currentUser || currentUser) {
       return (
         <Card>
@@ -138,8 +138,8 @@ class HomeScreen extends Component {
   }
 
   render() {
-    console.log('home render currentUser');
-    console.log(firebase.auth().currentUser);
+    // console.log('home render currentUser');
+    // console.log(firebase.auth().currentUser);
     return (
 
       <Image source={feetBackground} style={styles.backgroundContainer}>

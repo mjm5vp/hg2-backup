@@ -10,9 +10,9 @@ import {
   checkAddedMe,
   acceptFriend,
   setFriendsFromDb,
-  setFriends,
-  registerForPushNotificationsAsync
+  setFriends
 } from '../actions';
+import { registerForPushNotificationsAsync } from '../services/push_notifications';
 import modalStyles from '../styles/modalStyles';
 
 class FriendsScreen extends Component {
@@ -49,6 +49,7 @@ class FriendsScreen extends Component {
 
     this.setState({ currentUser, myFriends: sortedFriends });
     this.checkAddedMe();
+    registerForPushNotificationsAsync();
   }
 
   checkAddedMe = async () => {
@@ -298,6 +299,5 @@ export default connect(mapStateToProps, {
   checkAddedMe,
   acceptFriend,
   setFriendsFromDb,
-  setFriends,
-  registerForPushNotificationsAsync
+  setFriends
 })(FriendsScreen);

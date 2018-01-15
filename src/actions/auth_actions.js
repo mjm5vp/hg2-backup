@@ -1,4 +1,3 @@
-import { Notifications, Permissions } from 'expo';
 import { AsyncStorage } from 'react-native';
 import firebase from 'firebase';
 import _ from 'lodash';
@@ -10,8 +9,6 @@ import {
   SET_FRIENDS,
   ADDED_ME
 } from './types';
-
-const { currentUser } = firebase.auth();
 
 export const editMyInfo = ({ name, number }) => {
   const strNumber = String(number);
@@ -25,6 +22,8 @@ export const editMyInfo = ({ name, number }) => {
 };
 
 export const deleteUser = (token) => async dispatch => {
+  const { currentUser } = firebase.auth();
+
   try {
     await firebase.auth().signInWithCustomToken(token);
     await currentUser.delete();
@@ -113,40 +112,6 @@ export const syncPropsWithDb = ({ phone, myPoos, myFriends }) => async dispatch 
   } catch (err) {
     console.log('sync error');
     console.log(err);
-  }
-};
-
-export const registerForPushNotificationsAsync = () => async dispatch => {
-  const { status: existingStatus } = await Permissions.getAsync(
-    Permissions.NOTIFICATIONS
-  );
-  let finalStatus = existingStatus;
-
-  // only ask if permissions have not already been determined, because
-  // iOS won't necessarily prompt the user a second time.
-  if (existingStatus !== 'granted') {
-    // Android remote notification permissions are granted during the app
-    // install, so this will only ask on iOS
-    const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
-    finalStatus = status;
-  }
-
-  // Stop here if the user did not grant permissions
-  if (finalStatus !== 'granted') {
-    return;
-  }
-
-  // Get the token that uniquely identifies this device
-  const token = await Notifications.getExpoPushTokenAsync();
-
-  // POST the token to your backend server from where you
-  // can retrieve it to send push notifications.
-  try {
-    firebase.database().ref(`users/${currentUser.uid}/notifications`)
-      .set({ token });
-  } catch (err) {
-    console.log(err);
-    console.log('could not save notification token');
   }
 };
 

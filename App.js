@@ -6,7 +6,7 @@ import { StackNavigator } from 'react-navigation';
 import { Provider } from 'react-redux';
 import firebase from 'firebase';
 
-// import registerForNotifications from './services/push_notifications';
+import { registerForNotifications } from './src/services/push_notifications';
 // import store from './src/store';
 import configureStore from './src/store';
 import HomeScreen from './src/screens/HomeScreen';
@@ -26,12 +26,16 @@ import SentToMeScreen from './src/screens/SentToMeScreen';
 
 console.ignoredYellowBox = [
   'Warning: PropTypes',
-  'Warning: checkPropTypes', 
+  'Warning: checkPropTypes',
   'Warning: React.createClass'
 ];
 
 
 export default class App extends React.Component {
+  state = {
+    notification: {}
+  }
+
   componentDidMount() {
     const config = {
       apiKey: 'AIzaSyAB6ioNX2EZn0Z8exCVMoLZeWpFswluVyM',
@@ -42,7 +46,16 @@ export default class App extends React.Component {
       messagingSenderId: '1035913942891'
     };
     firebase.initializeApp(config);
-  }
+    this.notificationSubscription = Notifications.addListener(this.handleNotification);
+    console.log('origin');
+    console.log(this.state.notification.origin);
+    console.log('data');
+    console.log(JSON.stringify(this.state.notification.data));
+  } 
+
+  _handleNotification = (notification) => {
+    this.setState({ notification });
+  };
 
   render() {
     const MainNavigator = StackNavigator({

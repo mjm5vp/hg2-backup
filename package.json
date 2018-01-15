@@ -8,6 +8,7 @@
   "dependencies": {
     "axios": "^0.17.1",
     "expo": "^21.0.3",
+    "expo-server-sdk": "^2.3.3",
     "firebase": "^4.8.1",
     "lodash": "^4.17.4",
     "moment": "^2.20.1",
