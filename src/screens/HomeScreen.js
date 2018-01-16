@@ -3,6 +3,7 @@ import { View, Text, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { Button, Card, Badge } from 'react-native-elements';
 import { connect } from 'react-redux';
 import firebase from 'firebase';
+import axios from 'axios';
 
 import feetBackground from '../../assets/backgrounds/feet_background.jpg';
 import allNamedPoos from '../../assets/namedPooExport';
@@ -214,6 +215,26 @@ class HomeScreen extends Component {
             title='Settings'
             // icon={{ name: 'ios-people', type: 'font-awesome' }}
             onPress={() => this.props.navigation.navigate('settings')}
+            buttonStyle={styles.mapButton}
+            raised
+          />
+
+          <Button
+            title='Test Notification'
+            // icon={{ name: 'ios-people', type: 'font-awesome' }}
+            onPress={async () => {
+              const ROOT_URL = 'https://us-central1-one-time-password-698fc.cloudfunctions.net';
+              const text = 'test poo';
+              const info =
+
+              try {
+                await axios.post(`${ROOT_URL}/sendPushNotification`, { text });
+                console.log('sent');
+              } catch (err) {
+                console.log('try axios error');
+                console.log(err);
+              }
+            }}
             buttonStyle={styles.mapButton}
             raised
           />

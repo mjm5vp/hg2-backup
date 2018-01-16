@@ -5,7 +5,8 @@ import axios from 'axios';
 import firebase from 'firebase';
 import { connect } from 'react-redux';
 
-import { authLogin, editMyInfo } from '../actions';
+import { authLogin, editMyInfo, setNotificationToken } from '../actions';
+import { registerForPushNotificationsAsync } from '../services/push_notifications';
 
 const ROOT_URL = 'https://us-central1-one-time-password-698fc.cloudfunctions.net';
 
@@ -124,6 +125,8 @@ class SignUpForm extends Component {
       const { data: { token } } = await axios
         .post(`${ROOT_URL}/verifyOneTimePassword`, { phone, code });
       await this.props.authLogin({ token, myPoos, phone, myFriends });
+      const pushToken = await registerForPushNotificationsAsync();
+      await this.props.setNotificationToken({ pushToken });
     } catch (err) {
       this.setState({
         message: 'Code not valid. Please try again',
@@ -259,4 +262,8 @@ const mapStateToProps = state => {
   return { myPoos, token, fail, myFriends };
 };
 
-export default connect(mapStateToProps, { authLogin, editMyInfo })(SignUpForm);
+export default connect(mapStateToProps, { 
+  authLogin,
+  editMyInfo,
+  setNotificationToken
+})(SignUpForm);

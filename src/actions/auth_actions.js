@@ -7,7 +7,8 @@ import {
   EDIT_POOS,
   EDIT_MY_INFO,
   SET_FRIENDS,
-  ADDED_ME
+  ADDED_ME,
+  SET_NOTIFICATION_TOKEN
 } from './types';
 
 export const editMyInfo = ({ name, number }) => {
@@ -112,6 +113,22 @@ export const syncPropsWithDb = ({ phone, myPoos, myFriends }) => async dispatch 
   } catch (err) {
     console.log('sync error');
     console.log(err);
+  }
+};
+
+export const setNotificationToken = ({ pushToken }) => async dispatch => {
+  const { currentUser } = firebase.auth();
+
+  try {
+    await firebase.database().ref(`users/${currentUser.uid}/notifications`)
+      .set({ pushToken });
+    dispatch({
+      type: SET_NOTIFICATION_TOKEN,
+      payload: pushToken
+    });
+  } catch (err) {
+    console.log(err);
+    console.log('could not save notification token');
   }
 };
 

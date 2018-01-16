@@ -46,12 +46,24 @@ export default class App extends React.Component {
       messagingSenderId: '1035913942891'
     };
     firebase.initializeApp(config);
-    this.notificationSubscription = Notifications.addListener(this.handleNotification);
-    console.log('origin');
-    console.log(this.state.notification.origin);
-    console.log('data');
-    console.log(JSON.stringify(this.state.notification.data));
-  } 
+    // this.notificationSubscription = Notifications.addListener(this.handleNotification);
+    // console.log('origin');
+    // console.log(this.state.notification.origin);
+    // console.log('data');
+    // console.log(JSON.stringify(this.state.notification.data));
+    // registerForNotifications();
+    Notifications.addListener((notification) => {
+      const { data: { text }, origin } = notification;
+
+      if (origin === 'received') {
+        Alert.alert(
+          'New Push Notification',
+          text,
+          [{ text: 'ok' }]
+        );
+      }
+    });
+  }
 
   _handleNotification = (notification) => {
     this.setState({ notification });

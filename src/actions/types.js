@@ -18,6 +18,7 @@ export const SET_LOG_TYPE = 'set_log_type';
 //Auth
 export const LOGIN_SUCCESS = 'login_success';
 export const LOGIN_FAIL = 'login_fail';
+export const SET_NOTIFICATION_TOKEN = 'set_notification_token';
 
 //Friends
 export const EDIT_MY_INFO = 'edit_my_info';

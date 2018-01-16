@@ -3,7 +3,8 @@ import { PERSIST_REHYDRATE } from 'redux-persist/lib/constants';
 import {
   LOGIN_SUCCESS,
   LOGIN_FAIL,
-  EDIT_MY_INFO
+  EDIT_MY_INFO,
+  SET_NOTIFICATION_TOKEN
  } from '../actions/types';
 
  const INITIAL_STATE = {
@@ -26,6 +27,8 @@ export default function (state = INITIAL_STATE, action) {
       return { token: action.payload };
     case LOGIN_FAIL:
       return { token: null };
+    case SET_NOTIFICATION_TOKEN:
+      return { notificationToken: action.payload };
     default:
       return state;
   }
