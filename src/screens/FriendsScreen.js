@@ -115,9 +115,15 @@ class FriendsScreen extends Component {
   }
 
   acceptFriend = ({ name, number }) => {
-    const { myInfo } = this.props;
+    const { myInfo, notificationToken } = this.props;
 
-    this.props.acceptFriend({ name, number, myName: myInfo.name, myNumber: myInfo.number });
+    this.props.acceptFriend({
+      name,
+      number,
+      myName: myInfo.name,
+      myNumber: myInfo.number,
+      notificationToken
+    });
     this.removeFromAddedMe({ number });
   }
 
@@ -290,9 +296,9 @@ const styles = {
 
 const mapStateToProps = state => {
   const { myFriends, addedMe } = state.friends;
-  const { myInfo } = state.auth;
+  const { myInfo, notificationToken } = state.auth;
 
-  return { myFriends, addedMe, myInfo };
+  return { myFriends, addedMe, myInfo, notificationToken };
 };
 
 export default connect(mapStateToProps, {

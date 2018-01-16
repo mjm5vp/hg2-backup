@@ -267,7 +267,7 @@ class InputScreen extends Component {
     this.props.increaseUID();
 
     if (sendToFriends.length > 0) {
-      this.props.sendToFriendsAction(sendToFriends, poo, myInfo);
+      this.props.sendToFriendsAction({ sendToFriends, poo, myInfo });
     }
     this.props.resetInput();
     this.props.navigation.goBack();

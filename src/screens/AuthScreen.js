@@ -6,7 +6,10 @@ import firebase from 'firebase';
 import { connect } from 'react-redux';
 
 import { authLogin, editMyInfo, setNotificationToken } from '../actions';
-import { registerForPushNotificationsAsync } from '../services/push_notifications';
+import {
+  registerForPushNotificationsAsync,
+  registerForRemoteNotifications
+} from '../services/push_notifications';
 
 const ROOT_URL = 'https://us-central1-one-time-password-698fc.cloudfunctions.net';
 
@@ -118,14 +121,14 @@ class SignUpForm extends Component {
 
   signIn = async () => {
     const { phone, code } = this.state;
-    const { myPoos, myFriends } = this.props;
+    const { myPoos, myFriends, notificationToken } = this.props;
     this.setState({ showSpinner: true });
 
     try {
       const { data: { token } } = await axios
         .post(`${ROOT_URL}/verifyOneTimePassword`, { phone, code });
       await this.props.authLogin({ token, myPoos, phone, myFriends });
-      const pushToken = await registerForPushNotificationsAsync();
+      const pushToken = await registerForRemoteNotifications(notificationToken);
       await this.props.setNotificationToken({ pushToken });
     } catch (err) {
       this.setState({
@@ -256,13 +259,13 @@ const styles = {
 
 const mapStateToProps = state => {
   const { myPoos } = state.pooReducer;
-  const { token, fail } = state.auth;
+  const { token, fail, notificationToken } = state.auth;
   const { myFriends } = state.friends;
 
-  return { myPoos, token, fail, myFriends };
+  return { myPoos, token, fail, myFriends, notificationToken };
 };
 
-export default connect(mapStateToProps, { 
+export default connect(mapStateToProps, {
   authLogin,
   editMyInfo,
   setNotificationToken

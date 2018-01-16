@@ -219,26 +219,6 @@ class HomeScreen extends Component {
             raised
           />
 
-          <Button
-            title='Test Notification'
-            // icon={{ name: 'ios-people', type: 'font-awesome' }}
-            onPress={async () => {
-              const ROOT_URL = 'https://us-central1-one-time-password-698fc.cloudfunctions.net';
-              const text = 'test poo';
-              const info =
-
-              try {
-                await axios.post(`${ROOT_URL}/sendPushNotification`, { text });
-                console.log('sent');
-              } catch (err) {
-                console.log('try axios error');
-                console.log(err);
-              }
-            }}
-            buttonStyle={styles.mapButton}
-            raised
-          />
-
           {this.renderAuthButton()}
 
         </ScrollView>

@@ -12,7 +12,8 @@ import {
      name: '',
      number: ''
    },
-   token: null
+   token: null,
+   notificationToken: null
  };
 
 export default function (state = INITIAL_STATE, action) {

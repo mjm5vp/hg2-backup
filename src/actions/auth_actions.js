@@ -80,7 +80,7 @@ export const syncPropsWithDb = ({ phone, myPoos, myFriends }) => async dispatch 
     dbAddedMe = typeof dbAddedMe === 'object' ? _.values(dbAddedMe) : dbAddedMe;
 
     const combinedAndReducedPoos = combineAndDeleteDuplicates(dbMyPoos, myPoos);
-    const combinedAndReducedFriends = combineAndDeleteDuplicates(dbMyFriends, myFriends);
+    const combinedAndReducedFriends = combineAndDeleteFriendsByNumber(dbMyFriends, myFriends);
 
     firebase.database().ref(`/users/${phone}`)
       .update({
@@ -136,4 +136,10 @@ const combineAndDeleteDuplicates = (array1, array2) => {
   const combinedArray = array1.concat(array2);
 
   return _.uniqWith(combinedArray, _.isEqual);
+};
+
+const combineAndDeleteFriendsByNumber = (array1, array2) => {
+  const combinedArray = array1.concat(array2);
+
+  return _.uniqBy(combinedArray, 'number');
 };

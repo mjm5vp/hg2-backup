@@ -1,9 +1,8 @@
-import firebase from 'firebase';
 import { Notifications, Permissions } from 'expo';
-// import Expo from 'expo-server-sdk';
+import axios from 'axios';
 
 export const registerForPushNotificationsAsync = async () => {
-  const { currentUser } = firebase.auth();
+  // const { currentUser } = firebase.auth();
 
   const { status: existingStatus } = await Permissions.getAsync(
     Permissions.NOTIFICATIONS
@@ -42,20 +41,32 @@ export const registerForPushNotificationsAsync = async () => {
   return token;
 };
 
-export const registerForRemoteNotifications = async () => {
-  const previousToken = await AsyncStorage.getItem('pushtoken');
+export const registerForRemoteNotifications = async (previousToken) => {
   console.log(previousToken);
   if (previousToken) {
-    return;
-  } else {
-    let { status } = await Permissions.askAsync(Permissions.REMOTE_NOTIFICATIONS);
+    return previousToken;
+  }
 
-    if (status !== 'granted') {
-      return;
-    }
+  const { status } = await Permissions.askAsync(Permissions.REMOTE_NOTIFICATIONS);
 
-    let token = await Notifications.getExpoPushTokenAsync();
-    await axios.post(PUSH_ENDPOINT, { token: { token } });
-    AsyncStorage.setItem('pushtoken', token);
+  if (status !== 'granted') {
+    return null;
+  }
+
+  const newToken = await Notifications.getExpoPushTokenAsync();
+  return newToken;
+};
+
+export const sendNotification = async ({ pushToken }) => {
+  const ROOT_URL = 'https://us-central1-one-time-password-698fc.cloudfunctions.net';
+  const text = 'test text';
+  const info = 'test info';
+
+  try {
+    await axios.post(`${ROOT_URL}/sendPushNotification`, { pushToken, text, info });
+    console.log('sent');
+  } catch (err) {
+    console.log('try axios error');
+    console.log(err);
   }
 };

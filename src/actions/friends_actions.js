@@ -1,6 +1,7 @@
 import firebase from 'firebase';
 import _ from 'lodash';
 
+import { sendNotification } from '../services/push_notifications';
 import { SET_FRIENDS, ADD_FRIEND, ADDED_ME, ACCEPT_FRIEND, SET_SENT_TO_ME } from './types';
 
 export const setFriends = (myFriends) => async dispatch => {
@@ -38,15 +39,25 @@ export const setFriendsFromDb = () => async dispatch => {
   dispatch({ type: SET_FRIENDS, payload: dbMyFriends });
 };
 
-export const acceptFriend = ({ name, number, myName, myNumber }) => async dispatch => {
+export const acceptFriend = ({ name, number, myName, myNumber, notificationToken }) =>
+async dispatch => {
   const { currentUser } = firebase.auth();
 
   try {
+    let pushToken = null;
+
+    await firebase.database().ref(`users/${String(number)}/pushToken`)
+      .once('value', snapshot => {
+        if (snapshot.val()) {
+          pushToken = snapshot.val();
+        }
+      });
+
     firebase.database().ref(`/users/${currentUser.uid}/myFriends/`)
-      .push({ name, number });
+      .push({ name, number, pushToken });
 
     firebase.database().ref(`/users/${String(number)}/myFriends/`)
-      .push({ name: myName, number: myNumber });
+      .push({ name: myName, number: myNumber, pushToken: notificationToken });
 
     dispatch({ type: ACCEPT_FRIEND, payload: { name, number } });
   } catch (err) {
@@ -88,13 +99,18 @@ export const checkAddedMe = async dispatch => {
   });
 };
 
-export const sendToFriendsAction = (friends, poo, myInfo) => async dispatch => {
+export const sendToFriendsAction = ({ friends, poo, myInfo }) => async dispatch => {
   // const { currentUser } = firebase.auth();
 
   friends.forEach(async friend => {
     try {
       await firebase.database().ref(`users/${friend.number}/sentToMe`)
         .push({ from: myInfo, poo });
+      if (friend.pushToken) {
+        console.log('friend.pushToken');
+        console.log(friend.pushToken);
+        sendNotification({ pushToken: friend.pushToken });
+      }
     } catch (err) {
       console.log(`could not send to ${friend.name}`);
     }
