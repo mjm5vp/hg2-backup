@@ -22,7 +22,7 @@ class FriendsScreen extends Component {
       headerRight: (
         <Icon
           raised
-          style={{ marginRight: 10 }}
+          style={{ marginRight: 10, width: 40 }}
           name='add-user'
           type='entypo'
           onPress={() => navigation.navigate('add_friends')}
@@ -44,34 +44,40 @@ class FriendsScreen extends Component {
   componentWillMount() {
     const { currentUser } = firebase.auth();
     const { myFriends } = this.props;
+    // registerForPushNotificationsAsync();
 
     const sortedFriends = _.orderBy(myFriends, [friend => friend.name.toLowerCase()]);
 
     this.setState({ currentUser, myFriends: sortedFriends });
-    this.checkAddedMe();
-    registerForPushNotificationsAsync();
+    this.props.checkAddedMe();
   }
 
-  checkAddedMe = async () => {
-    const { currentUser } = firebase.auth();
-    let addedMe = [];
-
-    if (currentUser) {
-      await firebase.database().ref(`users/${currentUser.uid}/addedMe`)
-        .once('value', snapshot => {
-          if (snapshot.val()) {
-            addedMe = snapshot.val();
-          }
-        });
-    }
-    console.log('addedMe after database check');
-    console.log(addedMe);
-    addedMe = typeof addedMe === 'object' ? _.values(addedMe) : addedMe;
-    // addedMe = addedMe.map(add => {
-    //   return { ...add, number: String(add.number) };
-    // });
-    this.setState({ addedMe });
+  componentWillReceiveProps(nextProps) {
+    // console.log('nextProps.addedMe');
+    // console.log(nextProps.addedMe);
+    this.setState({ addedMe: nextProps.addedMe, myFriends: nextProps.myFriends });
   }
+
+  // checkAddedMe = async () => {
+  //   const { currentUser } = firebase.auth();
+  //   let addedMe = [];
+  //
+  //   if (currentUser) {
+  //     await firebase.database().ref(`users/${currentUser.uid}/addedMe`)
+  //       .once('value', snapshot => {
+  //         if (snapshot.val()) {
+  //           addedMe = snapshot.val();
+  //         }
+  //       });
+  //   }
+  //   console.log('addedMe after database check');
+  //   console.log(addedMe);
+  //   addedMe = typeof addedMe === 'object' ? _.values(addedMe) : addedMe;
+  //   // addedMe = addedMe.map(add => {
+  //   //   return { ...add, number: String(add.number) };
+  //   // });
+  //   this.setState({ addedMe });
+  // }
 
   renderAddedMe = () => {
     const { addedMe } = this.state;

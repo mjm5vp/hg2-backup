@@ -51,9 +51,7 @@ class SettingsScreen extends Component {
   }
 
   deleteAccount = () => {
-    const { token } = this.props;
-
-    this.props.deleteUser(token);
+    this.props.deleteUser();
   }
 
   renderDeleteAccount = () => {

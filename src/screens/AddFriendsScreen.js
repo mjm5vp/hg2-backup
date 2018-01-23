@@ -1,6 +1,15 @@
 import React, { Component } from 'react';
-import { ScrollView, View, Text, ActivityIndicator, TouchableOpacity, ListView } from 'react-native';
-import { Card, List, ListItem, TextInput, FormLabel, FormInput } from 'react-native-elements';
+import {
+  ScrollView,
+  View,
+  Text,
+  ActivityIndicator,
+  TouchableOpacity,
+  ListView,
+  TouchableWithoutFeedback,
+  Keyboard
+} from 'react-native';
+import { Card, List, ListItem, TextInput, FormLabel, FormInput, Icon } from 'react-native-elements';
 import { text } from 'react-native-communications';
 import Modal from 'react-native-modal';
 import Expo from 'expo';
@@ -9,7 +18,9 @@ import _ from 'lodash';
 import { connect } from 'react-redux';
 // import AlphabetListView from 'react-native-alphabetlistview';
 
+import ConfirmCancelModal from '../modals/ConfirmCancelModal';
 import { addFriend } from '../actions';
+import addStyles from '../styles/addStyles';
 import styles from '../styles/modalStyles';
 
 class AddFriends extends Component {
@@ -23,6 +34,8 @@ class AddFriends extends Component {
       contactsNamesAndNumbers: [],
       loading: true,
       showModal: false,
+      confirmCancelModalVisible: false,
+      sendNumber: null,
       newContactName: '',
       newContactNumber: ''
     };
@@ -31,6 +44,12 @@ class AddFriends extends Component {
 
   componentDidMount() {
     this.showFirstContactAsync();
+  }
+
+  addByNumber = () => {
+    this.setState({
+      showModal: true,
+    });
   }
 
   createDataSource(contactsNamesAndNumbers) {
@@ -113,7 +132,11 @@ formatPhone = (phone) => {
 //   });
 // }
 onPressNonUser = (number) => {
-  text(number, 'Join Hoos going 2 so we can track each others poos!');
+  this.setState({ confirmCancelModalVisible: true, sendNumber: number });
+}
+
+sendText = () => {
+  text(this.state.sendNumber, 'Download Hoos going 2 so we can track each others poos!');
 }
 
 onPressUser = (newContactName, newContactNumber) => {
@@ -142,24 +165,50 @@ renderUsingAppList = () => {
     }));
   });
 
-  return usingAppNamesAndNumbers.map(contact => {
+  const finalList = usingAppNamesAndNumbers.map((contact, i) => {
     const { name, number } = contact;
     return (
-      <TouchableOpacity onPress={() => this.onPressUser(name, number)}>
-        <View>
-          <Text>{name}</Text>
-          <Text>{number}</Text>
-        </View>
-      </TouchableOpacity>
+        <Card
+          key={i}
+        >
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <View>
+              <Text>{name}</Text>
+              <Text>{number}</Text>
+            </View>
+            <TouchableOpacity onPress={() => this.onPressUser(name, number)}>
+              <View style={addStyles.addButtonView}>
+                <Text>Add</Text>
+                <Icon
+                  name='ios-add-circle-outline'
+                  type='ionicon'
+                  color='#517fa4'
+                  size={20}
+                  style={{ margin: 5 }}
+                />
+              </View>
+            </TouchableOpacity>
+          </View>
+
+        </Card>
     );
   });
+
+  return (
+    <Card
+      title='Contacts using Hoos Going 2'
+    >
+      {finalList}
+    </Card>
+  );
 }
 
 onAccept = () => {
-  this.props.addFriend({
-    name: this.state.newContactName,
-    number: this.state.newContactNumber
-  });
+  const { name, number } = this.props.myInfo;
+  const friend = { name: this.state.newContactName, number: this.state.newContactNumber };
+  const myInfo = { name, number, pushToken: this.props.notificationToken };
+
+  this.props.addFriend(friend, myInfo);
   this.setState({ showModal: false });
 }
 
@@ -170,93 +219,120 @@ onDecline = () => {
   render() {
     if (this.state.loading) {
       return (
-        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator />
+        <View style={{ marginTop: '50%', alignItems: 'center' }}>
+          <ActivityIndicator size='large' />
         </View>
       );
     }
 
-    const input = (
-      <View>
-        <TextInput
-          label='Name'
-          value={this.state.newContactName}
-          onTextChange={newContactName => this.setState({ newContactName })}
-        />
-        <TextInput
-          label='Number'
-          value={this.state.newContactNumber}
-          onTextChange={newContactNumber => this.setState({ newContactNumber })}
-        />
-      </View>
-    );
+    // const input = (
+    //   <View>
+    //     <TextInput
+    //       label='Name'
+    //       value={this.state.newContactName}
+    //       onTextChange={newContactName => this.setState({ newContactName })}
+    //     />
+    //     <TextInput
+    //       label='Number'
+    //       value={this.state.newContactNumber}
+    //       onTextChange={newContactNumber => this.setState({ newContactNumber })}
+    //     />
+    //   </View>
+    // );
 
     return (
-      <View>
-        <Text>Using App</Text>
-        {this.renderUsingAppList()}
-        <Text>Contacts</Text>
-        <ListView
-          dataSource={this.dataSource}
-          renderRow={this.renderRow}
-        />
+      <ScrollView>
+        <View>
+          <Card>
+            <TouchableOpacity onPress={() => this.addByNumber()}>
+              <View
+                style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }}
+              >
+                <Text>Add Friend by Number</Text>
+                <Icon
+                  name='ios-add-circle-outline'
+                  type='ionicon'
+                  color='#517fa4'
+                  size={20}
+                  style={{ margin: 5 }}
+                />
+              </View>
+            </TouchableOpacity>
+          </Card>
+          {this.renderUsingAppList()}
+          <Card title='Invite Friends'>
+            <ListView
+              dataSource={this.dataSource}
+              renderRow={this.renderRow}
+            />
+          </Card>
 
-        <Modal
-          isVisible={this.state.showModal}
-          backdropColor={'black'}
-          backdropOpacity={0.5}
-          animationIn={'slideInLeft'}
-          animationOut={'slideOutRight'}
-          animationInTiming={250}
-          animationOutTiming={250}
-          backdropTransitionInTiming={250}
-          backdropTransitionOutTiming={250}
-        >
-          <View style={styles.modalContent}>
-            <View style={styles.inputView}>
 
-              <Text>Confirm contact info</Text>
+          <Modal
+            isVisible={this.state.showModal}
+            backdropColor={'black'}
+            backdropOpacity={0.5}
+            animationIn={'slideInLeft'}
+            animationOut={'slideOutRight'}
+            animationInTiming={250}
+            animationOutTiming={250}
+            backdropTransitionInTiming={250}
+            backdropTransitionOutTiming={250}
+          >
+            <View style={styles.modalContent}>
+              <View style={styles.inputView}>
 
-              <FormLabel>Name</FormLabel>
-              <FormInput
-                value={this.state.newContactName}
-                onChangeText={newContactName => this.setState({ newContactName })}
-              />
+                <Text>Confirm contact info</Text>
 
-              <FormLabel>Number</FormLabel>
-              <FormInput
-                value={this.state.newContactNumber}
-                onChangeText={newContactNumber => this.setState({ newContactNumber })}
-              />
+                <FormLabel>Name</FormLabel>
+                <FormInput
+                  value={this.state.newContactName}
+                  onChangeText={newContactName => this.setState({ newContactName })}
+                />
+
+                <FormLabel>Number</FormLabel>
+                <FormInput
+                  keyboardType='number-pad'
+                  value={this.state.newContactNumber}
+                  onChangeText={newContactNumber => this.setState({ newContactNumber })}
+                />
+
+              </View>
+              <View style={styles.buttonView}>
+                <TouchableOpacity onPress={this.onAccept}>
+                  <View style={styles.button}>
+                    <Text>Add Friend</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={this.onDecline}>
+                  <View style={styles.cancelButton}>
+                    <Text>Cancel</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
 
             </View>
-            <View style={styles.buttonView}>
-              <TouchableOpacity onPress={this.onAccept}>
-                <View style={styles.button}>
-                  <Text>Add Friend</Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={this.onDecline}>
-                <View style={styles.cancelButton}>
-                  <Text>Cancel</Text>
-                </View>
-              </TouchableOpacity>
-            </View>
 
-          </View>
+          </Modal>
 
-        </Modal>
+          <ConfirmCancelModal
+            infoText='Text contact with invite link?'
+            visible={this.state.confirmCancelModalVisible}
+            onAccept={this.sendText}
+            onDecline={() => this.setState({ confirmCancelModalVisible: false })}
+          />
 
-      </View>
-
+        </View>
+      </ScrollView>
     );
   }
 }
 
 const mapStateToProps = state => {
+  const { myInfo, notificationToken } = state.auth;
   const { myFriends } = state.friends;
 
-  return { myFriends };
+  return { myFriends, myInfo, notificationToken };
 };
 
 export default connect(mapStateToProps, { addFriend })(AddFriends);

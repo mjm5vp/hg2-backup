@@ -40,6 +40,12 @@ const styles = {
   buttonView: {
     flexDirection: 'row'
   },
+  twoButtonView: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    
+  },
   dangerButton: {
     backgroundColor: 'red',
     padding: 12,

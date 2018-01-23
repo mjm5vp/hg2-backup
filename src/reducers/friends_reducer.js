@@ -27,9 +27,12 @@ export default function (state = INITIAL_STATE, action) {
     case ADD_FRIEND:
       return state;
     case ADDED_ME:
-      return { ...state, addedMe: _.uniqBy([...state.addedMe, action.payload], 'number') };
+      // return { ...state, addedMe: _.uniqBy([...state.addedMe, action.payload], 'number') };
+      // console.log('reducer');
+      // console.log(action.payload);
+      return { ...state, addedMe: _.uniqBy(action.payload, 'number') };
     case SET_SENT_TO_ME:
-      console.log('set sent to me reducer');
+      // console.log('set sent to me reducer');
       return { ...state, sentToMe: action.payload };
     default:
       return state;

@@ -42,12 +42,16 @@ export const registerForPushNotificationsAsync = async () => {
 };
 
 export const registerForRemoteNotifications = async (previousToken) => {
-  console.log(previousToken);
   if (previousToken) {
+    console.log('previousToken exists');
+    console.log(previousToken);
     return previousToken;
   }
 
   const { status } = await Permissions.askAsync(Permissions.REMOTE_NOTIFICATIONS);
+
+  console.log('status');
+  console.log(status);
 
   if (status !== 'granted') {
     return null;

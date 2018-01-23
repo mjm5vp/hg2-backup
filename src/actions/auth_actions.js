@@ -1,5 +1,6 @@
 import { AsyncStorage } from 'react-native';
 import firebase from 'firebase';
+import axios from 'axios';
 import _ from 'lodash';
 import {
   LOGIN_SUCCESS,
@@ -22,15 +23,16 @@ export const editMyInfo = ({ name, number }) => {
   };
 };
 
-export const deleteUser = (token) => async dispatch => {
-  const { currentUser } = firebase.auth();
+export const deleteUser = () => async dispatch => {
+  const ROOT_URL = 'https://us-central1-one-time-password-698fc.cloudfunctions.net';
+  const { currentUser: { uid } } = firebase.auth();
 
   try {
-    await firebase.auth().signInWithCustomToken(token);
-    await currentUser.delete();
-    await firebase.database().ref(`users/${currentUser.uid}`)
+    await axios.post(`${ROOT_URL}/deleteUser`, { uid });
+    await firebase.database().ref(`users/${uid}`)
       .remove();
     authLogout();
+    dispatch({ type: SET_NOTIFICATION_TOKEN, payload: null });
   } catch (err) {
     console.log(err);
     console.log('could not delete account');
@@ -50,11 +52,16 @@ export const authLogin = ({ token, myPoos, phone, myFriends, myInfo }) => async 
   }
 };
 
-export const authLogout = () => {
+export const authLogout = () => async dispatch => {
   console.log('authLogout action');
-  firebase.auth().signOut();
-  AsyncStorage.removeItem('fb_token', () => {});
-  return { type: LOGIN_FAIL };
+  try {
+    await firebase.auth().signOut();
+    dispatch({ type: LOGIN_FAIL });
+  } catch (err) {
+    console.log('authLogout error');
+    console.log(err);
+  }
+
 };
 
 export const syncPropsWithDb = ({ phone, myPoos, myFriends }) => async dispatch => {
@@ -62,6 +69,7 @@ export const syncPropsWithDb = ({ phone, myPoos, myFriends }) => async dispatch 
   let dbMyFriends = [];
   let dbMyInfo = {};
   let dbAddedMe = [];
+  let dbPushToken = '';
 
   console.log('myPoos');
   console.log(myPoos);
@@ -73,6 +81,7 @@ export const syncPropsWithDb = ({ phone, myPoos, myFriends }) => async dispatch 
         dbMyFriends = snapshot.val().myFriends ? snapshot.val().myFriends : [];
         dbMyInfo = snapshot.val().myInfo ? snapshot.val().myInfo : {};
         dbAddedMe = snapshot.val().addedMe ? snapshot.val().myInfo : [];
+        dbPushToken = snapshot.val().pushToken ? snapshot.val().pushToken : '';
       });
 
     dbMyPoos = typeof dbMyPoos === 'object' ? _.values(dbMyPoos) : dbMyPoos;
@@ -91,10 +100,15 @@ export const syncPropsWithDb = ({ phone, myPoos, myFriends }) => async dispatch 
 
     console.log('syncPropsWithDb success');
 
+    console.log('dbMyInfo 1');
+    console.log(dbMyInfo);
+
     dispatch({
       type: EDIT_MY_INFO,
       payload: dbMyInfo
     });
+    console.log('dbMyInfo 2');
+    console.log(dbMyInfo);
 
     dispatch({
       type: EDIT_POOS,
@@ -110,6 +124,11 @@ export const syncPropsWithDb = ({ phone, myPoos, myFriends }) => async dispatch 
       type: ADDED_ME,
       payload: dbAddedMe
     });
+
+    dispatch({
+      type: SET_NOTIFICATION_TOKEN,
+      payload: dbPushToken
+    });
   } catch (err) {
     console.log('sync error');
     console.log(err);
@@ -120,8 +139,8 @@ export const setNotificationToken = ({ pushToken }) => async dispatch => {
   const { currentUser } = firebase.auth();
 
   try {
-    await firebase.database().ref(`users/${currentUser.uid}/notifications`)
-      .set({ pushToken });
+    await firebase.database().ref(`users/${currentUser.uid}/pushToken`)
+      .set(pushToken);
     dispatch({
       type: SET_NOTIFICATION_TOKEN,
       payload: pushToken

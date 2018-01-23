@@ -89,13 +89,13 @@ class SignUpForm extends Component {
 
   newUser = async (phone) => {
     try {
-      await axios.post(`${ROOT_URL}/createUser`, { phone });
-      console.log('user created');
       this.setState({
         showName: false,
         phoneEntered: true,
         codeMessage: 'You will recieve a text message shortly with a 4-digit code.'
       });
+      await axios.post(`${ROOT_URL}/createUser`, { phone });
+      console.log('user created');
       this.requestPassword(phone);
     } catch (err) {
       console.log(err);
@@ -106,7 +106,6 @@ class SignUpForm extends Component {
   requestPassword = async (phone) => {
     try {
       await axios.post(`${ROOT_URL}/requestOneTimePassword`, { phone });
-      Keyboard.dismiss();
     } catch (err) {
       this.setState({
         message: 'Phone number not valid.  Please try again.',
@@ -146,6 +145,7 @@ class SignUpForm extends Component {
       this.props.editMyInfo({ name, number: phone });
       this.setState({ showName: false, phoneEntered: true });
       this.newUser(phone);
+      Keyboard.dismiss();
     } else {
       this.setState({ message: 'Please enter you Name' });
     }

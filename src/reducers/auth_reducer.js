@@ -23,13 +23,11 @@ export default function (state = INITIAL_STATE, action) {
     case EDIT_MY_INFO:
       return { ...state, myInfo: { name: action.payload.name, number: action.payload.number } };
     case LOGIN_SUCCESS:
-      console.log('auth reducer action.payload');
-      console.log(action.payload);
-      return { token: action.payload };
+      return { ...state, token: action.payload };
     case LOGIN_FAIL:
-      return { token: null };
+      return { ...state, token: null };
     case SET_NOTIFICATION_TOKEN:
-      return { notificationToken: action.payload };
+      return { ...state, notificationToken: action.payload };
     default:
       return state;
   }

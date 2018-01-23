@@ -32,12 +32,13 @@ class HomeScreen extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.token) {
-      // console.log(nextProps.token);
-      this.setState({ currentUser: true, addedMe: nextProps.addedMe });
-    } else {
-      this.setState({ currentUser: false });
-    }
+    // console.log('componentWillReceiveProps');
+    // console.log(nextProps.token);
+    // if (nextProps.token) {
+    //   this.setState({ currentUser: true, addedMe: nextProps.addedMe });
+    // } else {
+    //   this.setState({ currentUser: false });
+    // }
   }
 
   componentWillMount() {
@@ -48,6 +49,8 @@ class HomeScreen extends Component {
 
         this.props.syncPropsWithDb({ phone, myPoos, myFriends, myInfo });
         this.setState({ currentUser: true });
+      } else {
+        this.setState({ currentUser: false });
       }
     });
   }

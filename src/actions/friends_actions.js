@@ -46,7 +46,7 @@ async dispatch => {
   try {
     let pushToken = null;
 
-    await firebase.database().ref(`users/${String(number)}/pushToken`)
+    await firebase.database().ref(`users/${String(number)}/myInfo/pushToken`)
       .once('value', snapshot => {
         if (snapshot.val()) {
           pushToken = snapshot.val();
@@ -67,31 +67,34 @@ async dispatch => {
   }
 };
 
-export const addFriend = (friend) => {
-  const { name, number } = friend;
+export const addFriend = (friend, myInfo) => async dispatch => {
   try {
-    firebase.database().ref(`/users/${friend.number}/addedMe/`)
-      .push({ name, number });
+    await firebase.database().ref(`/users/${friend.number}/addedMe/`)
+      .push(myInfo);
 
-    return {
+    dispatch({
       type: ADD_FRIEND,
       payload: null
-    };
+    });
   } catch (err) {
     console.log('could not add friend');
     return {};
   }
 };
 
-export const checkAddedMe = async dispatch => {
+export const checkAddedMe = () => async dispatch => {
   const { currentUser } = firebase.auth();
   let addedMe = [];
-  await firebase.database().ref(`users/${currentUser.uid}`)
+  await firebase.database().ref(`users/${currentUser.uid}/addedMe`)
     .once('value', snapshot => {
       if (snapshot.val()) {
         addedMe = snapshot.val();
       }
     });
+  addedMe = typeof addedMe === 'object' ? _.values(addedMe) : addedMe;
+
+  console.log('checkAddedMe addedMe');
+  console.log(addedMe);
 
   dispatch({
     type: ADDED_ME,
