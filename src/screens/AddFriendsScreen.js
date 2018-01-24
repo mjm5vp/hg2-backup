@@ -7,21 +7,23 @@ import {
   TouchableOpacity,
   ListView,
   TouchableWithoutFeedback,
-  Keyboard
+  Keyboard,
+  Linking
 } from 'react-native';
-import { Card, List, ListItem, TextInput, FormLabel, FormInput, Icon } from 'react-native-elements';
+import { Card, ListItem, Icon, Button, FormInput, FormLabel } from 'react-native-elements';
 import { text } from 'react-native-communications';
-import Modal from 'react-native-modal';
 import Expo from 'expo';
+import Modal from 'react-native-modal';
 import firebase from 'firebase';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 // import AlphabetListView from 'react-native-alphabetlistview';
 
+// import AddFriendModal from '../modals/AddFriendModal';
 import ConfirmCancelModal from '../modals/ConfirmCancelModal';
 import { addFriend } from '../actions';
-import addStyles from '../styles/addStyles';
 import styles from '../styles/modalStyles';
+import addStyles from '../styles/addStyles';
 
 class AddFriends extends Component {
   constructor() {
@@ -37,7 +39,8 @@ class AddFriends extends Component {
       confirmCancelModalVisible: false,
       sendNumber: null,
       newContactName: '',
-      newContactNumber: ''
+      newContactNumber: '',
+      contactPermissionDenied: null
     };
   }
 
@@ -50,6 +53,59 @@ class AddFriends extends Component {
     this.setState({
       showModal: true,
     });
+  }
+
+  renderAddFriendModal = () => {
+    return (
+      <Modal
+        isVisible={this.state.showModal}
+        backdropColor={'black'}
+        backdropOpacity={0.5}
+        animationIn={'slideInLeft'}
+        animationOut={'slideOutRight'}
+        animationInTiming={250}
+        animationOutTiming={250}
+        backdropTransitionInTiming={250}
+        backdropTransitionOutTiming={250}
+      >
+        <View style={styles.modalContent}>
+          <View style={styles.inputView}>
+
+            <Text>Confirm contact info</Text>
+
+            <FormLabel>Name</FormLabel>
+            <FormInput
+              value={this.state.newContactName}
+              onChangeText={newContactName => this.setState({ newContactName })}
+            />
+
+            <FormLabel>Number</FormLabel>
+            <FormInput
+              keyboardType='number-pad'
+              value={this.state.newContactNumber}
+              onChangeText={newContactNumber => this.setState({ newContactNumber })}
+            />
+
+          </View>
+          <View style={styles.buttonView}>
+            <TouchableOpacity
+              onPress={() => this.onAccept(this.state.newContactName, this.state.newContactNumber)}
+            >
+              <View style={styles.button}>
+                <Text>Add Friend</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => this.setState({ showModal: false })}>
+              <View style={styles.cancelButton}>
+                <Text>Cancel</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+
+        </View>
+
+      </Modal>
+    );
   }
 
   createDataSource(contactsNamesAndNumbers) {
@@ -66,6 +122,7 @@ class AddFriends extends Component {
     const permission = await Expo.Permissions.askAsync(Expo.Permissions.CONTACTS);
     if (permission.status !== 'granted') {
       // Permission was denied...
+      this.setState({ loading: false, contactPermissionDenied: true });
       return;
     }
     const contacts = await Expo.Contacts.getContactsAsync({
@@ -153,6 +210,50 @@ renderRow = (contact) => {
   );
 }
 
+// changeValue = (type, value) => {
+//   console.log('changeValue');
+//
+//   this.setState({ name: value });
+// }
+
+changeName = (name) => {
+  this.setState({ name });
+}
+
+changeNumber = (number) => {
+  this.setState({ number });
+}
+
+renderAddFriendByNumber = () => {
+  // console.log('renderAddFriendByNumber, name number')
+  // console.log(this.state.newContactName);
+  // console.log(this.state.newContactNumber);
+  return (
+    <View>
+
+      <Card>
+        <TouchableOpacity onPress={() => this.addByNumber()}>
+          <View
+            style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }}
+          >
+            <Text>Add Friend by Number</Text>
+            <Icon
+              name='ios-add-circle-outline'
+              type='ionicon'
+              color='#517fa4'
+              size={20}
+              style={{ margin: 5 }}
+            />
+          </View>
+        </TouchableOpacity>
+      </Card>
+
+      {this.renderAddFriendModal()}
+
+  </View>
+  );
+}
+
 renderUsingAppList = () => {
   const { contactsNumbers, usersNumbers, contactsNamesAndNumbers } = this.state;
 
@@ -212,15 +313,33 @@ onAccept = () => {
   this.setState({ showModal: false });
 }
 
-onDecline = () => {
-  this.setState({ showModal: false });
-}
-
   render() {
     if (this.state.loading) {
       return (
         <View style={{ marginTop: '50%', alignItems: 'center' }}>
           <ActivityIndicator size='large' />
+        </View>
+      );
+    }
+
+
+    if (this.state.contactPermissionDenied) {
+      return (
+        <View>
+          {this.renderAddFriendByNumber()}
+          <Card>
+            <View>
+              <Text>
+                Enable CONTACTS in SETTINGS to see which of your contacts are already
+                using Hoos Going 2.
+              </Text>
+              <Button
+                title='Go to Settings'
+                onPress={() => Linking.openURL('app-settings:')}
+                style={{ marginTop: 10 }}
+              />
+            </View>
+          </Card>
         </View>
       );
     }
@@ -243,22 +362,7 @@ onDecline = () => {
     return (
       <ScrollView>
         <View>
-          <Card>
-            <TouchableOpacity onPress={() => this.addByNumber()}>
-              <View
-                style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }}
-              >
-                <Text>Add Friend by Number</Text>
-                <Icon
-                  name='ios-add-circle-outline'
-                  type='ionicon'
-                  color='#517fa4'
-                  size={20}
-                  style={{ margin: 5 }}
-                />
-              </View>
-            </TouchableOpacity>
-          </Card>
+          {this.renderAddFriendByNumber()}
           {this.renderUsingAppList()}
           <Card title='Invite Friends'>
             <ListView
@@ -267,53 +371,7 @@ onDecline = () => {
             />
           </Card>
 
-
-          <Modal
-            isVisible={this.state.showModal}
-            backdropColor={'black'}
-            backdropOpacity={0.5}
-            animationIn={'slideInLeft'}
-            animationOut={'slideOutRight'}
-            animationInTiming={250}
-            animationOutTiming={250}
-            backdropTransitionInTiming={250}
-            backdropTransitionOutTiming={250}
-          >
-            <View style={styles.modalContent}>
-              <View style={styles.inputView}>
-
-                <Text>Confirm contact info</Text>
-
-                <FormLabel>Name</FormLabel>
-                <FormInput
-                  value={this.state.newContactName}
-                  onChangeText={newContactName => this.setState({ newContactName })}
-                />
-
-                <FormLabel>Number</FormLabel>
-                <FormInput
-                  keyboardType='number-pad'
-                  value={this.state.newContactNumber}
-                  onChangeText={newContactNumber => this.setState({ newContactNumber })}
-                />
-
-              </View>
-              <View style={styles.buttonView}>
-                <TouchableOpacity onPress={this.onAccept}>
-                  <View style={styles.button}>
-                    <Text>Add Friend</Text>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={this.onDecline}>
-                  <View style={styles.cancelButton}>
-                    <Text>Cancel</Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
-
-            </View>
-
-          </Modal>
+          {this.renderAddFriendModal()}
 
           <ConfirmCancelModal
             infoText='Text contact with invite link?'

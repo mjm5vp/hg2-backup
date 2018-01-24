@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Linking } from 'react-native';
 import { Card, Button } from 'react-native-elements';
 import Modal from 'react-native-modal';
 import { connect } from 'react-redux';
@@ -110,6 +110,14 @@ class SettingsScreen extends Component {
           </View>
 
         </Modal>
+
+        <Card>
+          <Button
+            title='Open Settings' 
+            onPress={() => Linking.openURL('app-settings:')}
+          />
+        </Card>
+
 
         <Card>
           <Button
