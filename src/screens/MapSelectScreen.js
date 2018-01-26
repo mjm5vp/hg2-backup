@@ -9,7 +9,7 @@ import _ from 'lodash';
 
 import { setLocation } from '../actions';
 import allNamedPoos from '../../assets/namedPooExport';
-import styles from '../styles/mapSelectStyles';
+import styles from '../styles/mapStyles';
 
 class MapSelectScreen extends Component {
 

@@ -27,3 +27,6 @@ export const ADDED_ME = 'added_me';
 export const ACCEPT_FRIEND = 'accept_friend';
 export const SET_FRIENDS = 'set_friends';
 export const SET_SENT_TO_ME = 'set_sent_to_me';
+
+//Settings
+export const SET_MAP_TYPE = 'set_map_type';

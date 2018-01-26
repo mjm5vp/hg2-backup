@@ -67,6 +67,7 @@ class AddFriends extends Component {
         animationOutTiming={250}
         backdropTransitionInTiming={250}
         backdropTransitionOutTiming={250}
+        avoidKeyboard
       >
         <View style={styles.modalContent}>
           <View style={styles.inputView}>

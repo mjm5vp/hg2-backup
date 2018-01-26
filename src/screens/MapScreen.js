@@ -1,13 +1,16 @@
 import React, { Component } from 'react';
 import { Text, View, ActivityIndicator, TouchableOpacity } from 'react-native';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
-import { Icon, Button } from 'react-native-elements';
+import { Icon } from 'react-native-elements';
+import Modal from 'react-native-modal';
 import { Location, Permissions } from 'expo';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import moment from 'moment';
+
+import styles from '../styles/mapStyles';
 import allNamedPoos from '../../assets/namedPooExport';
-import { identifyStackLocation, setLogType } from '../actions';
+import { identifyStackLocation, setLogType, setMapType } from '../actions';
 
 class MapScreen extends Component {
 
@@ -21,6 +24,8 @@ class MapScreen extends Component {
     mapLoaded: false,
     location: null,
     showLocationButton: false,
+    showSettings: false,
+    mapType: 'standard',
     errorMessage: null,
     region: {
       longitude: -77.31586374342442,
@@ -31,8 +36,19 @@ class MapScreen extends Component {
   };
 
   componentDidMount() {
-    this.setState({ mapLoaded: true });
+    this.setState({ mapLoaded: true, mapType: this.props.mapType });
     this.getLocationAsync();
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { mapType } = nextProps;
+
+    console.log(mapType);
+    console.log(this.props.mapType);
+
+    if (mapType !== this.props.mapType) {
+      this.setState({ mapType });
+    }
   }
 
   getLocationAsync = async () => {
@@ -102,6 +118,65 @@ class MapScreen extends Component {
     this.props.navigation.navigate('log');
   }
 
+  renderSettingsModal = () => {
+    const { setMapType } = this.props;
+
+    return (
+      <Modal
+        isVisible={this.state.showSettings}
+        backdropColor={'black'}
+        backdropOpacity={0.5}
+        animationIn={'slideInUp'}
+        animationOut={'slideOutDown'}
+        animationInTiming={250}
+        animationOutTiming={250}
+        backdropTransitionInTiming={250}
+        backdropTransitionOutTiming={250}
+        onBackdropPress={() => this.setState({ showSettings: false })}
+        style={styles.settingsModal}
+        onSwipe={() => this.setState({ showSettings: null })}
+        swipeDirection='down'
+      >
+        <View style={styles.settingsModalView}>
+          <View style={styles.modalHeader}>
+            <Text>Map type</Text>
+            <Icon
+              name='close'
+              type='material-community'
+              onPress={() => this.setState({ showSettings: false })}
+            />
+          </View>
+          <View style={styles.typeImagesRow}>
+            <View style={styles.typeSelect}>
+              <TouchableOpacity onPress={() => setMapType('standard')}>
+                <View style={styles.typeImage}>
+
+                </View>
+              </TouchableOpacity>
+              <Text>Default</Text>
+            </View>
+            <View style={styles.typeSelect}>
+              <TouchableOpacity onPress={() => setMapType('hybrid')}>
+                <View style={styles.typeImage}>
+
+                </View>
+              </TouchableOpacity>
+              <Text>Satellite</Text>
+            </View>
+            <View style={styles.typeSelect}>
+              <TouchableOpacity onPress={() => setMapType('terrain')}>
+                <View style={styles.typeImage}>
+
+                </View>
+              </TouchableOpacity>
+              <Text>Terrain</Text>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    );
+  }
+
   renderMyLocationButton = () => {
     return (
         // <Button
@@ -115,13 +190,15 @@ class MapScreen extends Component {
           type='material-icons'
           color='black'
           containerStyle={styles.myLocationButton}
-          onPress={() => console.log('my location button press')}
+          onPress={() => this.setState({ showSettings: false })}
         />
 
     );
   }
 
   render() {
+    console.log('this.state.mapType')
+    console.log(this.state.mapType)
     if (!this.state.mapLoaded) {
       return (
         <View style={{ flex: 1, justifyContent: 'center' }}>
@@ -136,6 +213,7 @@ class MapScreen extends Component {
           provider={PROVIDER_GOOGLE}
           style={{ flex: 1 }}
           region={this.state.region}
+          mapType={this.state.mapType}
           showsUserLocation
           showsMyLocationButton={this.state.showLocationButton}
           showsPointsOfInterest
@@ -144,34 +222,30 @@ class MapScreen extends Component {
           showsIndoorLevelPicker
           showsCompass
           moveOnMarkerPress
+          rotateEnabled={false}
+          // onRegionChangeComplete={region => this.setState(region)}
         >
           {this.renderAllMarkers()}
         </MapView>
-        {/* {this.renderMyLocationButton()} */}
+        <Icon
+          raised
+          name='settings'
+          type='feather'
+          containerStyle={styles.settingsButton}
+          onPress={() => this.setState({ showSettings: true })}
+        />
+        {this.renderSettingsModal()}
       </View>
 
     );
   }
 }
 
-const styles = {
-  myLocationButton: {
-    borderRadius: 50,
-    height: 50,
-    width: 50,
-    backgroundColor: 'white',
-    position: 'absolute',
-    bottom: 10,
-    right: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-  }
-};
-
 const mapStateToProps = state => {
-  return { myPoos: state.pooReducer.myPoos };
+  const { myPoos } = state.pooReducer;
+  const { mapType } = state.settings;
+
+  return { myPoos, mapType };
 };
 
-export default connect(mapStateToProps, { identifyStackLocation, setLogType })(MapScreen);
+export default connect(mapStateToProps, { identifyStackLocation, setLogType, setMapType })(MapScreen);
