@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { Text, View, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { Text, View, ActivityIndicator, TouchableOpacity, Linking } from 'react-native';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
-import { Icon } from 'react-native-elements';
+import { Icon, Button } from 'react-native-elements';
 import Modal from 'react-native-modal';
 import { Location, Permissions } from 'expo';
 import { connect } from 'react-redux';
@@ -10,6 +10,7 @@ import moment from 'moment';
 
 import styles from '../styles/mapStyles';
 import allNamedPoos from '../../assets/namedPooExport';
+import MapSettingsModal from '../modals/MapSettingsModal';
 import { identifyStackLocation, setLogType, setMapType } from '../actions';
 
 class MapScreen extends Component {
@@ -118,65 +119,6 @@ class MapScreen extends Component {
     this.props.navigation.navigate('log');
   }
 
-  renderSettingsModal = () => {
-    const { setMapType } = this.props;
-
-    return (
-      <Modal
-        isVisible={this.state.showSettings}
-        backdropColor={'black'}
-        backdropOpacity={0.5}
-        animationIn={'slideInUp'}
-        animationOut={'slideOutDown'}
-        animationInTiming={250}
-        animationOutTiming={250}
-        backdropTransitionInTiming={250}
-        backdropTransitionOutTiming={250}
-        onBackdropPress={() => this.setState({ showSettings: false })}
-        style={styles.settingsModal}
-        onSwipe={() => this.setState({ showSettings: null })}
-        swipeDirection='down'
-      >
-        <View style={styles.settingsModalView}>
-          <View style={styles.modalHeader}>
-            <Text>Map type</Text>
-            <Icon
-              name='close'
-              type='material-community'
-              onPress={() => this.setState({ showSettings: false })}
-            />
-          </View>
-          <View style={styles.typeImagesRow}>
-            <View style={styles.typeSelect}>
-              <TouchableOpacity onPress={() => setMapType('standard')}>
-                <View style={styles.typeImage}>
-
-                </View>
-              </TouchableOpacity>
-              <Text>Default</Text>
-            </View>
-            <View style={styles.typeSelect}>
-              <TouchableOpacity onPress={() => setMapType('hybrid')}>
-                <View style={styles.typeImage}>
-
-                </View>
-              </TouchableOpacity>
-              <Text>Satellite</Text>
-            </View>
-            <View style={styles.typeSelect}>
-              <TouchableOpacity onPress={() => setMapType('terrain')}>
-                <View style={styles.typeImage}>
-
-                </View>
-              </TouchableOpacity>
-              <Text>Terrain</Text>
-            </View>
-          </View>
-        </View>
-      </Modal>
-    );
-  }
-
   renderMyLocationButton = () => {
     return (
         // <Button
@@ -234,7 +176,13 @@ class MapScreen extends Component {
           containerStyle={styles.settingsButton}
           onPress={() => this.setState({ showSettings: true })}
         />
-        {this.renderSettingsModal()}
+
+        <MapSettingsModal
+          showSettings={this.state.showSettings}
+          closeSettings={() => this.setState({ showSettings: false })}
+          locationOn={this.state.showLocationButton}
+        />
+
       </View>
 
     );

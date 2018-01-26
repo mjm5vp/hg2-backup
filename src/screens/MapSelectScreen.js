@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Text, View, Image, ActivityIndicator } from 'react-native';
-import { Button, ButtonGroup } from 'react-native-elements';
+import { Button, ButtonGroup, Icon } from 'react-native-elements';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 import { Location, Permissions } from 'expo';
 import { connect } from 'react-redux';
@@ -8,6 +8,7 @@ import moment from 'moment';
 import _ from 'lodash';
 
 import { setLocation } from '../actions';
+import MapSettingsModal from '../modals/MapSettingsModal';
 import allNamedPoos from '../../assets/namedPooExport';
 import styles from '../styles/mapStyles';
 
@@ -22,8 +23,11 @@ class MapSelectScreen extends Component {
   state = {
     renderCenterMarker: null,
     selectedIndex: 0,
+    mapType: 'standard',
     mapLoaded: false,
     location: null,
+    showSettings: false,
+    showLocationButton: false,
     errorMessage: null,
     region: {
       longitude: -77.31586374342442,
@@ -34,8 +38,19 @@ class MapSelectScreen extends Component {
   };
 
   componentDidMount() {
-    this.setState({ mapLoaded: true });
+    this.setState({ mapLoaded: true, mapType: this.props.mapType });
     this.getLocationAsync();
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { mapType } = nextProps;
+
+    console.log(mapType);
+    console.log(this.props.mapType);
+
+    if (mapType !== this.props.mapType) {
+      this.setState({ mapType });
+    }
   }
 
   onRegionChange = (region) => {
@@ -59,6 +74,7 @@ class MapSelectScreen extends Component {
     const { status } = await Permissions.askAsync(Permissions.LOCATION);
     if (status !== 'granted') {
       this.setState({
+        showLocationButton: false,
         errorMessage: 'Permission to access location was denied',
       });
     }
@@ -66,6 +82,7 @@ class MapSelectScreen extends Component {
     const location = await Location.getCurrentPositionAsync({});
     const { coords: { latitude, longitude } } = location;
     this.setState({
+      showLocationButton: true,
       location,
       region: {
         latitude,
@@ -173,6 +190,7 @@ class MapSelectScreen extends Component {
         <MapView
           provider={PROVIDER_GOOGLE}
           style={styles.mapViewStyle}
+          mapTye={this.state.mapType}
           // initialRegion={this.state.initialRegion}
           region={this.state.region}
           onRegionChange={this.onRegionChange}
@@ -192,6 +210,14 @@ class MapSelectScreen extends Component {
 
         </MapView>
 
+        <Icon
+          raised
+          name='settings'
+          type='feather'
+          containerStyle={styles.selectSettingsButton}
+          onPress={() => this.setState({ showSettings: true })}
+        />
+
         <View style={styles.topButtonContainer}>
           <ButtonGroup
             onPress={this.updateIndex}
@@ -199,6 +225,12 @@ class MapSelectScreen extends Component {
             buttons={buttons}
           />
         </View>
+
+        <MapSettingsModal
+          showSettings={this.state.showSettings}
+          closeSettings={() => this.setState({ showSettings: false })}
+          locationOn={this.state.showLocationButton}
+        />
 
         {this.renderPlaceMarkerButton()}
 
@@ -210,7 +242,9 @@ class MapSelectScreen extends Component {
 const mapStateToProps = state => {
   const { currentPooName, location } = state.input;
   const { myPoos } = state.pooReducer;
-  return { currentPooName, location, myPoos };
+  const { mapType } = state.settings;
+
+  return { currentPooName, location, myPoos, mapType };
 };
 
 export default connect(mapStateToProps, { setLocation })(MapSelectScreen);

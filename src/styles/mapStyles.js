@@ -50,6 +50,19 @@ const styles = {
     shadowOpacity: 0.1,
     shadowRadius: 2,
   },
+  selectSettingsButton: {
+    borderRadius: 50,
+    height: 50,
+    width: 50,
+    backgroundColor: 'white',
+    position: 'absolute',
+    top: 80,
+    right: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
   settingsModal: {
     justifyContent: 'flex-end',
     margin: 0
@@ -67,7 +80,7 @@ const styles = {
   typeImagesRow: {
     flexDirection: 'row',
     justifyContent: 'center',
-    margin: 10
+    // margin: 10
   },
   typeSelect: {
     margin: 20,
@@ -80,6 +93,12 @@ const styles = {
     borderColor: 'blue',
     borderWidth: 1,
     marginBottom: 10
+  },
+  enableLocationButton: {
+    height: 50,
+    width: '100%',
+    backgroundColor: 'rgba(0,150,136,0.5)',
+    borderRadius: 5
   }
 };
 
