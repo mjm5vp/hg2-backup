@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { Text, View, ActivityIndicator } from 'react-native';
+import { Text, View, ActivityIndicator, TouchableOpacity } from 'react-native';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
+import { Icon, Button } from 'react-native-elements';
 import { Location, Permissions } from 'expo';
 import { connect } from 'react-redux';
 import _ from 'lodash';
@@ -19,6 +20,7 @@ class MapScreen extends Component {
   state = {
     mapLoaded: false,
     location: null,
+    showLocationButton: false,
     errorMessage: null,
     region: {
       longitude: -77.31586374342442,
@@ -38,20 +40,30 @@ class MapScreen extends Component {
     if (status !== 'granted') {
       this.setState({
         errorMessage: 'Permission to access location was denied',
+        showLocationButton: false,
+        region: {
+          latitude: 30,
+          longitude: -95,
+          latitudeDelta: 50,
+          longitudeDelta: 50
+        }
       });
+    } else {
+      const location = await Location.getCurrentPositionAsync({});
+      const { coords: { latitude, longitude } } = location;
+      this.setState({
+        showLocationButton: true,
+        location,
+        region: {
+          latitude,
+          longitude,
+          latitudeDelta: 0.005,
+          longitudeDelta: 0.005
+        }
+       });
     }
 
-    const location = await Location.getCurrentPositionAsync({});
-    const { coords: { latitude, longitude } } = location;
-    this.setState({
-      location,
-      region: {
-        latitude,
-        longitude,
-        latitudeDelta: 0.005,
-        longitudeDelta: 0.005
-      }
-     });
+
   };
 
   renderAllMarkers = () => {
@@ -90,6 +102,25 @@ class MapScreen extends Component {
     this.props.navigation.navigate('log');
   }
 
+  renderMyLocationButton = () => {
+    return (
+        // <Button
+        //   buttonStyle={styles.myLocationButtonView}
+        //   icon={{ name: 'gps-fixed', type: 'material-icons', color: 'black', justifyContent: 'center', alignItems: 'center' }}
+        //   onPress={() => console.log('my location button press')}
+        // />
+        <Icon
+          raised
+          name='gps-fixed'
+          type='material-icons'
+          color='black'
+          containerStyle={styles.myLocationButton}
+          onPress={() => console.log('my location button press')}
+        />
+
+    );
+  }
+
   render() {
     if (!this.state.mapLoaded) {
       return (
@@ -100,24 +131,44 @@ class MapScreen extends Component {
     }
 
     return (
-      <MapView
-        provider={PROVIDER_GOOGLE}
-        style={{ flex: 1 }}
-        region={this.state.region}
-        showsUserLocation
-        showsMyLocationButton
-        showsPointsOfInterest
-        showsBuildings
-        showsIndoors
-        showsIndoorLevelPicker
-        showsCompass
-        moveOnMarkerPress
-      >
-        {this.renderAllMarkers()}
-      </MapView>
+      <View style={{ flex: 1 }}>
+        <MapView
+          provider={PROVIDER_GOOGLE}
+          style={{ flex: 1 }}
+          region={this.state.region}
+          showsUserLocation
+          showsMyLocationButton={this.state.showLocationButton}
+          showsPointsOfInterest
+          showsBuildings
+          showsIndoors
+          showsIndoorLevelPicker
+          showsCompass
+          moveOnMarkerPress
+        >
+          {this.renderAllMarkers()}
+        </MapView>
+        {/* {this.renderMyLocationButton()} */}
+      </View>
+
     );
   }
 }
+
+const styles = {
+  myLocationButton: {
+    borderRadius: 50,
+    height: 50,
+    width: 50,
+    backgroundColor: 'white',
+    position: 'absolute',
+    bottom: 10,
+    right: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  }
+};
 
 const mapStateToProps = state => {
   return { myPoos: state.pooReducer.myPoos };

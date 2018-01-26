@@ -98,17 +98,10 @@ export const syncPropsWithDb = ({ phone, myPoos, myFriends }) => async dispatch 
         // myInfo,
       });
 
-    console.log('syncPropsWithDb success');
-
-    console.log('dbMyInfo 1');
-    console.log(dbMyInfo);
-
     dispatch({
       type: EDIT_MY_INFO,
       payload: dbMyInfo
     });
-    console.log('dbMyInfo 2');
-    console.log(dbMyInfo);
 
     dispatch({
       type: EDIT_POOS,

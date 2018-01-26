@@ -60,7 +60,7 @@ class HomeScreen extends Component {
       // await firebase.auth().signOut();
       await firebase.auth().signInWithCustomToken(token);
       this.setState({ currentUser: true });
-      console.log('authLoginWithToken success');
+      // console.log('authLoginWithToken success');
     } catch (err) {
       console.log('authLoginWithToken failed');
       console.log(err);
