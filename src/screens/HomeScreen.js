@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import firebase from 'firebase';
 import axios from 'axios';
 
+import { checkAndSetPushToken } from '../services/push_notifications';
 import feetBackground from '../../assets/backgrounds/feet_background.jpg';
 import allNamedPoos from '../../assets/namedPooExport';
 import OKModal from '../modals/OKModal';
@@ -16,7 +17,8 @@ import {
   authLogout,
   authLogin,
   syncPropsWithDb,
-  fetchSentToMe
+  fetchSentToMe,
+  setNotificationToken
 } from '../actions';
 
 class HomeScreen extends Component {
@@ -49,10 +51,21 @@ class HomeScreen extends Component {
 
         this.props.syncPropsWithDb({ phone, myPoos, myFriends, myInfo });
         this.setState({ currentUser: true });
+        // if (!this.props.notificationToken) {
+          this.checkForPushToken();
+        // }
       } else {
         this.setState({ currentUser: false });
       }
     });
+  }
+
+  checkForPushToken = async () => {
+    const pushToken = await checkAndSetPushToken();
+
+    if (pushToken) {
+      this.props.setNotificationToken({ pushToken });
+    }
   }
 
   authLoginWithToken = async (token) => {
@@ -239,11 +252,11 @@ class HomeScreen extends Component {
 }
 
 const mapStateToProps = state => {
-  const { token } = state.auth;
+  const { token, notificationToken } = state.auth;
   const { myFriends, myInfo, addedMe } = state.friends;
   const { myPoos } = state.pooReducer;
 
-  return { token, myFriends, myInfo, myPoos, addedMe };
+  return { token, myFriends, myInfo, myPoos, addedMe, notificationToken };
 };
 
 export default connect(mapStateToProps, {
@@ -253,5 +266,6 @@ export default connect(mapStateToProps, {
   authLogout,
   authLogin,
   syncPropsWithDb,
-  fetchSentToMe
+  fetchSentToMe,
+  setNotificationToken
 })(HomeScreen);

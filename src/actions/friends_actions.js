@@ -1,7 +1,7 @@
 import firebase from 'firebase';
 import _ from 'lodash';
 
-import { sendNotification } from '../services/push_notifications';
+import { sendNotifications } from '../services/push_notifications';
 import { SET_FRIENDS, ADD_FRIEND, ADDED_ME, ACCEPT_FRIEND, SET_SENT_TO_ME } from './types';
 
 export const setFriends = (myFriends) => async dispatch => {
@@ -102,17 +102,22 @@ export const checkAddedMe = () => async dispatch => {
   });
 };
 
-export const sendToFriendsAction = ({ friends, poo, myInfo }) => async dispatch => {
+export const sendToFriendsAction = ({ sendToFriends, poo, myInfo }) => async dispatch => {
   // const { currentUser } = firebase.auth();
+  const pushTokens = [];
 
-  friends.forEach(async friend => {
+  sendToFriends.forEach(async (friend, i) => {
     try {
       await firebase.database().ref(`users/${friend.number}/sentToMe`)
         .push({ from: myInfo, poo });
       if (friend.pushToken) {
         console.log('friend.pushToken');
         console.log(friend.pushToken);
-        sendNotification({ pushToken: friend.pushToken });
+        pushTokens.push(friend.pushToken);
+        // sendNotification({ pushToken: friend.pushToken });
+      }
+      if (i === sendToFriends.length - 1 && pushTokens.length > 0) {
+        await sendNotifications({ pushTokens });
       }
     } catch (err) {
       console.log(`could not send to ${friend.name}`);
@@ -144,6 +149,14 @@ export const fetchSentToMe = () => async dispatch => {
     console.log(err);
   }
 };
+
+// export const updateFriendsWithMyPushToken = ({ myFriends, pushToken }) => async dispatch => {
+//   myFriends.forEach(async friend => {
+//     try {
+//       await firebase.database().ref(`users/${friend.number}/myFriends/`)
+//     }
+//   })
+// };
 
 export const deleteFriends = () => async dispatch => {
   console.log('deleteAllFriends action');

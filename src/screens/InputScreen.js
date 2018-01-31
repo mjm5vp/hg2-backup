@@ -43,8 +43,13 @@ class InputScreen extends Component {
 
   componentWillMount() {
     const { currentUser } = firebase.auth();
+    const date = moment().format('YYYY-MM-DD');
+    const time = moment().format('HH:mm');
+    const datetime = `${date}T${time}`;
 
-    this.setState({ currentUser });
+    this.props.updateDateTime(datetime);
+
+    this.setState({ currentUser, date: moment(), time: moment() });
   }
 
   showDatePicker = () => this.setState({ isDatePickerVisible: true });
@@ -265,6 +270,9 @@ class InputScreen extends Component {
 
     this.props.addPoo(poo);
     this.props.increaseUID();
+
+    console.log('sendToFriends')
+    console.log(sendToFriends)
 
     if (sendToFriends.length > 0) {
       this.props.sendToFriendsAction({ sendToFriends, poo, myInfo });

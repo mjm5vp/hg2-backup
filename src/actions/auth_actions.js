@@ -132,8 +132,8 @@ export const setNotificationToken = ({ pushToken }) => async dispatch => {
   const { currentUser } = firebase.auth();
 
   try {
-    await firebase.database().ref(`users/${currentUser.uid}/pushToken`)
-      .set(pushToken);
+    await firebase.database().ref(`users/${currentUser.uid}`)
+      .update({ pushToken });
     dispatch({
       type: SET_NOTIFICATION_TOKEN,
       payload: pushToken

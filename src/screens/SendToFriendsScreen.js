@@ -23,7 +23,12 @@ class SendToFriends extends Component {
 
     const newMyFriends = [];
     myFriends.forEach(friend => {
-      newMyFriends.push({ name: friend.name, number: friend.number, checked: friend.checked });
+      newMyFriends.push({
+        name: friend.name,
+        number: friend.number,
+        checked: friend.checked,
+        pushToken: friend.pushToken
+      });
     });
 
     const sendToFriendsNumbers = sendToFriends.map(friend => {
@@ -48,7 +53,12 @@ class SendToFriends extends Component {
   checkBox = i => {
     const newMyFriends = [];
     this.state.myFriendsList.forEach(friend => {
-      newMyFriends.push({ name: friend.name, number: friend.number, checked: friend.checked });
+      newMyFriends.push({
+        name: friend.name,
+        number: friend.number,
+        checked: friend.checked,
+        pushToken: friend.pushToken
+      });
     });
 
     newMyFriends[i].checked = !newMyFriends[i].checked;

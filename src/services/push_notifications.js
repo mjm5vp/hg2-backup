@@ -67,13 +67,22 @@ export const checkIfNotificationsOn = async () => {
   return status === 'granted';
 };
 
-export const sendNotification = async ({ pushToken }) => {
+export const checkAndSetPushToken = async () => {
+  const notificationsOn = await checkIfNotificationsOn();
+
+  if (notificationsOn) {
+    return await Notifications.getExpoPushTokenAsync();
+  }
+  return null;
+};
+
+export const sendNotifications = async ({ pushTokens }) => {
   const ROOT_URL = 'https://us-central1-one-time-password-698fc.cloudfunctions.net';
   const text = 'test text';
   const info = 'test info';
 
   try {
-    await axios.post(`${ROOT_URL}/sendPushNotification`, { pushToken, text, info });
+    await axios.post(`${ROOT_URL}/sendPushNotification`, { pushTokens, text, info });
     console.log('sent');
   } catch (err) {
     console.log('try axios error');
