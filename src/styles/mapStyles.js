@@ -70,12 +70,19 @@ const styles = {
   settingsModalView: {
     backgroundColor: 'white',
     width: '100%',
+    height: 150,
+  },
+  settingsModalViewBig: {
+    backgroundColor: 'white',
+    width: '100%',
     height: 200,
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    padding: 10
+    paddingTop: 10,
+    paddingLeft: 10,
+    paddingRight: 10
   },
   typeImagesRow: {
     flexDirection: 'row',
@@ -83,7 +90,9 @@ const styles = {
     // margin: 10
   },
   typeSelect: {
-    margin: 20,
+    marginLeft: 10,
+    marginRight: 10,
+    marginTop: 10,
     alignItems: 'center',
     justifyContent: 'center'
   },
@@ -95,8 +104,11 @@ const styles = {
     marginBottom: 10
   },
   enableLocationButton: {
-    height: 50,
-    width: '100%',
+    marginTop: 10,
+    height: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    // width: '90%',
     backgroundColor: 'rgba(0,150,136,0.5)',
     borderRadius: 5
   }

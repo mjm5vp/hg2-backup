@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, TouchableOpacity, Linking } from 'react-native';
+import { View, Text, TouchableOpacity, Linking, Image } from 'react-native';
 import Modal from 'react-native-modal';
 import { Icon, Button } from 'react-native-elements';
 import { connect } from 'react-redux';
@@ -26,6 +26,9 @@ class MapSettingsModal extends Component {
   }
 
   render() {
+    const { settingsModalView, settingsModalViewBig } = styles;
+    const modalSize = this.props.locationOn ? settingsModalView : settingsModalViewBig;
+
     return (
       <Modal
         isVisible={this.props.showSettings}
@@ -41,7 +44,7 @@ class MapSettingsModal extends Component {
         style={styles.settingsModal}
         swipeDirection='down'
       >
-        <View style={styles.settingsModalView}>
+        <View style={modalSize}>
           <View style={styles.modalHeader}>
             <Text>Map type</Text>
             <Icon
@@ -53,25 +56,28 @@ class MapSettingsModal extends Component {
           <View style={styles.typeImagesRow}>
             <View style={styles.typeSelect}>
               <TouchableOpacity onPress={() => this.props.setMapType('standard')}>
-                <View style={styles.typeImage}>
-
-                </View>
+                <Image
+                  style={styles.typeImage}
+                  source={{ uri: 'https://i.imgur.com/UntHqiN.png' }}
+                />
               </TouchableOpacity>
               <Text>Default</Text>
             </View>
             <View style={styles.typeSelect}>
               <TouchableOpacity onPress={() => this.props.setMapType('hybrid')}>
-                <View style={styles.typeImage}>
-
-                </View>
+                <Image
+                  style={styles.typeImage}
+                  source={{ uri: 'https://i.imgur.com/dXW7vDt.jpg' }}
+                />
               </TouchableOpacity>
               <Text>Satellite</Text>
             </View>
             <View style={styles.typeSelect}>
               <TouchableOpacity onPress={() => this.props.setMapType('terrain')}>
-                <View style={styles.typeImage}>
-
-                </View>
+                <Image
+                  style={styles.typeImage}
+                  source={{ uri: 'https://i.imgur.com/BFRgcPm.png' }}
+                />
               </TouchableOpacity>
               <Text>Terrain</Text>
             </View>

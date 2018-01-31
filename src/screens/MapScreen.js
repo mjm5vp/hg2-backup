@@ -79,8 +79,6 @@ class MapScreen extends Component {
         }
        });
     }
-
-
   };
 
   renderAllMarkers = () => {
@@ -139,8 +137,6 @@ class MapScreen extends Component {
   }
 
   render() {
-    console.log('this.state.mapType')
-    console.log(this.state.mapType)
     if (!this.state.mapLoaded) {
       return (
         <View style={{ flex: 1, justifyContent: 'center' }}>

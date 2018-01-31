@@ -19,6 +19,7 @@
     "react-native-contacts": "^1.0.5",
     "react-native-datepicker": "^1.6.0",
     "react-native-elements": "^0.17.0",
+    "react-native-fast-image": "^2.0.1",
     "react-native-fbsdk": "^0.6.3",
     "react-native-maps": "^0.17.1",
     "react-native-modal": "^4.1.1",

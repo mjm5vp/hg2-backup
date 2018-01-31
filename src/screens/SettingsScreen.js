@@ -5,6 +5,8 @@ import Modal from 'react-native-modal';
 import { connect } from 'react-redux';
 import firebase from 'firebase';
 // import { LoginButton } from 'react-native-fbsdk';
+
+import { checkIfNotificationsOn } from '../services/push_notifications';
 import styles from '../styles/modalStyles';
 import { editPoos, deleteFriends, deleteUser } from '../actions';
 
@@ -14,6 +16,16 @@ class SettingsScreen extends Component {
     showModal: false,
     modalText: '',
     modalConfirmMethod: ''
+  }
+
+  componentDidMount() {
+    this.checkNotificationsAsync();
+  }
+
+  checkNotificationsAsync = async () => {
+    const notificationsOn = await checkIfNotificationsOn();
+
+    this.setState({ notificationsOn });
   }
 
   toggleModal = () => {
@@ -78,6 +90,21 @@ class SettingsScreen extends Component {
     );
   }
 
+  renderNotificationsSettings = () => {
+    if (this.state.notificationsOn) {
+      return;
+    }
+
+    return (
+      <Card>
+        <Button
+          title='Turn Notifications On'
+          onPress={() => Linking.openURL('app-settings:')}
+        />
+      </Card>
+    );
+  }
+
   render() {
     return (
       <View>
@@ -111,13 +138,7 @@ class SettingsScreen extends Component {
 
         </Modal>
 
-        <Card>
-          <Button
-            title='Open Settings' 
-            onPress={() => Linking.openURL('app-settings:')}
-          />
-        </Card>
-
+        {this.renderNotificationsSettings()}
 
         <Card>
           <Button

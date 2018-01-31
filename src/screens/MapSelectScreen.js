@@ -165,7 +165,7 @@ class MapSelectScreen extends Component {
         <View style={styles.buttonContainer}>
           <Button
             title='Place Marker'
-            buttonStyle={styles.buttonStyle}
+            buttonStyle={styles.enableLocationButton}
             onPress={this.handlePlaceMarker}
           />
         </View>
@@ -190,12 +190,12 @@ class MapSelectScreen extends Component {
         <MapView
           provider={PROVIDER_GOOGLE}
           style={styles.mapViewStyle}
-          mapTye={this.state.mapType}
+          mapType={this.state.mapType}
           // initialRegion={this.state.initialRegion}
           region={this.state.region}
           onRegionChange={this.onRegionChange}
           showsUserLocation
-          showsMyLocationButton
+          showsMyLocationButton={this.state.showLocationButton}
           showsPointsOfInterest
           showsBuildings
           showsIndoors

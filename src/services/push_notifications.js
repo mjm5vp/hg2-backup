@@ -61,6 +61,12 @@ export const registerForRemoteNotifications = async (previousToken) => {
   return newToken;
 };
 
+export const checkIfNotificationsOn = async () => {
+  const { status } = await Permissions.getAsync(Permissions.REMOTE_NOTIFICATIONS);
+
+  return status === 'granted';
+};
+
 export const sendNotification = async ({ pushToken }) => {
   const ROOT_URL = 'https://us-central1-one-time-password-698fc.cloudfunctions.net';
   const text = 'test text';
