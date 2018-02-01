@@ -12,9 +12,15 @@ const styles = {
     width: 50,
     position: 'absolute'
   },
+  imageViewStyle: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute'
+  },
   imageStyle: {
-    height: 50,
+    position: 'absolute',
     width: 50,
+    height: 50,
   },
   topButtonContainer: {
     width: '100%',

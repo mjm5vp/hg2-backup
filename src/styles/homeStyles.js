@@ -20,7 +20,7 @@ const styles = {
     marginBottom: 10,
     fontSize: 60,
     fontWeight: '900',
-    fontFamily: 'Bradley Hand',
+    // fontFamily: 'Bradley Hand',
     color: 'orange',
     backgroundColor: 'rgba(0,0,0,0)',
   },

@@ -97,6 +97,7 @@ class InputScreen extends Component {
         <Card>
           <View style={{ height: 200, marginBottom: 10 }}>
             <MapView
+              mapType={this.props.mapType}
               provider={PROVIDER_GOOGLE}
               style={{ flex: 1 }}
               cacheEnabled={Platform.OS === 'android'}
@@ -457,6 +458,7 @@ class InputScreen extends Component {
 const mapStateToProps = state => {
   const { uid, myPoos } = state.pooReducer;
   const { myInfo } = state.auth;
+  const { mapType } = state.settings;
   const { inputType,
     inputUID,
     currentPooName,
@@ -476,7 +478,8 @@ const mapStateToProps = state => {
     location,
     sendToFriends,
     myPoos,
-    myInfo
+    myInfo,
+    mapType
    };
 };
 

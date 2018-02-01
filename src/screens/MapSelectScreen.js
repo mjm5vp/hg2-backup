@@ -29,17 +29,29 @@ class MapSelectScreen extends Component {
     showSettings: false,
     showLocationButton: false,
     errorMessage: null,
+    // dimensions: {
+    //   height: 0,
+    //   width: 0
+    // },
     region: {
-      longitude: -77.31586374342442,
-      latitude: 38.77684642130346,
-      longitudeDelta: 2.04,
-      latitudeDelta: 2.09
+      latitude: 30,
+      longitude: -95,
+      latitudeDelta: 50,
+      longitudeDelta: 50
     }
   };
 
   componentDidMount() {
-    this.setState({ mapLoaded: true, mapType: this.props.mapType });
-    this.getLocationAsync();
+    const { mapType } = this.props;
+    // const height = Dimensions.get('window').height;
+    // const width = Dimensions.get('window').width;
+
+    this.setState({ mapLoaded: true, mapType });
+    if (this.props.location.latitude) {
+      this.setRegionToCoordinate();
+    } else {
+      this.getLocationAsync();
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -51,6 +63,13 @@ class MapSelectScreen extends Component {
     if (mapType !== this.props.mapType) {
       this.setState({ mapType });
     }
+  }
+
+  onLayout = event => {
+    console.log('onLayout')
+    if (this.state.dimensions) return; // layout was already called
+    const { width, height } = event.nativeEvent.layout;
+    this.setState({ dimensions: { width, height } });
   }
 
   onRegionChange = (region) => {
@@ -74,26 +93,33 @@ class MapSelectScreen extends Component {
     const { status } = await Permissions.askAsync(Permissions.LOCATION);
     if (status !== 'granted') {
       this.setState({
-        showLocationButton: false,
         errorMessage: 'Permission to access location was denied',
+        showLocationButton: false,
+        region: {
+          latitude: 30,
+          longitude: -95,
+          latitudeDelta: 50,
+          longitudeDelta: 50
+        }
       });
+    } else {
+      const location = await Location.getCurrentPositionAsync({});
+      const { coords: { latitude, longitude } } = location;
+      this.setState({
+        showLocationButton: true,
+        location,
+        region: {
+          latitude,
+          longitude,
+          latitudeDelta: 0.005,
+          longitudeDelta: 0.005
+        }
+       });
     }
-
-    const location = await Location.getCurrentPositionAsync({});
-    const { coords: { latitude, longitude } } = location;
-    this.setState({
-      showLocationButton: true,
-      location,
-      region: {
-        latitude,
-        longitude,
-        latitudeDelta: 0.005,
-        longitudeDelta: 0.005
-      }
-     });
   };
 
   handlePlaceMarker = () => {
+    console.log('press place marker');
     this.props.setLocation(this.state.region);
     this.props.navigation.goBack();
   }
@@ -146,12 +172,19 @@ class MapSelectScreen extends Component {
   renderCenterMarker = () => {
     const pooImage = allNamedPoos[this.props.currentPooName].image;
 
-    if (this.state.selectedIndex === 0) {
+    if (this.state.selectedIndex === 0 && this.state.dimensions) {
       return (
-        <Image
-          source={pooImage}
-          style={styles.imageStyle}
-        />
+          <Image
+            source={pooImage}
+            style={{
+              position: 'absolute',
+              width: 50,
+              height: 50,
+              zIndex: 2,
+              left: (this.state.dimensions.width / 2) - 25,
+              top: (this.state.dimensions.height / 2) - 25
+            }}
+          />
       );
     }
     return (
@@ -185,7 +218,9 @@ class MapSelectScreen extends Component {
     const buttons = ['New Marker', 'Add to Existing'];
 
     return (
-      <View style={styles.containerStyle}>
+      <View style={styles.containerStyle} onLayout={this.onLayout}>
+
+        {/* <View style={{ flex: 1 }}> */}
 
         <MapView
           provider={PROVIDER_GOOGLE}
@@ -195,7 +230,8 @@ class MapSelectScreen extends Component {
           region={this.state.region}
           onRegionChange={this.onRegionChange}
           showsUserLocation
-          showsMyLocationButton={this.state.showLocationButton}
+          // showsMyLocationButton={this.state.showLocationButton}
+          showsMyLocationButton
           showsPointsOfInterest
           showsBuildings
           showsIndoors
@@ -206,9 +242,10 @@ class MapSelectScreen extends Component {
 
           {this.renderAllMarkers()}
 
-          {this.renderCenterMarker()}
-
         </MapView>
+
+        {this.renderCenterMarker()}
+      {/* </View> */}
 
         <Icon
           raised

@@ -29,10 +29,10 @@ class MapScreen extends Component {
     mapType: 'standard',
     errorMessage: null,
     region: {
-      longitude: -77.31586374342442,
-      latitude: 38.77684642130346,
-      longitudeDelta: 1.04,
-      latitudeDelta: 1.09
+      latitude: 30,
+      longitude: -95,
+      latitudeDelta: 50,
+      longitudeDelta: 50
     }
   };
 
