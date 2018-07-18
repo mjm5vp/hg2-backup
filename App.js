@@ -1,10 +1,15 @@
-import { Notifications } from 'expo';
+import { AppLoading, Asset, Font, Notifications } from 'expo';
 import React from 'react';
 import { PersistGate } from 'redux-persist/es/integration/react';
-import { StyleSheet, View, Alert } from 'react-native';
+import { Image, View, Alert } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import { Provider } from 'react-redux';
 import firebase from 'firebase';
+
+// Images
+import defaultMapImage from './assets/maps/default.png';
+import satelliteMapImage from './assets/maps/satellite.png';
+import terrainMapImage from './assets/maps/terrain.png';
 
 import { registerForNotifications } from './src/services/push_notifications';
 // import store from './src/store';
@@ -30,11 +35,43 @@ console.ignoredYellowBox = [
   'Warning: React.createClass'
 ];
 
+const cacheImages = images => {
+	return images.map(image => {
+		if (typeof image === 'string') {
+			const pre = Image.prefetch(image);
+			return pre;
+		}
+
+		return Asset.fromModule(image).downloadAsync();
+	});
+};
+
+const cacheFonts = fonts => {
+	return fonts.map(font => Font.loadAsync(font));
+};
+
 
 export default class App extends React.Component {
   state = {
+    isReady: false,
     notification: {}
-  }
+	};
+
+	componentWillMount() {
+		this.loadAssetsAsync();
+	}
+
+	async loadAssetsAsync() {
+		const imageAssets = cacheImages([
+			defaultMapImage,
+			satelliteMapImage,
+			terrainMapImage
+		]);
+
+		const fontAssets = cacheFonts([{ }]);
+
+		await Promise.all([...imageAssets, ...fontAssets]);
+	}
 
   componentDidMount() {
     const config = {

@@ -7,10 +7,15 @@ import { connect } from 'react-redux';
 import { setMapType } from '../actions';
 import styles from '../styles/mapStyles';
 
+// Images
+import defaultMapImage from '../../assets/maps/default.png';
+import satelliteMapImage from '../../assets/maps/satellite.png';
+import terrainMapImage from '../../assets/maps/terrain.png';
+
 class MapSettingsModal extends Component {
 
   renderEnableLocationButton = () => {
-    if (this.props.locationOn) {
+    if (this.props.locationOn) { 
       return null;
     }
 
@@ -58,7 +63,7 @@ class MapSettingsModal extends Component {
               <TouchableOpacity onPress={() => this.props.setMapType('standard')}>
                 <Image
                   style={styles.typeImage}
-                  source={{ uri: 'https://i.imgur.com/UntHqiN.png' }}
+                  source={defaultMapImage}
                 />
               </TouchableOpacity>
               <Text>Default</Text>
@@ -67,7 +72,7 @@ class MapSettingsModal extends Component {
               <TouchableOpacity onPress={() => this.props.setMapType('hybrid')}>
                 <Image
                   style={styles.typeImage}
-                  source={{ uri: 'https://i.imgur.com/dXW7vDt.jpg' }}
+                  source={satelliteMapImage}
                 />
               </TouchableOpacity>
               <Text>Satellite</Text>
@@ -76,7 +81,7 @@ class MapSettingsModal extends Component {
               <TouchableOpacity onPress={() => this.props.setMapType('terrain')}>
                 <Image
                   style={styles.typeImage}
-                  source={{ uri: 'https://i.imgur.com/BFRgcPm.png' }}
+                  source={terrainMapImage}
                 />
               </TouchableOpacity>
               <Text>Terrain</Text>
