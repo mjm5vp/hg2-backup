@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, Image, TouchableOpacity, ScrollView, ImageBackground } from 'react-native';
 import { Button, Card, Badge } from 'react-native-elements';
 import { connect } from 'react-redux';
 import firebase from 'firebase';
@@ -159,7 +159,7 @@ class HomeScreen extends Component {
     // console.log(firebase.auth().currentUser);
     return (
 
-      <Image source={feetBackground} style={styles.backgroundContainer}>
+      <ImageBackground source={feetBackground} style={styles.backgroundContainer}>
 
         <Text style={styles.headerStyle}>Hoos Going 2</Text>
 
@@ -246,7 +246,7 @@ class HomeScreen extends Component {
           visible={this.state.okModalVisible}
         />
 
-      </Image>
+      </ImageBackground>
     );
   }
 }
