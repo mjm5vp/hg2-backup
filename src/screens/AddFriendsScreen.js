@@ -21,7 +21,7 @@ import { connect } from 'react-redux';
 
 // import AddFriendModal from '../modals/AddFriendModal';
 import ConfirmCancelModal from '../modals/ConfirmCancelModal';
-import { addFriend } from '../actions';
+import { addFriend, acceptFriend } from '../actions';
 import styles from '../styles/modalStyles';
 import addStyles from '../styles/addStyles';
 
@@ -148,8 +148,6 @@ class AddFriends extends Component {
 formatContacts = (contacts) => {
   const contactsNumbers = [];
   let contactsNamesAndNumbers = [];
-
-  // console.log(typeof this.props.myFriends[0].number);
 
   contacts.data.filter(contact => contact.phoneNumbers[0])
     .forEach(contact => contact.phoneNumbers.forEach(phoneNumber => {
@@ -307,10 +305,16 @@ renderUsingAppList = () => {
 
 onAccept = () => {
   const { name, number } = this.props.myInfo;
-  const friend = { name: this.state.newContactName, number: this.state.newContactNumber };
-  const myInfo = { name, number, pushToken: this.props.notificationToken };
+  const { notificationToken } = this.props;
 
-  this.props.addFriend(friend, myInfo);
+  // this.props.addFriend(friend, myInfo);
+  this.props.acceptFriend({ 
+    name: this.state.newContactName, 
+    number: this.state.newContactNumber,
+    myName: name, 
+    myNumber: number,
+    notificationToken
+  });
   this.setState({ showModal: false });
 }
 
@@ -394,4 +398,4 @@ const mapStateToProps = state => {
   return { myFriends, myInfo, notificationToken };
 };
 
-export default connect(mapStateToProps, { addFriend })(AddFriends);
+export default connect(mapStateToProps, { addFriend, acceptFriend })(AddFriends);

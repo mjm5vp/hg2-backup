@@ -15,7 +15,7 @@ import terrainMapImage from '../../assets/maps/terrain.png';
 class MapSettingsModal extends Component {
 
   renderEnableLocationButton = () => {
-    if (this.props.locationOn) { 
+    if (this.props.locationOn) {
       return null;
     }
 

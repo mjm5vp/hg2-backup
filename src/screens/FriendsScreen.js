@@ -267,7 +267,7 @@ class FriendsScreen extends Component {
 
         </Modal>
 
-        {this.renderAddedMe()}
+        {/* {this.renderAddedMe()} */}
         {/* <View style={styles.menuView}> */}
 
           {/* <Button
