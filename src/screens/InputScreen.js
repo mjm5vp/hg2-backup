@@ -272,9 +272,6 @@ class InputScreen extends Component {
     this.props.addPoo(poo);
     this.props.increaseUID();
 
-    console.log('sendToFriends')
-    console.log(sendToFriends)
-
     if (sendToFriends.length > 0) {
       this.props.sendToFriendsAction({ sendToFriends, poo, myInfo });
     }
@@ -290,7 +287,6 @@ class InputScreen extends Component {
         showInfoModal: true,
       });
     }
-
   }
 
   onAccept = () => {

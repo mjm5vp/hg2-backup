@@ -1,9 +1,15 @@
 import React, { Component } from 'react';
-import { View, Text, Image, TouchableOpacity, ScrollView, ImageBackground } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  ImageBackground
+} from 'react-native';
 import { Button, Card, Badge } from 'react-native-elements';
 import { connect } from 'react-redux';
 import firebase from 'firebase';
-import axios from 'axios';
 
 import { checkAndSetPushToken } from '../services/push_notifications';
 import feetBackground from '../../assets/backgrounds/feet_background.jpg';
@@ -24,16 +30,16 @@ import {
 class HomeScreen extends Component {
   static navigationOptions = {
     header: null
-  }
+  };
 
   state = {
     currentUser: null,
     addedMe: [],
     okModalVisible: false,
     okModalText: ''
-  }
+  };
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps() {
     // console.log('componentWillReceiveProps');
     // console.log(nextProps.token);
     // if (nextProps.token) {
@@ -44,7 +50,7 @@ class HomeScreen extends Component {
   }
 
   componentWillMount() {
-    firebase.auth().onAuthStateChanged((user) => {
+    firebase.auth().onAuthStateChanged(user => {
       if (user) {
         const phone = user.uid;
         const { myPoos, myFriends, myInfo } = this.props;
@@ -52,7 +58,7 @@ class HomeScreen extends Component {
         this.props.syncPropsWithDb({ phone, myPoos, myFriends, myInfo });
         this.setState({ currentUser: true });
         // if (!this.props.notificationToken) {
-          this.checkForPushToken();
+        this.checkForPushToken();
         // }
       } else {
         this.setState({ currentUser: false });
@@ -61,14 +67,18 @@ class HomeScreen extends Component {
   }
 
   checkForPushToken = async () => {
-    const pushToken = await checkAndSetPushToken();
+    try {
+      const pushToken = await checkAndSetPushToken();
 
-    if (pushToken) {
-      this.props.setNotificationToken({ pushToken });
+      if (pushToken) {
+        this.props.setNotificationToken({ pushToken });
+      }
+    } catch (error) {
+      console.log('could not check for push token');
     }
-  }
+  };
 
-  authLoginWithToken = async (token) => {
+  authLoginWithToken = async token => {
     try {
       // await firebase.auth().signOut();
       await firebase.auth().signInWithCustomToken(token);
@@ -78,7 +88,7 @@ class HomeScreen extends Component {
       console.log('authLoginWithToken failed');
       console.log(err);
     }
-  }
+  };
 
   navToAdd() {
     this.props.resetInput();
@@ -104,7 +114,7 @@ class HomeScreen extends Component {
         okModalText: 'You must create an acount or sign in to use this feature.'
       });
     }
-  }
+  };
 
   navToSentToMe = () => {
     if (this.state.currentUser) {
@@ -115,32 +125,29 @@ class HomeScreen extends Component {
         okModalText: 'You must create an acount or sign in to use this feature.'
       });
     }
-  }
+  };
 
   authLogout = async () => {
     await this.props.authLogout();
     this.setState({ currentUser: false });
-  }
+  };
 
   renderAuthButton = () => {
     const { currentUser } = firebase.auth();
     // console.log('renderAuthButton currentUser');
     // console.log(currentUser);
-      if (this.state.currentUser || currentUser) {
+    if (this.state.currentUser || currentUser) {
       return (
         <Card>
           <Text>You're signed In</Text>
-          <Button
-            title='Sign Out'
-            onPress={() => this.authLogout()}
-          />
+          <Button title="Sign Out" onPress={() => this.authLogout()} />
         </Card>
       );
     }
     return (
       <Card>
         <Button
-          title='Sign In'
+          title="Sign In"
           icon={{ name: 'gear', type: 'font-awesome' }}
           onPress={() => this.props.navigation.navigate('auth')}
           buttonStyle={styles.mapButton}
@@ -148,29 +155,25 @@ class HomeScreen extends Component {
         />
       </Card>
     );
-  }
+  };
 
   okModalAccept = () => {
     this.setState({ okModalVisible: false, okModalText: '' });
-  }
+  };
 
   render() {
-    // console.log('home render currentUser');
-    // console.log(firebase.auth().currentUser);
     return (
-
-      <ImageBackground source={feetBackground} style={styles.backgroundContainer}>
-
+      <ImageBackground
+        source={feetBackground}
+        style={styles.backgroundContainer}
+      >
         <Text style={styles.headerStyle}>Hoos Going 2</Text>
 
         <ScrollView
           style={styles.scrollViewContainer}
           contentContainerStyle={{ alignItems: 'center' }}
         >
-
-          <TouchableOpacity
-            onPress={() => this.navToAdd()}
-          >
+          <TouchableOpacity onPress={() => this.navToAdd()}>
             <View style={styles.addView}>
               <Text style={styles.addText}>Take a Poo</Text>
               <Image
@@ -181,7 +184,7 @@ class HomeScreen extends Component {
           </TouchableOpacity>
 
           <Button
-            title='Map'
+            title="Map"
             icon={{ name: 'map', type: 'font-awesome' }}
             onPress={() => this.navToMap()}
             buttonStyle={styles.mapButton}
@@ -189,7 +192,7 @@ class HomeScreen extends Component {
           />
 
           <Button
-            title='Log'
+            title="Log"
             icon={{ name: 'list', type: 'font-awesome' }}
             onPress={() => this.navToLog()}
             buttonStyle={styles.mapButton}
@@ -197,16 +200,14 @@ class HomeScreen extends Component {
           />
 
           <Button
-            title='Stats'
+            title="Stats"
             icon={{ name: 'area-chart', type: 'font-awesome' }}
             onPress={() => this.props.navigation.navigate('stats')}
             buttonStyle={styles.mapButton}
             raised
           />
 
-          <TouchableOpacity
-            onPress={() => this.navToFriends()}
-          >
+          <TouchableOpacity onPress={() => this.navToFriends()}>
             <View style={styles.bigButton}>
               <View style={{ alignItems: 'flex-end' }}>
                 <Badge
@@ -220,7 +221,7 @@ class HomeScreen extends Component {
           </TouchableOpacity>
 
           <Button
-            title='Sent To Me'
+            title="Sent To Me"
             // icon={{ name: 'ios-people', type: 'font-awesome' }}
             onPress={() => this.navToSentToMe()}
             buttonStyle={styles.mapButton}
@@ -228,7 +229,7 @@ class HomeScreen extends Component {
           />
 
           <Button
-            title='Settings'
+            title="Settings"
             // icon={{ name: 'ios-people', type: 'font-awesome' }}
             onPress={() => this.props.navigation.navigate('settings')}
             buttonStyle={styles.mapButton}
@@ -236,16 +237,14 @@ class HomeScreen extends Component {
           />
 
           {this.renderAuthButton()}
-
         </ScrollView>
 
         <OKModal
           infoText={this.state.okModalText}
-          buttonText='OK'
+          buttonText="OK"
           onAccept={this.okModalAccept}
           visible={this.state.okModalVisible}
         />
-
       </ImageBackground>
     );
   }
@@ -259,13 +258,16 @@ const mapStateToProps = state => {
   return { token, myFriends, myInfo, myPoos, addedMe, notificationToken };
 };
 
-export default connect(mapStateToProps, {
-  setInputType,
-  setLogType,
-  resetInput,
-  authLogout,
-  authLogin,
-  syncPropsWithDb,
-  fetchSentToMe,
-  setNotificationToken
-})(HomeScreen);
+export default connect(
+  mapStateToProps,
+  {
+    setInputType,
+    setLogType,
+    resetInput,
+    authLogout,
+    authLogin,
+    syncPropsWithDb,
+    fetchSentToMe,
+    setNotificationToken
+  }
+)(HomeScreen);

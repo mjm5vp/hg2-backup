@@ -60,7 +60,6 @@ export const setSendToFriends = (friends) => {
 };
 
 export const fillInput = ({ inputUID, currentPooName, description, datetime, location }) => {
-  console.log(`fillInput inputUID: ${inputUID}`);
   return {
     type: FILL_INPUT,
     payload: { inputUID, currentPooName, description, datetime, location }

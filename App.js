@@ -6,10 +6,16 @@ import { StackNavigator } from 'react-navigation';
 import { Provider } from 'react-redux';
 import firebase from 'firebase';
 
-// Images
+// Map Images
 import defaultMapImage from './assets/maps/default.png';
 import satelliteMapImage from './assets/maps/satellite.png';
 import terrainMapImage from './assets/maps/terrain.png';
+
+// Poo Images
+import allPoos from './assets/pooExport';
+
+// Background Images
+import feetBackground from './assets/backgrounds/feet_background.jpg';
 
 import { registerForNotifications } from './src/services/push_notifications';
 // import store from './src/store';
@@ -36,42 +42,44 @@ console.ignoredYellowBox = [
 ];
 
 const cacheImages = images => {
-	return images.map(image => {
-		if (typeof image === 'string') {
-			const pre = Image.prefetch(image);
-			return pre;
-		}
+  return images.map(image => {
+    if (typeof image === 'string') {
+      const pre = Image.prefetch(image);
+      return pre;
+    }
 
-		return Asset.fromModule(image).downloadAsync();
-	});
+    return Asset.fromModule(image).downloadAsync();
+  });
 };
 
 const cacheFonts = fonts => {
-	return fonts.map(font => Font.loadAsync(font));
+  return fonts.map(font => Font.loadAsync(font));
 };
-
 
 export default class App extends React.Component {
   state = {
     isReady: false,
     notification: {}
-	};
+  };
 
-	componentWillMount() {
-		this.loadAssetsAsync();
-	}
+  componentWillMount() {
+    this.loadAssetsAsync();
+  }
 
-	async loadAssetsAsync() {
-		const imageAssets = cacheImages([
-			defaultMapImage,
-			satelliteMapImage,
-			terrainMapImage
-		]);
+  async loadAssetsAsync() {
+    const poos = allPoos.map(poo => poo.image);
+    const imageAssets = cacheImages([
+      feetBackground,
+      defaultMapImage,
+      satelliteMapImage,
+      terrainMapImage,
+      ...poos
+    ]);
 
-		const fontAssets = cacheFonts([{ }]);
+    const fontAssets = cacheFonts([{}]);
 
-		await Promise.all([...imageAssets, ...fontAssets]);
-	}
+    await Promise.all([...imageAssets, ...fontAssets]);
+  }
 
   componentDidMount() {
     const config = {
@@ -89,24 +97,33 @@ export default class App extends React.Component {
     // console.log('data');
     // console.log(JSON.stringify(this.state.notification.data));
     // registerForNotifications();
-    Notifications.addListener((notification) => {
-      const { data: { text }, origin } = notification;
+    Notifications.addListener(notification => {
+      const {
+        data: { text },
+        origin
+      } = notification;
 
       if (origin === 'received') {
-        Alert.alert(
-          'New Push Notification',
-          text,
-          [{ text: 'ok' }]
-        );
+        Alert.alert('New Push Notification', text, [{ text: 'ok' }]);
       }
     });
   }
 
-  _handleNotification = (notification) => {
+  _handleNotification = notification => {
     this.setState({ notification });
   };
 
   render() {
+    if (!this.state.isReady) {
+      return (
+        <AppLoading
+          startAsync={this.loadAssetsAsync}
+          onFinish={() => this.setState({ isReady: true })}
+          onError={console.warn}
+        />
+      );
+    }
+
     const MainNavigator = StackNavigator({
       home: { screen: HomeScreen },
       input: { screen: InputScreen },
@@ -142,6 +159,5 @@ const styles = {
   container: {
     flex: 1,
     backgroundColor: '#fff'
-
-  },
+  }
 };
