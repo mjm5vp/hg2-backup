@@ -1,7 +1,1 @@
-{
-  "extends": "rallycoding",
-  "rules": {
-    "arrow-body-style": 0,
-    "react/sort-comp": 0
-  }
-}
+{ "parser": "babel-eslint" }

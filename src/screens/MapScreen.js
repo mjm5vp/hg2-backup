@@ -1,24 +1,29 @@
-import React, { Component } from 'react';
-import { Text, View, ActivityIndicator, TouchableOpacity, Linking } from 'react-native';
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
-import { Icon, Button } from 'react-native-elements';
-import Modal from 'react-native-modal';
-import { Location, Permissions } from 'expo';
-import { connect } from 'react-redux';
-import _ from 'lodash';
-import moment from 'moment';
+import React, { Component } from 'react'
+import {
+  Text,
+  View,
+  ActivityIndicator,
+  TouchableOpacity,
+  Linking
+} from 'react-native'
+import MapView, { PROVIDER_GOOGLE } from 'react-native-maps'
+import { Icon, Button } from 'react-native-elements'
+import Modal from 'react-native-modal'
+import { Location, Permissions } from 'expo'
+import { connect } from 'react-redux'
+import _ from 'lodash'
+import moment from 'moment'
 
-import styles from '../styles/mapStyles';
-import allNamedPoos from '../../assets/namedPooExport';
-import MapSettingsModal from '../modals/MapSettingsModal';
-import { identifyStackLocation, setLogType, setMapType } from '../actions';
+import styles from '../styles/mapStyles'
+import allNamedPoos from '../../assets/namedPooExport'
+import MapSettingsModal from '../modals/MapSettingsModal'
+import { identifyStackLocation, setLogType, setMapType } from '../actions'
 
 class MapScreen extends Component {
-
   static navigationOptions = () => {
     return {
-      title: 'Map',
-    };
+      title: 'Map'
+    }
   }
 
   state = {
@@ -34,26 +39,26 @@ class MapScreen extends Component {
       latitudeDelta: 50,
       longitudeDelta: 50
     }
-  };
+  }
 
   componentDidMount() {
-    this.setState({ mapLoaded: true, mapType: this.props.mapType });
-    this.getLocationAsync();
+    this.setState({ mapLoaded: true, mapType: this.props.mapType })
+    this.getLocationAsync()
   }
 
   componentWillReceiveProps(nextProps) {
-    const { mapType } = nextProps;
+    const { mapType } = nextProps
 
-    console.log(mapType);
-    console.log(this.props.mapType);
+    console.log(mapType)
+    console.log(this.props.mapType)
 
     if (mapType !== this.props.mapType) {
-      this.setState({ mapType });
+      this.setState({ mapType })
     }
   }
 
   getLocationAsync = async () => {
-    const { status } = await Permissions.askAsync(Permissions.LOCATION);
+    const { status } = await Permissions.askAsync(Permissions.LOCATION)
     if (status !== 'granted') {
       this.setState({
         errorMessage: 'Permission to access location was denied',
@@ -64,10 +69,12 @@ class MapScreen extends Component {
           latitudeDelta: 50,
           longitudeDelta: 50
         }
-      });
+      })
     } else {
-      const location = await Location.getCurrentPositionAsync({});
-      const { coords: { latitude, longitude } } = location;
+      const location = await Location.getCurrentPositionAsync({})
+      const {
+        coords: { latitude, longitude }
+      } = location
       this.setState({
         showLocationButton: true,
         location,
@@ -77,23 +84,23 @@ class MapScreen extends Component {
           latitudeDelta: 0.005,
           longitudeDelta: 0.005
         }
-       });
+      })
     }
-  };
+  }
 
   renderAllMarkers = () => {
     const poosWithLocation = this.props.myPoos.filter(poo => {
-      return poo.location.latitude;
-    });
+      return poo.location.latitude
+    })
 
-    const sortedPoos = _.sortBy(poosWithLocation, (o) => {
-      return new moment(o.datetime);
-    }).reverse();
+    const sortedPoos = _.sortBy(poosWithLocation, o => {
+      return new moment(o.datetime)
+    }).reverse()
 
-    const uniqPoos = _.uniqBy(sortedPoos, 'location.latitude');
+    const uniqPoos = _.uniqBy(sortedPoos, 'location.latitude')
 
     return uniqPoos.map((poo, key) => {
-      const pooImage = allNamedPoos[poo.currentPooName].image;
+      const pooImage = allNamedPoos[poo.currentPooName].image
       return (
         <MapView.Marker
           key={key}
@@ -107,42 +114,41 @@ class MapScreen extends Component {
             </View>
           </MapView.Callout>
         </MapView.Marker>
-      );
-    });
+      )
+    })
   }
 
   onCalloutStack = ({ location }) => {
-    this.props.setLogType('stack');
-    this.props.identifyStackLocation(location);
-    this.props.navigation.navigate('log');
+    this.props.setLogType('stack')
+    this.props.identifyStackLocation(location)
+    this.props.navigation.navigate('log')
   }
 
   renderMyLocationButton = () => {
     return (
-        // <Button
-        //   buttonStyle={styles.myLocationButtonView}
-        //   icon={{ name: 'gps-fixed', type: 'material-icons', color: 'black', justifyContent: 'center', alignItems: 'center' }}
-        //   onPress={() => console.log('my location button press')}
-        // />
-        <Icon
-          raised
-          name='gps-fixed'
-          type='material-icons'
-          color='black'
-          containerStyle={styles.myLocationButton}
-          onPress={() => this.setState({ showSettings: false })}
-        />
-
-    );
+      // <Button
+      //   buttonStyle={styles.myLocationButtonView}
+      //   icon={{ name: 'gps-fixed', type: 'material-icons', color: 'black', justifyContent: 'center', alignItems: 'center' }}
+      //   onPress={() => console.log('my location button press')}
+      // />
+      <Icon
+        raised
+        name="gps-fixed"
+        type="material-icons"
+        color="black"
+        containerStyle={styles.myLocationButton}
+        onPress={() => this.setState({ showSettings: false })}
+      />
+    )
   }
 
   render() {
     if (!this.state.mapLoaded) {
       return (
         <View style={{ flex: 1, justifyContent: 'center' }}>
-          <ActivityIndicator size='large' />
+          <ActivityIndicator size="large" />
         </View>
-      );
+      )
     }
 
     return (
@@ -167,8 +173,8 @@ class MapScreen extends Component {
         </MapView>
         <Icon
           raised
-          name='settings'
-          type='feather'
+          name="settings"
+          type="feather"
           containerStyle={styles.settingsButton}
           onPress={() => this.setState({ showSettings: true })}
         />
@@ -178,18 +184,19 @@ class MapScreen extends Component {
           closeSettings={() => this.setState({ showSettings: false })}
           locationOn={this.state.showLocationButton}
         />
-
       </View>
-
-    );
+    )
   }
 }
 
 const mapStateToProps = state => {
-  const { myPoos } = state.pooReducer;
-  const { mapType } = state.settings;
+  const { myPoos } = state.pooReducer
+  const { mapType } = state.settings
 
-  return { myPoos, mapType };
-};
+  return { myPoos, mapType }
+}
 
-export default connect(mapStateToProps, { identifyStackLocation, setLogType, setMapType })(MapScreen);
+export default connect(
+  mapStateToProps,
+  { identifyStackLocation, setLogType, setMapType }
+)(MapScreen)

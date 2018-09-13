@@ -13,12 +13,11 @@ import allNamedPoos from '../../assets/namedPooExport';
 import styles from '../styles/mapStyles';
 
 class MapSelectScreen extends Component {
-
   static navigationOptions = () => {
     return {
-      title: 'Select Location',
+      title: 'Select Location'
     };
-  }
+  };
 
   state = {
     renderCenterMarker: null,
@@ -66,15 +65,14 @@ class MapSelectScreen extends Component {
   }
 
   onLayout = event => {
-    console.log('onLayout')
     if (this.state.dimensions) return; // layout was already called
     const { width, height } = event.nativeEvent.layout;
     this.setState({ dimensions: { width, height } });
-  }
+  };
 
-  onRegionChange = (region) => {
+  onRegionChange = region => {
     this.setState({ region });
-  }
+  };
 
   setRegionToCoordinate = () => {
     const { longitude, latitude } = this.props.location;
@@ -85,9 +83,9 @@ class MapSelectScreen extends Component {
         latitude,
         latitudeDelta: 0.005,
         longitudeDelta: 0.005
-       }
+      }
     });
-  }
+  };
 
   getLocationAsync = async () => {
     const { status } = await Permissions.askAsync(Permissions.LOCATION);
@@ -104,7 +102,9 @@ class MapSelectScreen extends Component {
       });
     } else {
       const location = await Location.getCurrentPositionAsync({});
-      const { coords: { latitude, longitude } } = location;
+      const {
+        coords: { latitude, longitude }
+      } = location;
       this.setState({
         showLocationButton: true,
         location,
@@ -114,7 +114,7 @@ class MapSelectScreen extends Component {
           latitudeDelta: 0.005,
           longitudeDelta: 0.005
         }
-       });
+      });
     }
   };
 
@@ -122,18 +122,18 @@ class MapSelectScreen extends Component {
     console.log('press place marker');
     this.props.setLocation(this.state.region);
     this.props.navigation.goBack();
-  }
+  };
 
-  updateIndex = (selectedIndex) => {
+  updateIndex = selectedIndex => {
     this.setState({ selectedIndex });
-  }
+  };
 
   renderAllMarkers = () => {
     const poosWithLocation = this.props.myPoos.filter(poo => {
       return poo.location.latitude;
     });
 
-    const sortedPoos = _.sortBy(poosWithLocation, (o) => {
+    const sortedPoos = _.sortBy(poosWithLocation, o => {
       return new moment(o.datetime);
     }).reverse();
 
@@ -157,60 +157,58 @@ class MapSelectScreen extends Component {
         </MapView.Marker>
       );
     });
-  }
+  };
 
   onMarkerTap = (e, poo) => {
     console.log(poo.location);
-  }
+  };
 
   onCalloutTap = (e, poo) => {
     console.log('onCalloutTap');
     this.props.setLocation(poo.location);
     this.props.navigation.goBack();
-  }
+  };
 
   renderCenterMarker = () => {
     const pooImage = allNamedPoos[this.props.currentPooName].image;
 
     if (this.state.selectedIndex === 0 && this.state.dimensions) {
       return (
-          <Image
-            source={pooImage}
-            style={{
-              position: 'absolute',
-              width: 50,
-              height: 50,
-              zIndex: 2,
-              left: (this.state.dimensions.width / 2) - 25,
-              top: (this.state.dimensions.height / 2) - 25
-            }}
-          />
+        <Image
+          source={pooImage}
+          style={{
+            position: 'absolute',
+            width: 50,
+            height: 50,
+            zIndex: 2,
+            left: this.state.dimensions.width / 2 - 25,
+            top: this.state.dimensions.height / 2 - 25
+          }}
+        />
       );
     }
-    return (
-      <Image />
-    );
-  }
+    return <Image />;
+  };
 
   renderPlaceMarkerButton = () => {
     if (this.state.selectedIndex === 0) {
       return (
         <View style={styles.buttonContainer}>
           <Button
-            title='Place Marker'
+            title="Place Marker"
             buttonStyle={styles.enableLocationButton}
             onPress={this.handlePlaceMarker}
           />
         </View>
       );
     }
-  }
+  };
 
   render() {
     if (!this.state.mapLoaded) {
       return (
         <View style={{ flex: 1, justifyContent: 'center' }}>
-          <ActivityIndicator size='large' />
+          <ActivityIndicator size="large" />
         </View>
       );
     }
@@ -219,7 +217,6 @@ class MapSelectScreen extends Component {
 
     return (
       <View style={styles.containerStyle} onLayout={this.onLayout}>
-
         {/* <View style={{ flex: 1 }}> */}
 
         <MapView
@@ -228,7 +225,7 @@ class MapSelectScreen extends Component {
           mapType={this.state.mapType}
           // initialRegion={this.state.initialRegion}
           region={this.state.region}
-          onRegionChange={this.onRegionChange}
+          onRegionChange={() => this.onRegionChange()}
           showsUserLocation
           // showsMyLocationButton={this.state.showLocationButton}
           showsMyLocationButton
@@ -239,18 +236,16 @@ class MapSelectScreen extends Component {
           showsCompass
           moveOnMarkerPress
         >
-
           {this.renderAllMarkers()}
-
         </MapView>
 
         {this.renderCenterMarker()}
-      {/* </View> */}
+        {/* </View> */}
 
         <Icon
           raised
-          name='settings'
-          type='feather'
+          name="settings"
+          type="feather"
           containerStyle={styles.selectSettingsButton}
           onPress={() => this.setState({ showSettings: true })}
         />
@@ -270,7 +265,6 @@ class MapSelectScreen extends Component {
         />
 
         {this.renderPlaceMarkerButton()}
-
       </View>
     );
   }
@@ -284,4 +278,7 @@ const mapStateToProps = state => {
   return { currentPooName, location, myPoos, mapType };
 };
 
-export default connect(mapStateToProps, { setLocation })(MapSelectScreen);
+export default connect(
+  mapStateToProps,
+  { setLocation }
+)(MapSelectScreen);
