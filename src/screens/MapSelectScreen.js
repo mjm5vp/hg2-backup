@@ -1,15 +1,15 @@
-import React, { Component } from 'react'
-import { Text, View, Image, ActivityIndicator } from 'react-native'
+import { ActivityIndicator, Image, Text, View } from 'react-native'
 import { Button, ButtonGroup, Icon } from 'react-native-elements'
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps'
 import { Location, Permissions } from 'expo'
+import MapView, { PROVIDER_GOOGLE } from 'react-native-maps'
+import React, { Component } from 'react'
+
+import MapSettingsModal from '../modals/MapSettingsModal'
+import _ from 'lodash'
+import allNamedPoos from '../../assets/namedPooExport'
 import { connect } from 'react-redux'
 import moment from 'moment'
-import _ from 'lodash'
-
 import { setLocation } from '../actions'
-import MapSettingsModal from '../modals/MapSettingsModal'
-import allNamedPoos from '../../assets/namedPooExport'
 import styles from '../styles/mapStyles'
 
 class MapSelectScreen extends Component {
@@ -225,7 +225,7 @@ class MapSelectScreen extends Component {
           mapType={this.state.mapType}
           // initialRegion={this.state.initialRegion}
           region={this.state.region}
-          // onRegionChange={() => this.onRegionChange()}
+          onRegionChangeComplete={this.onRegionChange}
           showsUserLocation
           // showsMyLocationButton={this.state.showLocationButton}
           showsMyLocationButton
