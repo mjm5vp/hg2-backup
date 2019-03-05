@@ -25,7 +25,7 @@ import modalStyles from '../styles/modalStyles'
 import { registerForPushNotificationsAsync } from '../services/push_notifications'
 
 class FriendsScreen extends Component {
-  static navigationOptions = ({ navigation }) => {
+  static navigationOptions = () => {
     return {
       title: 'Friends'
     }

@@ -158,7 +158,7 @@ class AddFriends extends Component {
     }
     const contacts = await Expo.Contacts.getContactsAsync({
       fields: [Expo.Contacts.PHONE_NUMBERS],
-      pageSize: 1000,
+      pageSize: 0,
       pageOffset: 0
     })
     this.formatContacts(contacts)
