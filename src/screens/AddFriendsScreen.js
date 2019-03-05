@@ -1,34 +1,48 @@
-import React, { Component } from 'react';
 import {
-  ScrollView,
-  View,
-  Text,
   ActivityIndicator,
-  TouchableOpacity,
-  ListView,
-  TouchableWithoutFeedback,
+  Dimensions,
   Keyboard,
-  Linking
-} from 'react-native';
-import { Card, ListItem, Icon, Button, FormInput, FormLabel } from 'react-native-elements';
-import { text } from 'react-native-communications';
-import Expo from 'expo';
-import Modal from 'react-native-modal';
-import firebase from 'firebase';
-import _ from 'lodash';
-import { connect } from 'react-redux';
-// import AlphabetListView from 'react-native-alphabetlistview';
+  Linking,
+  ListView,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View
+} from 'react-native'
+import {
+  Button,
+  Card,
+  FormInput,
+  FormLabel,
+  Icon,
+  ListItem
+} from 'react-native-elements'
+import React, { Component } from 'react'
+import { acceptFriend, addFriend } from '../actions'
 
+import AlphaScrollFlatList from 'alpha-scroll-flat-list'
+import AlphabetListView from 'react-native-alphabetlistview'
 // import AddFriendModal from '../modals/AddFriendModal';
-import ConfirmCancelModal from '../modals/ConfirmCancelModal';
-import { addFriend, acceptFriend } from '../actions';
-import styles from '../styles/modalStyles';
-import addStyles from '../styles/addStyles';
+import ConfirmCancelModal from '../modals/ConfirmCancelModal'
+import Expo from 'expo'
+import Modal from 'react-native-modal'
+import SectionListContacts from 'react-native-sectionlist-contacts'
+import _ from 'lodash'
+import addStyles from '../styles/addStyles'
+import { connect } from 'react-redux'
+import firebase from 'firebase'
+import people from './people'
+// import styles from '../styles/modalStyles'
+import { text } from 'react-native-communications'
+
+const WIDTH = Dimensions.get('window').width
+const ITEM_HEIGHT = 50
 
 class AddFriends extends Component {
   constructor() {
-    super();
-    const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+    super()
+    const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 })
     this.state = {
       dataSource: ds.cloneWithRows(['row 1', 'row 2']),
       usersNumbers: [],
@@ -40,19 +54,28 @@ class AddFriends extends Component {
       sendNumber: null,
       newContactName: '',
       newContactNumber: '',
-      contactPermissionDenied: null
-    };
+      contactPermissionDenied: null,
+      dummyData: people
+    }
   }
 
-
   componentDidMount() {
-    this.showFirstContactAsync();
+    this.showFirstContactAsync()
   }
 
   addByNumber = () => {
     this.setState({
-      showModal: true,
-    });
+      showModal: true
+    })
+  }
+
+  renderItem({ item }) {
+    return (
+      <View style={styles.itemContainer}>
+        <Text style={styles.itemTitle}>{item.name}</Text>
+        <Text style={styles.itemSubtitle}>{item.company}</Text>
+      </View>
+    )
   }
 
   renderAddFriendModal = () => {
@@ -71,7 +94,6 @@ class AddFriends extends Component {
       >
         <View style={styles.modalContent}>
           <View style={styles.inputView}>
-
             <Text>Confirm contact info</Text>
 
             <FormLabel>Name</FormLabel>
@@ -82,196 +104,198 @@ class AddFriends extends Component {
 
             <FormLabel>Number</FormLabel>
             <FormInput
-              keyboardType='number-pad'
+              keyboardType="number-pad"
               value={this.state.newContactNumber}
-              onChangeText={newContactNumber => this.setState({ newContactNumber })}
+              onChangeText={newContactNumber =>
+                this.setState({ newContactNumber })
+              }
             />
-
           </View>
           <View style={styles.buttonView}>
             <TouchableOpacity
-              onPress={() => this.onAccept(this.state.newContactName, this.state.newContactNumber)}
+              onPress={() =>
+                this.onAccept(
+                  this.state.newContactName,
+                  this.state.newContactNumber
+                )
+              }
             >
               <View style={styles.button}>
                 <Text>Add Friend</Text>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => this.setState({ showModal: false })}>
+            <TouchableOpacity
+              onPress={() => this.setState({ showModal: false })}
+            >
               <View style={styles.cancelButton}>
                 <Text>Cancel</Text>
               </View>
             </TouchableOpacity>
           </View>
-
         </View>
-
       </Modal>
-    );
+    )
   }
 
   createDataSource(contactsNamesAndNumbers) {
     const ds = new ListView.DataSource({
       rowHasChanged: (r1, r2) => r1 !== r2
-    });
+    })
 
-    this.dataSource = ds.cloneWithRows(contactsNamesAndNumbers);
-    this.setState({ loading: false });
+    this.dataSource = ds.cloneWithRows(contactsNamesAndNumbers)
+    this.setState({ loading: false })
   }
 
   showFirstContactAsync = async () => {
     // Ask for permission to query contacts.
-    const permission = await Expo.Permissions.askAsync(Expo.Permissions.CONTACTS);
+    const permission = await Expo.Permissions.askAsync(
+      Expo.Permissions.CONTACTS
+    )
     if (permission.status !== 'granted') {
       // Permission was denied...
-      this.setState({ loading: false, contactPermissionDenied: true });
-      return;
+      this.setState({ loading: false, contactPermissionDenied: true })
+      return
     }
     const contacts = await Expo.Contacts.getContactsAsync({
-      fields: [
-        Expo.Contacts.PHONE_NUMBERS,
-      ],
+      fields: [Expo.Contacts.PHONE_NUMBERS],
       pageSize: 1000,
-      pageOffset: 0,
-    });
-    this.formatContacts(contacts);
-    // console.log(contacts.data[1].phoneNumbers[0].number);
-    this.setState({ contacts: contacts.data });
-    // console.log('firebase users');
-    let usersNumbers = null;
-    await firebase.database().ref('/users')
+      pageOffset: 0
+    })
+    this.formatContacts(contacts)
+    this.setState({ contacts: contacts.data })
+    let usersNumbers = null
+    await firebase
+      .database()
+      .ref('/users')
       .once('value', snapshot => {
-        usersNumbers = Object.keys(snapshot.val());
-      });
-    this.setState({ usersNumbers });
+        usersNumbers = Object.keys(snapshot.val())
+      })
+    this.setState({ usersNumbers })
   }
 
-formatContacts = (contacts) => {
-  const contactsNumbers = [];
-  let contactsNamesAndNumbers = [];
+  formatContacts = contacts => {
+    const contactsNumbers = []
+    let contactsNamesAndNumbers = []
 
-  contacts.data.filter(contact => contact.phoneNumbers[0])
-    .forEach(contact => contact.phoneNumbers.forEach(phoneNumber => {
-      const number = this.formatPhone(phoneNumber.number);
-      if (number.length === 10 && !_.some(this.props.myFriends, ['number', number])) {
-        contactsNumbers.push(number);
-        contactsNamesAndNumbers.push({ name: contact.name, number });
-      }
-    }));
+    contacts.data.filter(contact => contact.phoneNumbers[0]).forEach(contact =>
+      contact.phoneNumbers.forEach(phoneNumber => {
+        const number = this.formatPhone(phoneNumber.number)
+        if (
+          number.length === 10 &&
+          !_.some(this.props.myFriends, ['number', number])
+        ) {
+          contactsNumbers.push(number)
+          contactsNamesAndNumbers.push({ name: contact.name, number })
+        }
+      })
+    )
 
-  contactsNamesAndNumbers = _.uniqWith(contactsNamesAndNumbers, _.isEqual);
-  contactsNamesAndNumbers = _.sortBy(contactsNamesAndNumbers, contact => contact.name);
-  this.createDataSource(contactsNamesAndNumbers);
-  this.setState({ contactsNumbers, contactsNamesAndNumbers });
-}
+    contactsNamesAndNumbers = _.uniqWith(contactsNamesAndNumbers, _.isEqual)
+    contactsNamesAndNumbers = _.sortBy(
+      contactsNamesAndNumbers,
+      contact => contact.name
+    )
+    this.createDataSource(contactsNamesAndNumbers)
+    this.setState({ contactsNumbers, contactsNamesAndNumbers })
+  }
 
-formatPhone = (phone) => {
-  const number = String(phone).replace(/[^\d]/g, '');
-  return number.charAt(0) === '1' ? number.substring(1) : number;
-}
+  formatPhone = phone => {
+    const number = String(phone).replace(/[^\d]/g, '')
+    return number.charAt(0) === '1' ? number.substring(1) : number
+  }
 
-// renderContactList = () => {
-//   if (this.state.contactsNamesAndNumbers === []) {
-//     return (
-//       <ActivityIndicator />
-//     );
-//   }
-//   return this.state.contactsNamesAndNumbers.map((contact) => {
-//       return (
-//         <Card>
-//           <View>
-//             <Text>{contact.name}</Text>
-//             <Text>{contact.number}</Text>
-//           </View>
-//         </Card>
-//
-//       );
-//   });
-// }
-onPressNonUser = (number) => {
-  this.setState({ confirmCancelModalVisible: true, sendNumber: number });
-}
+  onPressNonUser = number => {
+    this.setState({ confirmCancelModalVisible: true, sendNumber: number })
+  }
 
-sendText = () => {
-  text(this.state.sendNumber, 'Download Hoos going 2 so we can track each others poos!');
-}
+  sendText = () => {
+    text(
+      this.state.sendNumber,
+      'Download Hoos going 2 so we can track each others poos!'
+    )
+  }
 
-onPressUser = (newContactName, newContactNumber) => {
-  this.setState({ newContactName, newContactNumber, showModal: true });
-}
+  onPressUser = (newContactName, newContactNumber) => {
+    this.setState({ newContactName, newContactNumber, showModal: true })
+  }
 
-renderRow = (contact) => {
-  return (
-    <ListItem
-      title={contact.name}
-      subtitle={contact.number}
-      onPress={() => this.onPressNonUser(contact.number)}
-    />
-  );
-}
-
-// changeValue = (type, value) => {
-//   console.log('changeValue');
-//
-//   this.setState({ name: value });
-// }
-
-changeName = (name) => {
-  this.setState({ name });
-}
-
-changeNumber = (number) => {
-  this.setState({ number });
-}
-
-renderAddFriendByNumber = () => {
-  // console.log('renderAddFriendByNumber, name number')
-  // console.log(this.state.newContactName);
-  // console.log(this.state.newContactNumber);
-  return (
-    <View>
-
-      <Card>
-        <TouchableOpacity onPress={() => this.addByNumber()}>
-          <View
-            style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }}
-          >
-            <Text>Add Friend by Number</Text>
-            <Icon
-              name='ios-add-circle-outline'
-              type='ionicon'
-              color='#517fa4'
-              size={20}
-              style={{ margin: 5 }}
-            />
-          </View>
-        </TouchableOpacity>
-      </Card>
-
-      {this.renderAddFriendModal()}
-
-  </View>
-  );
-}
-
-renderUsingAppList = () => {
-  const { contactsNumbers, usersNumbers, contactsNamesAndNumbers } = this.state;
-
-  const usingApp = _.intersectionWith(contactsNumbers, usersNumbers, _.isEqual);
-  const usingAppNamesAndNumbers = [];
-
-  usingApp.forEach(usingContact => {
-    usingAppNamesAndNumbers.push(_.find(contactsNamesAndNumbers, contact => {
-      return usingContact === contact.number;
-    }));
-  });
-
-  const finalList = usingAppNamesAndNumbers.map((contact, i) => {
-    const { name, number } = contact;
+  renderRow = contact => {
+    const { name, number } = contact
     return (
-        <Card
-          key={i}
-        >
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+      <ListItem
+        title={name}
+        subtitle={number}
+        onPress={() => this.onPressUser(name, number)}
+      />
+    )
+  }
+
+  changeName = name => {
+    this.setState({ name })
+  }
+
+  changeNumber = number => {
+    this.setState({ number })
+  }
+
+  renderAddFriendByNumber = () => {
+    return (
+      <View>
+        <Card>
+          <TouchableOpacity onPress={() => this.addByNumber()}>
+            <View
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                flexDirection: 'row'
+              }}
+            >
+              <Text>Add Friend by Number</Text>
+              <Icon
+                name="ios-add-circle-outline"
+                type="ionicon"
+                color="#517fa4"
+                size={20}
+                style={{ margin: 5 }}
+              />
+            </View>
+          </TouchableOpacity>
+        </Card>
+
+        {this.renderAddFriendModal()}
+      </View>
+    )
+  }
+
+  renderUsingAppList = () => {
+    const {
+      contactsNumbers,
+      usersNumbers,
+      contactsNamesAndNumbers
+    } = this.state
+
+    const usingApp = _.intersectionWith(
+      contactsNumbers,
+      usersNumbers,
+      _.isEqual
+    )
+    const usingAppNamesAndNumbers = []
+
+    usingApp.forEach(usingContact => {
+      usingAppNamesAndNumbers.push(
+        _.find(contactsNamesAndNumbers, contact => {
+          return usingContact === contact.number
+        })
+      )
+    })
+
+    const finalList = usingAppNamesAndNumbers.map((contact, i) => {
+      const { name, number } = contact
+      return (
+        <Card key={i}>
+          <View
+            style={{ flexDirection: 'row', justifyContent: 'space-between' }}
+          >
             <View>
               <Text>{name}</Text>
               <Text>{number}</Text>
@@ -280,53 +304,51 @@ renderUsingAppList = () => {
               <View style={addStyles.addButtonView}>
                 <Text>Add</Text>
                 <Icon
-                  name='ios-add-circle-outline'
-                  type='ionicon'
-                  color='#517fa4'
+                  name="ios-add-circle-outline"
+                  type="ionicon"
+                  color="#517fa4"
                   size={20}
                   style={{ margin: 5 }}
                 />
               </View>
             </TouchableOpacity>
           </View>
-
         </Card>
-    );
-  });
+      )
+    })
 
-  return (
-    <Card
-      title='Contacts using Hoos Going 2'
-    >
-      {finalList}
-    </Card>
-  );
-}
+    return finalList.length > 0 ? (
+      <Card title="Contacts using Hoos Going 2">{finalList}</Card>
+    ) : null
+  }
 
-onAccept = () => {
-  const { name, number } = this.props.myInfo;
-  const { notificationToken } = this.props;
+  onAccept = () => {
+    const { name, number } = this.props.myInfo
+    const { notificationToken } = this.props
 
-  // this.props.addFriend(friend, myInfo);
-  this.props.acceptFriend({ 
-    name: this.state.newContactName, 
-    number: this.state.newContactNumber,
-    myName: name, 
-    myNumber: number,
-    notificationToken
-  });
-  this.setState({ showModal: false });
-}
+    // this.props.addFriend(friend, myInfo);
+    this.props.acceptFriend({
+      name: this.state.newContactName,
+      number: this.state.newContactNumber,
+      myName: name,
+      myNumber: number,
+      notificationToken
+    })
+    this.setState({ showModal: false })
+  }
+
+  keyExtractor(item) {
+    return item.id
+  }
 
   render() {
     if (this.state.loading) {
       return (
         <View style={{ marginTop: '50%', alignItems: 'center' }}>
-          <ActivityIndicator size='large' />
+          <ActivityIndicator size="large" />
         </View>
-      );
+      )
     }
-
 
     if (this.state.contactPermissionDenied) {
       return (
@@ -335,18 +357,18 @@ onAccept = () => {
           <Card>
             <View>
               <Text>
-                Enable CONTACTS in SETTINGS to see which of your contacts are already
-                using Hoos Going 2.
+                Enable CONTACTS in SETTINGS to see which of your contacts are
+                already using Hoos Going 2.
               </Text>
               <Button
-                title='Go to Settings'
+                title="Go to Settings"
                 onPress={() => Linking.openURL('app-settings:')}
                 style={{ marginTop: 10 }}
               />
             </View>
           </Card>
         </View>
-      );
+      )
     }
 
     // const input = (
@@ -365,37 +387,78 @@ onAccept = () => {
     // );
 
     return (
-      <ScrollView>
+      // <ScrollView>
+      // <View>
+
+      <View style={styles.container}>
+        {this.renderAddFriendByNumber()}
+
+        {/* {this.renderUsingAppList()} */}
+        {/* <Card title="Invite Friends"> */}
         <View>
-          {this.renderAddFriendByNumber()}
-          {this.renderUsingAppList()}
-          <Card title='Invite Friends'>
-            <ListView
-              dataSource={this.dataSource}
-              renderRow={this.renderRow}
-            />
-          </Card>
-
-          {this.renderAddFriendModal()}
-
-          <ConfirmCancelModal
-            infoText='Text contact with invite link?'
-            visible={this.state.confirmCancelModalVisible}
-            onAccept={this.sendText}
-            onDecline={() => this.setState({ confirmCancelModalVisible: false })}
+          {/* <ListView dataSource={this.dataSource} renderRow={this.renderRow} /> */}
+          <AlphaScrollFlatList
+            keyExtractor={this.keyExtractor.bind(this)}
+            data={people.sort((prev, next) =>
+              prev.name.localeCompare(next.name)
+            )}
+            renderItem={this.renderItem.bind(this)}
+            scrollKey={'name'}
+            reverse={false}
+            itemHeight={ITEM_HEIGHT}
           />
-
         </View>
-      </ScrollView>
-    );
+        {/* </Card> */}
+        {this.renderAddFriendModal()}
+
+        <ConfirmCancelModal
+          infoText="Text contact with invite link?"
+          visible={this.state.confirmCancelModalVisible}
+          onAccept={this.sendText}
+          onDecline={() => this.setState({ confirmCancelModalVisible: false })}
+        />
+      </View>
+      // </View>
+
+      // </ScrollView>
+    )
   }
 }
 
 const mapStateToProps = state => {
-  const { myInfo, notificationToken } = state.auth;
-  const { myFriends } = state.friends;
+  const { myInfo, notificationToken } = state.auth
+  const { myFriends } = state.friends
 
-  return { myFriends, myInfo, notificationToken };
-};
+  return { myFriends, myInfo, notificationToken }
+}
 
-export default connect(mapStateToProps, { addFriend, acceptFriend })(AddFriends);
+export default connect(
+  mapStateToProps,
+  { addFriend, acceptFriend }
+)(AddFriends)
+
+const styles = {
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center'
+    // paddingVertical: 50
+  },
+  itemContainer: {
+    width: WIDTH,
+    flex: 1,
+    flexDirection: 'column',
+    height: ITEM_HEIGHT
+  },
+  itemTitle: {
+    fontWeight: 'bold',
+    color: '#888',
+    padding: 5
+  },
+  itemSubtitle: {
+    color: '#ddd',
+    padding: 5,
+    paddingTop: 0
+  }
+}

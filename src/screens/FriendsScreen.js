@@ -1,34 +1,34 @@
-import React, { Component } from 'react';
-import { ScrollView, View, Text, TouchableOpacity } from 'react-native';
-import { Button, Card, Icon, List, ListItem, Divider, FormLabel, FormInput } from 'react-native-elements';
-import { connect } from 'react-redux';
-import Modal from 'react-native-modal';
-import firebase from 'firebase';
-import _ from 'lodash';
-
 import {
-  checkAddedMe,
+  Button,
+  Card,
+  Divider,
+  FormInput,
+  FormLabel,
+  Icon,
+  List,
+  ListItem
+} from 'react-native-elements'
+import React, { Component } from 'react'
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native'
+import {
   acceptFriend,
-  setFriendsFromDb,
-  setFriends
-} from '../actions';
-import { registerForPushNotificationsAsync } from '../services/push_notifications';
-import modalStyles from '../styles/modalStyles';
+  checkAddedMe,
+  setFriends,
+  setFriendsFromDb
+} from '../actions'
+
+import Modal from 'react-native-modal'
+import _ from 'lodash'
+import { connect } from 'react-redux'
+import firebase from 'firebase'
+import modalStyles from '../styles/modalStyles'
+import { registerForPushNotificationsAsync } from '../services/push_notifications'
 
 class FriendsScreen extends Component {
   static navigationOptions = ({ navigation }) => {
     return {
-      title: 'Friends',
-      headerRight: (
-        <Icon
-          raised
-          style={{ marginRight: 10, width: 40 }}
-          name='add-user'
-          type='entypo'
-          onPress={() => navigation.navigate('add_friends')}
-        />
-      )
-    };
+      title: 'Friends'
+    }
   }
 
   state = {
@@ -42,20 +42,25 @@ class FriendsScreen extends Component {
   }
 
   componentWillMount() {
-    const { currentUser } = firebase.auth();
-    const { myFriends } = this.props;
+    const { currentUser } = firebase.auth()
+    const { myFriends } = this.props
     // registerForPushNotificationsAsync();
 
-    const sortedFriends = _.orderBy(myFriends, [friend => friend.name.toLowerCase()]);
+    const sortedFriends = _.orderBy(myFriends, [
+      friend => friend.name.toLowerCase()
+    ])
 
-    this.setState({ currentUser, myFriends: sortedFriends });
-    this.props.checkAddedMe();
+    this.setState({ currentUser, myFriends: sortedFriends })
+    this.props.checkAddedMe()
   }
 
   componentWillReceiveProps(nextProps) {
     // console.log('nextProps.addedMe');
     // console.log(nextProps.addedMe);
-    this.setState({ addedMe: nextProps.addedMe, myFriends: nextProps.myFriends });
+    this.setState({
+      addedMe: nextProps.addedMe,
+      myFriends: nextProps.myFriends
+    })
   }
 
   // checkAddedMe = async () => {
@@ -80,48 +85,42 @@ class FriendsScreen extends Component {
   // }
 
   renderAddedMe = () => {
-    const { addedMe } = this.state;
+    const { addedMe } = this.state
 
     if (addedMe.length === 0) {
-      return (
-        <Card title='Nobody added me' />
-      );
+      return <Card title="Nobody added me" />
     }
 
     const addedMeList = addedMe.map((add, i) => {
-      const { name, number } = add;
+      const { name, number } = add
       return (
         <View style={styles.addView} key={i}>
           <Text>{name}</Text>
           <View style={styles.iconView}>
             <Icon
               raised
-              name='check'
-              type='font-awesome'
-              color='green'
+              name="check"
+              type="font-awesome"
+              color="green"
               onPress={() => this.acceptFriend({ name, number })}
             />
             <Icon
               raised
-              name='remove'
-              type='font-awesome'
-              color='red'
+              name="remove"
+              type="font-awesome"
+              color="red"
               onPress={() => this.declineFriend({ number })}
             />
           </View>
         </View>
-      );
-    });
+      )
+    })
 
-    return (
-      <Card title='Added Me'>
-        {addedMeList}
-      </Card>
-    );
+    return <Card title="Added Me">{addedMeList}</Card>
   }
 
   acceptFriend = ({ name, number }) => {
-    const { myInfo, notificationToken } = this.props;
+    const { myInfo, notificationToken } = this.props
 
     this.props.acceptFriend({
       name,
@@ -129,30 +128,37 @@ class FriendsScreen extends Component {
       myName: myInfo.name,
       myNumber: myInfo.number,
       notificationToken
-    });
-    this.removeFromAddedMe({ number });
+    })
+    this.removeFromAddedMe({ number })
   }
 
   declineFriend = ({ number }) => {
-    this.removeFromAddedMe({ number });
+    this.removeFromAddedMe({ number })
   }
 
   removeFromAddedMe = async ({ number }) => {
-    const { currentUser } = this.state;
+    const { currentUser } = this.state
     const addedMe = this.state.addedMe.filter(add => {
-      return add.number !== number;
-    });
-    await firebase.database().ref(`/users/${currentUser.uid}/addedMe/`)
-      .set(addedMe);
-    this.setState({ addedMe });
+      return add.number !== number
+    })
+    await firebase
+      .database()
+      .ref(`/users/${currentUser.uid}/addedMe/`)
+      .set(addedMe)
+    this.setState({ addedMe })
   }
 
   editContactInfo = (name, number, i) => {
-    this.setState({ showModal: true, editName: name, editNumber: number, id: i });
+    this.setState({
+      showModal: true,
+      editName: name,
+      editNumber: number,
+      id: i
+    })
   }
 
   renderFriendsList = () => {
-    const { myFriends } = this.state;
+    const { myFriends } = this.state
 
     const myFriendsList = myFriends.map((friend, i) => {
       return (
@@ -166,54 +172,49 @@ class FriendsScreen extends Component {
           </View>
           <Divider />
         </TouchableOpacity>
-      );
-    });
+      )
+    })
 
-    return (
-      <Card
-        title='My Friends'
-      >
-        {myFriendsList}
-      </Card>
-    );
+    return <Card title="My Friends">{myFriendsList}</Card>
   }
 
   onEditAccept = () => {
-    const { editName, editNumber, id, myFriends } = this.state;
+    const { editName, editNumber, id, myFriends } = this.state
 
-    const newMyFriends = myFriends;
-    newMyFriends[id] = { name: editName, number: editNumber };
+    const newMyFriends = myFriends
+    newMyFriends[id] = { name: editName, number: editNumber }
 
-    this.props.setFriends(newMyFriends);
-    this.setState({ showModal: false, myFriends: newMyFriends });
+    this.props.setFriends(newMyFriends)
+    this.setState({ showModal: false, myFriends: newMyFriends })
   }
 
   onDelete = () => {
-    const { id, myFriends } = this.state;
-    const newMyFriends = myFriends;
-    newMyFriends.splice(id, 1);
+    const { id, myFriends } = this.state
+    const newMyFriends = myFriends
+    newMyFriends.splice(id, 1)
 
-    this.props.setFriends(newMyFriends);
-    this.setState({ showModal: false, myFriends: newMyFriends });
+    this.props.setFriends(newMyFriends)
+    this.setState({ showModal: false, myFriends: newMyFriends })
   }
 
   onCancel = () => {
-    this.setState({ showModal: false });
+    this.setState({ showModal: false })
   }
 
   render() {
-    const { currentUser } = firebase.auth();
+    const { currentUser } = firebase.auth()
 
     if (!currentUser) {
       return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <View
+          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+        >
           <Text>You must be signed in to use this feature.</Text>
         </View>
-      );
+      )
     }
     return (
       <ScrollView>
-
         <Modal
           isVisible={this.state.showModal}
           backdropColor={'black'}
@@ -227,7 +228,6 @@ class FriendsScreen extends Component {
         >
           <View style={modalStyles.modalContent}>
             <View style={modalStyles.inputView}>
-
               <Text>Edit contact info</Text>
 
               <FormLabel>Name</FormLabel>
@@ -241,7 +241,6 @@ class FriendsScreen extends Component {
                 value={this.state.editNumber}
                 onChangeText={editNumber => this.setState({ editNumber })}
               />
-
             </View>
             <View style={modalStyles.buttonView}>
               <TouchableOpacity onPress={this.onEditAccept}>
@@ -262,23 +261,20 @@ class FriendsScreen extends Component {
                 </View>
               </TouchableOpacity>
             </View>
-
           </View>
-
         </Modal>
 
         {/* {this.renderAddedMe()} */}
         {/* <View style={styles.menuView}> */}
 
-          {/* <Button
+        {/* <Button
             title='Add Friends'
             onPress={() => this.props.navigation.navigate('add_friends')}
           /> */}
         {/* </View> */}
         {this.renderFriendsList()}
-
       </ScrollView>
-    );
+    )
   }
 }
 
@@ -298,18 +294,21 @@ const styles = {
     marginTop: 10,
     marginBottom: 10
   }
-};
+}
 
 const mapStateToProps = state => {
-  const { myFriends, addedMe } = state.friends;
-  const { myInfo, notificationToken } = state.auth;
+  const { myFriends, addedMe } = state.friends
+  const { myInfo, notificationToken } = state.auth
 
-  return { myFriends, addedMe, myInfo, notificationToken };
-};
+  return { myFriends, addedMe, myInfo, notificationToken }
+}
 
-export default connect(mapStateToProps, {
-  checkAddedMe,
-  acceptFriend,
-  setFriendsFromDb,
-  setFriends
-})(FriendsScreen);
+export default connect(
+  mapStateToProps,
+  {
+    checkAddedMe,
+    acceptFriend,
+    setFriendsFromDb,
+    setFriends
+  }
+)(FriendsScreen)
