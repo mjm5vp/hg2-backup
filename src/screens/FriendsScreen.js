@@ -4,19 +4,21 @@ import {
   Divider,
   FormInput,
   FormLabel,
-  Icon,
-  List,
-  ListItem
+  Icon
 } from 'react-native-elements'
 import React, { Component } from 'react'
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native'
 import {
   acceptFriend,
   checkAddedMe,
+  getUsersNumbers,
   setFriends,
-  setFriendsFromDb
+  setFriendsFromDb,
+  showContactsAsync
 } from '../actions'
 
+import ContactsUsingApp from '../components/ContactsUsingApp'
+import FriendsList from '../components/FriendsList'
 import Modal from 'react-native-modal'
 import _ from 'lodash'
 import { connect } from 'react-redux'
@@ -50,102 +52,29 @@ class FriendsScreen extends Component {
       friend => friend.name.toLowerCase()
     ])
 
+    this.askContactsPermission()
     this.setState({ currentUser, myFriends: sortedFriends })
-    this.props.checkAddedMe()
   }
 
   componentWillReceiveProps(nextProps) {
-    // console.log('nextProps.addedMe');
-    // console.log(nextProps.addedMe);
     this.setState({
-      addedMe: nextProps.addedMe,
       myFriends: nextProps.myFriends
     })
   }
 
-  // checkAddedMe = async () => {
-  //   const { currentUser } = firebase.auth();
-  //   let addedMe = [];
-  //
-  //   if (currentUser) {
-  //     await firebase.database().ref(`users/${currentUser.uid}/addedMe`)
-  //       .once('value', snapshot => {
-  //         if (snapshot.val()) {
-  //           addedMe = snapshot.val();
-  //         }
-  //       });
-  //   }
-  //   console.log('addedMe after database check');
-  //   console.log(addedMe);
-  //   addedMe = typeof addedMe === 'object' ? _.values(addedMe) : addedMe;
-  //   // addedMe = addedMe.map(add => {
-  //   //   return { ...add, number: String(add.number) };
-  //   // });
-  //   this.setState({ addedMe });
-  // }
-
-  renderAddedMe = () => {
-    const { addedMe } = this.state
-
-    if (addedMe.length === 0) {
-      return <Card title="Nobody added me" />
+  askContactsPermission = async () => {
+    // Ask for permission to query contacts.
+    const permission = await Expo.Permissions.askAsync(
+      Expo.Permissions.CONTACTS
+    )
+    if (permission.status !== 'granted') {
+      // Permission was denied...
+      this.setState({ loading: false, contactPermissionDenied: true })
+      return
     }
 
-    const addedMeList = addedMe.map((add, i) => {
-      const { name, number } = add
-      return (
-        <View style={styles.addView} key={i}>
-          <Text>{name}</Text>
-          <View style={styles.iconView}>
-            <Icon
-              raised
-              name="check"
-              type="font-awesome"
-              color="green"
-              onPress={() => this.acceptFriend({ name, number })}
-            />
-            <Icon
-              raised
-              name="remove"
-              type="font-awesome"
-              color="red"
-              onPress={() => this.declineFriend({ number })}
-            />
-          </View>
-        </View>
-      )
-    })
-
-    return <Card title="Added Me">{addedMeList}</Card>
-  }
-
-  acceptFriend = ({ name, number }) => {
-    const { myInfo, notificationToken } = this.props
-
-    this.props.acceptFriend({
-      name,
-      number,
-      myName: myInfo.name,
-      myNumber: myInfo.number,
-      notificationToken
-    })
-    this.removeFromAddedMe({ number })
-  }
-
-  declineFriend = ({ number }) => {
-    this.removeFromAddedMe({ number })
-  }
-
-  removeFromAddedMe = async ({ number }) => {
-    const { currentUser } = this.state
-    const addedMe = this.state.addedMe.filter(add => {
-      return add.number !== number
-    })
-    await firebase
-      .database()
-      .ref(`/users/${currentUser.uid}/addedMe/`)
-      .set(addedMe)
-    this.setState({ addedMe })
+    this.props.showContactsAsync()
+    this.props.getUsersNumbers()
   }
 
   editContactInfo = (name, number, i) => {
@@ -155,27 +84,6 @@ class FriendsScreen extends Component {
       editNumber: number,
       id: i
     })
-  }
-
-  renderFriendsList = () => {
-    const { myFriends } = this.state
-
-    const myFriendsList = myFriends.map((friend, i) => {
-      return (
-        <TouchableOpacity
-          key={i}
-          onPress={() => this.editContactInfo(friend.name, friend.number, i)}
-        >
-          <View style={styles.friendView}>
-            <Text>{friend.name}</Text>
-            <Text>{friend.number}</Text>
-          </View>
-          <Divider />
-        </TouchableOpacity>
-      )
-    })
-
-    return <Card title="My Friends">{myFriendsList}</Card>
   }
 
   onEditAccept = () => {
@@ -202,20 +110,9 @@ class FriendsScreen extends Component {
   }
 
   render() {
-    const { currentUser } = firebase.auth()
-
-    if (!currentUser) {
-      return (
-        <View
-          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
-        >
-          <Text>You must be signed in to use this feature.</Text>
-        </View>
-      )
-    }
     return (
       <ScrollView>
-        <Modal
+        {/* <Modal
           isVisible={this.state.showModal}
           backdropColor={'black'}
           backdropOpacity={0.5}
@@ -262,7 +159,7 @@ class FriendsScreen extends Component {
               </TouchableOpacity>
             </View>
           </View>
-        </Modal>
+        </Modal> */}
 
         {/* {this.renderAddedMe()} */}
         {/* <View style={styles.menuView}> */}
@@ -272,7 +169,8 @@ class FriendsScreen extends Component {
             onPress={() => this.props.navigation.navigate('add_friends')}
           /> */}
         {/* </View> */}
-        {this.renderFriendsList()}
+        <ContactsUsingApp />
+        <FriendsList />
       </ScrollView>
     )
   }
@@ -309,6 +207,8 @@ export default connect(
     checkAddedMe,
     acceptFriend,
     setFriendsFromDb,
-    setFriends
+    setFriends,
+    showContactsAsync,
+    getUsersNumbers
   }
 )(FriendsScreen)

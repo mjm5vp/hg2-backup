@@ -5,15 +5,31 @@ import Modal from 'react-native-modal'
 import React from 'react'
 import styles from '../styles/modalStyles'
 
-const AddFriendModal = ({
+const EditFriendModal = ({
   name,
   number,
   visible,
-  onAccept,
   onDecline,
   changeName,
-  changeNumber
+  changeNumber,
+  deleteButton
 }) => {
+  renderDeleteButton = () => {
+    return deleteButton ? (
+      <View style={styles.buttonView}>
+        <TouchableOpacity onPress={this.onDelete}>
+          <View style={styles.dangerButton}>
+            <Text style={styles.dangerButtonText}>Delete</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+    ) : null
+  }
+
+  onAccept = (name, number) => {
+    console.log(name)
+  }
+
   return (
     <Modal
       isVisible={visible}
@@ -42,7 +58,7 @@ const AddFriendModal = ({
         </View>
         <View style={styles.buttonView}>
           <TouchableOpacity
-            onPress={() => onAccept(this.state.name, this.state.number)}
+            onPress={() => this.onAccept(this.state.name, this.state.number)}
           >
             <View style={styles.button}>
               <Text>Add Friend</Text>
@@ -54,9 +70,10 @@ const AddFriendModal = ({
             </View>
           </TouchableOpacity>
         </View>
+        {this.renderDeleteButton()}
       </View>
     </Modal>
   )
 }
 
-export default AddFriendModal
+export default EditFriendModal
