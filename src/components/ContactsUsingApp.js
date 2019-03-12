@@ -1,10 +1,11 @@
-import { Card, Divider } from 'react-native-elements'
+import { Card, Divider, Icon } from 'react-native-elements'
 import { Image, Text, TouchableOpacity, View } from 'react-native'
 import React, { Component } from 'react'
 import { getContactsAsync, getUsersNumbers } from '../services/contacts'
 import { setAllContacts, setUsersNumbers } from '../actions'
 
 import _ from 'lodash'
+import addStyles from '../styles/addStyles'
 import { connect } from 'react-redux'
 
 class ContactsUsingApp extends Component {
@@ -58,14 +59,15 @@ class ContactsUsingApp extends Component {
       )
     })
 
-    this.setState({ usingAppNamesAndNumbers: usingAppNamesAndNumbers })
+    this.setState({ usingAppNamesAndNumbers })
   }
 
   render() {
-    if ((this.state.usingAppNamesAndNumbers.length = 0)) {
-      return
+    const { usingAppNamesAndNumbers } = this.state
+    if (usingAppNamesAndNumbers.length === 0) {
+      return null
     }
-    const finalList = this.state.usingAppNamesAndNumbers.map((contact, i) => {
+    const finalList = usingAppNamesAndNumbers.map((contact, i) => {
       const { name, number } = contact
       return (
         <Card key={i}>

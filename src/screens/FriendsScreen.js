@@ -11,10 +11,8 @@ import { ScrollView, Text, TouchableOpacity, View } from 'react-native'
 import {
   acceptFriend,
   checkAddedMe,
-  setAllContacts,
   setFriends,
-  setFriendsFromDb,
-  setUsersNumbers
+  setFriendsFromDb
 } from '../actions'
 
 import ContactsUsingApp from '../components/ContactsUsingApp'
@@ -72,9 +70,6 @@ class FriendsScreen extends Component {
       this.setState({ loading: false, contactPermissionDenied: true })
       return
     }
-
-    this.props.showContactsAsync()
-    this.props.getUsersNumbers()
   }
 
   editContactInfo = (name, number, i) => {
@@ -207,8 +202,6 @@ export default connect(
     checkAddedMe,
     acceptFriend,
     setFriendsFromDb,
-    setFriends,
-    showContactsAsync: setAllContacts,
-    getUsersNumbers: setUsersNumbers
+    setFriends
   }
 )(FriendsScreen)
