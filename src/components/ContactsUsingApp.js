@@ -1,17 +1,47 @@
 import { Card, Divider } from 'react-native-elements'
 import { Image, Text, TouchableOpacity, View } from 'react-native'
 import React, { Component } from 'react'
+import { getContactsAsync, getUsersNumbers } from '../services/contacts'
+import { setAllContacts, setUsersNumbers } from '../actions'
 
 import _ from 'lodash'
 import { connect } from 'react-redux'
 
 class ContactsUsingApp extends Component {
   state = {
+    allContacts: [],
+    usersNumbers: [],
     usingAppNamesAndNumbers: []
   }
 
   componentWillMount() {
-    const { contactsNumbers, usersNumbers } = this.state
+    this.askContactsPermission()
+  }
+
+  askContactsPermission = async () => {
+    // Ask for permission to query contacts.
+    const permission = await Expo.Permissions.askAsync(
+      Expo.Permissions.CONTACTS
+    )
+    if (permission.status !== 'granted') {
+      // Permission was denied...
+      // this.setState({ loading: false, contactPermissionDenied: true })
+      return
+    }
+
+    this.refreshContactAndUserData()
+  }
+
+  refreshContactAndUserData = async () => {
+    const allContacts = await getContactsAsync()
+    const usersNumbers = await getUsersNumbers()
+    this.setUsingAppList(allContacts, usersNumbers)
+    this.props.setAllContacts(allContacts)
+    this.props.setUsersNumbers(usersNumbers)
+  }
+
+  setUsingAppList = (allContacts, usersNumbers) => {
+    const contactsNumbers = allContacts.map(contact => contact.number)
 
     const usingApp = _.intersectionWith(
       contactsNumbers,
@@ -22,21 +52,20 @@ class ContactsUsingApp extends Component {
 
     usingApp.forEach(usingContact => {
       usingAppNamesAndNumbers.push(
-        _.find(contactsNamesAndNumbers, contact => {
+        _.find(allContacts, contact => {
           return usingContact === contact.number
         })
       )
     })
 
-    this.setState({ usingAppNamesAndNumbers })
+    this.setState({ usingAppNamesAndNumbers: usingAppNamesAndNumbers })
   }
 
-  renderUsingAppList = () => {
-    const { usingAppNamesAndNumbers } = this.state
-    if ((usingAppNamesAndNumbers.length = 0)) {
+  render() {
+    if ((this.state.usingAppNamesAndNumbers.length = 0)) {
       return
     }
-    const finalList = usingAppNamesAndNumbers.map((contact, i) => {
+    const finalList = this.state.usingAppNamesAndNumbers.map((contact, i) => {
       const { name, number } = contact
       return (
         <Card key={i}>
@@ -66,22 +95,11 @@ class ContactsUsingApp extends Component {
 
     return <Card title="Contacts using Hoos Going 2">{finalList}</Card>
   }
-
-  render() {
-    return <View>{this.renderUsingAppList()}</View>
-  }
 }
 
 const styles = {}
 
-const mapStateToProps = state => {
-  const { myInfo, notificationToken } = state.auth
-  const { myFriends, allContacts, usersNumbers } = state.friends
-
-  return { myFriends, allContacts, usersNumbers, myInfo, notificationToken }
-}
-
 export default connect(
-  mapStateToProps,
-  {}
+  null,
+  { setAllContacts, setUsersNumbers }
 )(ContactsUsingApp)

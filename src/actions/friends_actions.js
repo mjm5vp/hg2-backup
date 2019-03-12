@@ -8,7 +8,6 @@ import {
   SET_USERS_NUMBERS
 } from './types'
 
-import Expo from 'expo'
 import _ from 'lodash'
 import firebase from 'firebase'
 import { sendNotifications } from '../services/push_notifications'
@@ -209,53 +208,10 @@ export const deleteFriends = () => async dispatch => {
   }
 }
 
-export const showContactsAsync = () => async dispatch => {
-  const contacts = await Expo.Contacts.getContactsAsync({
-    fields: [Expo.Contacts.PHONE_NUMBERS],
-    pageSize: 0,
-    pageOffset: 0
-  })
-
-  dispatch({ type: SET_ALL_CONTACTS, action: formatContacts(contacts) })
+export const setAllContacts = allContacts => {
+  return { type: SET_ALL_CONTACTS, payload: allContacts }
 }
 
-export const getUsersNumbers = () => async dispatch => {
-  let usersNumbers = null
-  try {
-    await firebase
-      .database()
-      .ref('/users')
-      .once('value', snapshot => {
-        usersNumbers = Object.keys(snapshot.val())
-      })
-    dispatch({ type: SET_USERS_NUMBERS, action: usersNumbers })
-  } catch (e) {
-    console.error('Could not get users numbers')
-    console.error(e)
-  }
-}
-
-export const formatContacts = contacts => {
-  let contactsNamesAndNumbers = []
-
-  contacts.data.filter(contact => contact.phoneNumbers[0]).forEach(contact =>
-    contact.phoneNumbers.forEach(phoneNumber => {
-      const { name } = contact
-      const number = formatPhone(phoneNumber.number)
-      if (
-        number.length === 10 &&
-        !_.some(this.props.myFriends, ['number', number])
-      ) {
-        contactsNamesAndNumbers.push({ name, number })
-      }
-    })
-  )
-
-  contactsNamesAndNumbers = _.uniqWith(contactsNamesAndNumbers, _.isEqual)
-  return _.sortBy(contactsNamesAndNumbers, contact => contact.name)
-}
-
-export const formatPhone = phone => {
-  const number = String(phone).replace(/[^\d]/g, '')
-  return number.charAt(0) === '1' ? number.substring(1) : number
+export const setUsersNumbers = usersNumbers => {
+  return { type: SET_USERS_NUMBERS, payload: usersNumbers }
 }

@@ -2,10 +2,10 @@ import { Card, Divider } from 'react-native-elements'
 import React, { Component } from 'react'
 import { Text, TouchableOpacity, View } from 'react-native'
 import {
-  getUsersNumbers,
+  setAllContacts,
   setFriends,
   setFriendsFromDb,
-  showContactsAsync
+  setUsersNumbers
 } from '../actions'
 
 import OKModal from '../modals/OKModal'
@@ -45,12 +45,6 @@ class FriendsList extends Component {
       const { name, number } = friend
       return (
         <View>
-          <OKModal
-            infoText="hello"
-            buttonText="OK"
-            onAccept={() => this.setState({ showModal: false })}
-            visible={this.state.showModal}
-          />
           <TouchableOpacity
             key={i}
             onPress={() => this.editContactInfo(name, number, i)}
@@ -99,7 +93,7 @@ export default connect(
   {
     setFriendsFromDb,
     setFriends,
-    showContactsAsync,
-    getUsersNumbers
+    showContactsAsync: setAllContacts,
+    getUsersNumbers: setUsersNumbers
   }
 )(FriendsList)

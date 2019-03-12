@@ -1,0 +1,5 @@
+{
+    "debug.toolBarLocation": "docked",
+    "debug.internalConsoleOptions": "openOnSessionStart",
+    "css.trace.server": "messages"
+}
