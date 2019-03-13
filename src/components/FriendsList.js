@@ -1,5 +1,6 @@
 import { Card, Divider } from 'react-native-elements'
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import { Text, TouchableOpacity, View } from 'react-native'
 import {
   setAllContacts,
@@ -7,9 +8,6 @@ import {
   setFriendsFromDb,
   setUsersNumbers
 } from '../actions'
-
-import OKModal from '../modals/OKModal'
-import { connect } from 'react-redux'
 
 class FriendsList extends Component {
   state = {
