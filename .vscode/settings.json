@@ -1,5 +1,7 @@
 {
-    "debug.toolBarLocation": "docked",
-    "debug.internalConsoleOptions": "openOnSessionStart",
-    "css.trace.server": "messages"
+  "debug.toolBarLocation": "docked",
+  "debug.internalConsoleOptions": "openOnSessionStart",
+  "css.trace.server": "messages",
+  "path-intellisense.extensionOnImport": true,
+  "sort-imports.on-save": true
 }

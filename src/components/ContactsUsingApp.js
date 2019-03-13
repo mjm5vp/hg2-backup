@@ -1,12 +1,13 @@
-import { Card, Divider, Icon } from 'react-native-elements'
-import { Image, Text, TouchableOpacity, View } from 'react-native'
 import React, { Component } from 'react'
+import { Text, TouchableOpacity, View } from 'react-native'
+import { connect } from 'react-redux'
+import { Card, Icon } from 'react-native-elements'
+import _ from 'lodash'
+import Expo from 'expo'
+
+import addStyles from '../styles/addStyles'
 import { getContactsAsync, getUsersNumbers } from '../services/contacts'
 import { setAllContacts, setUsersNumbers } from '../actions'
-
-import _ from 'lodash'
-import addStyles from '../styles/addStyles'
-import { connect } from 'react-redux'
 
 class ContactsUsingApp extends Component {
   state = {

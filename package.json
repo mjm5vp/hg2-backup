@@ -39,7 +39,10 @@
     "redux-thunk": "^2.2.0"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.3.4",
+    "babel-eslint": "^10.0.1",
     "eslint": "^5.15.1",
+    "eslint-config-rallycoding": "^3.2.0",
     "eslint-plugin-react": "^7.12.4"
   }
 }
