@@ -1,7 +1,6 @@
 {
   "parser": "babel-eslint",
   "extends": "rallycoding",
-  "plugins": ["sort-imports-es6-autofix"],
   "rules": {
     "semi": "off",
     "react/sort-comp": "off",

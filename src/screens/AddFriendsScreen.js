@@ -22,12 +22,10 @@ import React, { Component } from 'react'
 import { acceptFriend, addFriend } from '../actions'
 
 import AlphaScrollFlatList from 'alpha-scroll-flat-list'
-import AlphabetListView from 'react-native-alphabetlistview'
 // import AddFriendModal from '../modals/AddFriendModal';
 import ConfirmCancelModal from '../modals/ConfirmCancelModal'
 import Expo from 'expo'
 import Modal from 'react-native-modal'
-import SectionListContacts from 'react-native-sectionlist-contacts'
 import _ from 'lodash'
 import addStyles from '../styles/addStyles'
 import { connect } from 'react-redux'

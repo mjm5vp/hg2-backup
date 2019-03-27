@@ -1,17 +1,25 @@
-import React, { Component } from 'react';
-import { View, Text, Image, TouchableOpacity, TextInput, Platform, ScrollView } from 'react-native';
-import { Button, Card } from 'react-native-elements';
-import { connect } from 'react-redux';
-import Modal from 'react-native-modal';
-import DateTimePicker from 'react-native-modal-datetime-picker';
-import moment from 'moment';
-import firebase from 'firebase';
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
+import React, { Component } from 'react'
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  TextInput,
+  Platform,
+  ScrollView
+} from 'react-native'
+import { Button, Card } from 'react-native-elements'
+import { connect } from 'react-redux'
+import DateTimePicker from 'react-native-modal-datetime-picker'
+import moment from 'moment'
+import firebase from 'firebase'
+import MapView, { PROVIDER_GOOGLE } from 'react-native-maps'
+import Modal from 'react-native-modal'
 
-import allNamedPoos from '../../assets/namedPooExport';
-import toiletImage from '../../assets/otherImages/toilet.jpg';
-import styles from '../styles/inputStyles';
-import modalStyles from '../styles/modalStyles';
+import allNamedPoos from '../../assets/namedPooExport'
+import toiletImage from '../../assets/otherImages/toilet.jpg'
+import styles from '../styles/inputStyles'
+import modalStyles from '../styles/modalStyles'
 import {
   increaseUID,
   selectPoo,
@@ -21,8 +29,7 @@ import {
   editPoos,
   resetInput,
   sendToFriendsAction
- } from '../actions';
-
+} from '../actions'
 
 class InputScreen extends Component {
   static navigationOptions = {
@@ -42,56 +49,56 @@ class InputScreen extends Component {
   }
 
   componentWillMount() {
-    const { currentUser } = firebase.auth();
-    const date = moment().format('YYYY-MM-DD');
-    const time = moment().format('HH:mm');
-    const datetime = `${date}T${time}`;
+    const { currentUser } = firebase.auth()
+    const date = moment().format('YYYY-MM-DD')
+    const time = moment().format('HH:mm')
+    const datetime = `${date}T${time}`
 
-    this.props.updateDateTime(datetime);
+    this.props.updateDateTime(datetime)
 
-    this.setState({ currentUser, date: moment(), time: moment() });
+    this.setState({ currentUser, date: moment(), time: moment() })
   }
 
-  showDatePicker = () => this.setState({ isDatePickerVisible: true });
+  showDatePicker = () => this.setState({ isDatePickerVisible: true })
 
-  hideDatePicker = () => this.setState({ isDatePickerVisible: false });
+  hideDatePicker = () => this.setState({ isDatePickerVisible: false })
 
-  handleDatePicked = (date) => {
-    const time = this.state.time.format('HH:mm');
-    const newDate = moment(date).format('YYYY-MM-DD');
-    const datetime = `${newDate}T${time}`;
+  handleDatePicked = date => {
+    const time = this.state.time.format('HH:mm')
+    const newDate = moment(date).format('YYYY-MM-DD')
+    const datetime = `${newDate}T${time}`
 
-    this.props.updateDateTime(datetime);
-    this.setState({ date: moment(date) });
-    this.hideDatePicker();
-  };
+    this.props.updateDateTime(datetime)
+    this.setState({ date: moment(date) })
+    this.hideDatePicker()
+  }
 
-  showTimePicker = () => this.setState({ isTimePickerVisible: true });
+  showTimePicker = () => this.setState({ isTimePickerVisible: true })
 
-  hideTimePicker = () => this.setState({ isTimePickerVisible: false });
+  hideTimePicker = () => this.setState({ isTimePickerVisible: false })
 
-  handleTimePicked = (time) => {
-    const date = this.state.date.format('YYYY-MM-DD');
-    const newTime = moment(time).format('HH:mm');
-    const datetime = `${date}T${newTime}`;
+  handleTimePicked = time => {
+    const date = this.state.date.format('YYYY-MM-DD')
+    const newTime = moment(time).format('HH:mm')
+    const datetime = `${date}T${newTime}`
 
-    this.props.updateDateTime(datetime);
-    this.setState({ time: moment(time) });
-    this.hideTimePicker();
-  };
+    this.props.updateDateTime(datetime)
+    this.setState({ time: moment(time) })
+    this.hideTimePicker()
+  }
 
   renderMapPreview = () => {
     if (this.props.location.latitude) {
-      const { latitude, longitude } = this.props.location;
-      const pooImage = allNamedPoos[this.props.currentPooName].image;
+      const { latitude, longitude } = this.props.location
+      const pooImage = allNamedPoos[this.props.currentPooName].image
 
       const region = {
         latitude,
         longitude,
         latitudeDelta: 0.005,
         longitudeDelta: 0.005
-      };
-      console.log(region);
+      }
+      console.log(region)
 
       return (
         <Card>
@@ -113,7 +120,7 @@ class InputScreen extends Component {
           </View>
 
           <Button
-            title='Change Location'
+            title="Change Location"
             style={{ marginTop: 10 }}
             onPress={() => this.props.navigation.navigate('map_select')}
             buttonStyle={styles.selectButton}
@@ -121,7 +128,7 @@ class InputScreen extends Component {
             raised
           />
         </Card>
-      );
+      )
     }
 
     return (
@@ -131,7 +138,7 @@ class InputScreen extends Component {
         </View>
 
         <Button
-          title='Add to Map'
+          title="Add to Map"
           style={{ marginTop: 10 }}
           onPress={() => this.props.navigation.navigate('map_select')}
           buttonStyle={styles.selectButton}
@@ -139,28 +146,22 @@ class InputScreen extends Component {
           iconRight={{ name: 'google-maps', type: 'material-community' }}
         />
       </Card>
-    );
+    )
   }
 
   renderSendingToList = () => {
-    const { sendToFriends } = this.props;
-    let sendToFriendsList = null;
+    const { sendToFriends } = this.props
+    let sendToFriendsList = null
 
     if (sendToFriends.length === 0) {
-      sendToFriendsList = (
-        <Text>No friends selected</Text>
-      );
+      sendToFriendsList = <Text>No friends selected</Text>
     } else {
       sendToFriendsList = sendToFriends.map((friend, i) => {
         if (i === 0) {
-          return (
-            <Text key={i}>{friend.name}</Text>
-          );
+          return <Text key={i}>{friend.name}</Text>
         }
-        return (
-          <Text key={i}>, {friend.name}</Text>
-        );
-      });
+        return <Text key={i}>, {friend.name}</Text>
+      })
     }
 
     return (
@@ -173,88 +174,88 @@ class InputScreen extends Component {
           {sendToFriendsList}
         </ScrollView>
       </View>
-    );
+    )
   }
 
   renderFlushButton = () => {
     if (this.props.inputType === 'new') {
       return (
         <View>
-          <Card title='Flush' containerStyle={{ marginBottom: 20 }}>
+          <Card title="Flush" containerStyle={{ marginBottom: 20 }}>
             <TouchableOpacity onPress={() => this.handleFlush()}>
               <View style={styles.toiletImageView}>
-                <Image
-                  source={toiletImage}
-                  style={styles.toiletImage}
-                />
+                <Image source={toiletImage} style={styles.toiletImage} />
               </View>
-          </TouchableOpacity>
+            </TouchableOpacity>
           </Card>
         </View>
-      );
+      )
     }
 
     return (
       <View>
-        <Card title='Update'>
+        <Card title="Update">
           <TouchableOpacity onPress={() => this.handleUpdate()}>
             <View style={styles.toiletImageView}>
-              <Image
-                source={toiletImage}
-                style={styles.toiletImage}
-              />
+              <Image source={toiletImage} style={styles.toiletImage} />
             </View>
           </TouchableOpacity>
         </Card>
 
         <Card containerStyle={{ marginBottom: 20 }}>
           <Button
-            title='Delete'
+            title="Delete"
             onPress={() => this.setState({ showModal: !this.state.showModal })}
             raised
-            backgroundColor='red'
+            backgroundColor="red"
           />
         </Card>
       </View>
-
-    );
+    )
   }
 
   updateByUID = () => {
-    const { inputUID, currentPooName, datetime, description, location, myPoos } = this.props;
+    const {
+      inputUID,
+      currentPooName,
+      datetime,
+      description,
+      location,
+      myPoos
+    } = this.props
 
     return myPoos.map(poo => {
-      console.log(`poo.inputUID: ${poo.inputUID}`);
-      console.log(`inputUID: ${inputUID}`);
+      console.log(`poo.inputUID: ${poo.inputUID}`)
+      console.log(`inputUID: ${inputUID}`)
       if (poo.inputUID === inputUID) {
-        return { inputUID, currentPooName, datetime, description, location };
+        return { inputUID, currentPooName, datetime, description, location }
       }
-      return poo;
-    });
+      return poo
+    })
   }
 
   handleUpdate = () => {
-    const newPoos = this.updateByUID();
+    const newPoos = this.updateByUID()
 
-    this.props.editPoos(newPoos);
-    this.props.resetInput();
-    this.props.navigation.goBack();
+    this.props.editPoos(newPoos)
+    this.props.resetInput()
+    this.props.navigation.goBack()
   }
 
   deleteByUID = () => {
-    const { inputUID, myPoos } = this.props;
+    const { inputUID, myPoos } = this.props
 
     return myPoos.filter(poo => {
-      return poo.inputUID !== inputUID;
-    });
+      return poo.inputUID !== inputUID
+    })
   }
 
   handleDelete = () => {
-    const newPoos = this.deleteByUID();
+    const newPoos = this.deleteByUID()
 
-    this.props.editPoos(newPoos);
-    this.props.resetInput();
-    this.props.navigation.goBack();
+    this.props.editPoos(newPoos)
+    this.props.resetInput()
+    this.props.navigation.goBack()
   }
 
   handleFlush = () => {
@@ -266,53 +267,55 @@ class InputScreen extends Component {
       location,
       sendToFriends,
       myInfo
-    } = this.props;
-    const poo = { inputUID: uid, currentPooName, datetime, description, location };
+    } = this.props
+    const poo = {
+      inputUID: uid,
+      currentPooName,
+      datetime,
+      description,
+      location
+    }
 
-    this.props.addPoo(poo);
-    this.props.increaseUID();
+    this.props.addPoo(poo)
+    this.props.increaseUID()
 
     if (sendToFriends.length > 0) {
-      this.props.sendToFriendsAction({ sendToFriends, poo, myInfo });
+      this.props.sendToFriendsAction({ sendToFriends, poo, myInfo })
     }
-    this.props.resetInput();
-    this.props.navigation.goBack();
+    this.props.resetInput()
+    this.props.navigation.goBack()
   }
 
   onSendToFriendsPress = () => {
     if (this.state.currentUser) {
-      this.props.navigation.navigate('send_to_friends');
+      this.props.navigation.navigate('send_to_friends')
     } else {
       this.setState({
-        showInfoModal: true,
-      });
+        showInfoModal: true
+      })
     }
   }
 
   onAccept = () => {
-    this.handleDelete();
+    this.handleDelete()
   }
 
   onDecline = () => {
-    this.setState({ showModal: false, showInfoModal: false });
+    this.setState({ showModal: false, showInfoModal: false })
   }
 
   render() {
-    const pooImage = allNamedPoos[this.props.currentPooName].image;
+    const pooImage = allNamedPoos[this.props.currentPooName].image
 
     return (
       <ScrollView contentContainerStyle={styles.containerStyle}>
-
         <Card>
           <View style={styles.selectCard}>
-            <Image
-              source={pooImage}
-              style={styles.pooSelectImage}
-            />
+            <Image source={pooImage} style={styles.pooSelectImage} />
 
             <View style={styles.selectButtonView}>
               <Button
-                title='Select Poomoji'
+                title="Select Poomoji"
                 onPress={() => this.props.navigation.navigate('select')}
                 buttonStyle={styles.selectButton}
                 fontSize={20}
@@ -320,26 +323,24 @@ class InputScreen extends Component {
               />
             </View>
           </View>
-
         </Card>
 
         <Card>
           <View style={styles.datetimeCard}>
-
             <Text style={styles.datetimeText}>
               {moment(this.props.datetime).format('MMMM Do YYYY, h:mm a')}
             </Text>
 
             <View style={styles.changeButtonsView}>
               <Button
-                title='Change Date'
+                title="Change Date"
                 onPress={this.showDatePicker}
                 fontSize={20}
                 buttonStyle={styles.selectButton}
                 raised
               />
               <Button
-                title='Change Time'
+                title="Change Time"
                 onPress={this.showTimePicker}
                 fontSize={20}
                 buttonStyle={styles.selectButton}
@@ -348,14 +349,14 @@ class InputScreen extends Component {
             </View>
 
             <DateTimePicker
-              mode='date'
+              mode="date"
               isVisible={this.state.isDatePickerVisible}
               onConfirm={this.handleDatePicked}
               onCancel={this.hideDatePicker}
             />
 
             <DateTimePicker
-              mode='time'
+              mode="time"
               isVisible={this.state.isTimePickerVisible}
               onConfirm={this.handleTimePicked}
               onCancel={this.hideTimePicker}
@@ -363,24 +364,23 @@ class InputScreen extends Component {
           </View>
         </Card>
 
-        <Card title='Description'>
+        <Card title="Description">
           <TextInput
             multiline
-            label='Description'
-            placeholder='How did everything go?'
+            label="Description"
+            placeholder="How did everything go?"
             value={this.props.description}
             onChangeText={text => this.props.updateDescription({ text })}
             style={{ height: 100 }}
           />
         </Card>
 
-
         {this.renderMapPreview()}
 
         <Card>
           <View>
             <Button
-              title='Send to friends'
+              title="Send to friends"
               buttonStyle={styles.selectButton}
               raised
               iconRight={{ name: 'send', type: 'font-awesome' }}
@@ -419,7 +419,6 @@ class InputScreen extends Component {
               </TouchableOpacity>
             </View>
           </View>
-
         </Modal>
 
         <Modal
@@ -434,7 +433,9 @@ class InputScreen extends Component {
           backdropTransitionOutTiming={250}
         >
           <View style={modalStyles.modalContent}>
-            <Text>You must create an account or be signed in to use this feature.</Text>
+            <Text>
+              You must create an account or be signed in to use this feature.
+            </Text>
             <View style={modalStyles.buttonView}>
               <TouchableOpacity onPress={() => this.onDecline()}>
                 <View style={modalStyles.button}>
@@ -443,26 +444,25 @@ class InputScreen extends Component {
               </TouchableOpacity>
             </View>
           </View>
-
         </Modal>
-
       </ScrollView>
-    );
+    )
   }
 }
 
 const mapStateToProps = state => {
-  const { uid, myPoos } = state.pooReducer;
-  const { myInfo } = state.auth;
-  const { mapType } = state.settings;
-  const { inputType,
+  const { uid, myPoos } = state.pooReducer
+  const { myInfo } = state.auth
+  const { mapType } = state.settings
+  const {
+    inputType,
     inputUID,
     currentPooName,
     description,
     datetime,
     location,
     sendToFriends
-  } = state.input;
+  } = state.input
 
   return {
     inputType,
@@ -476,16 +476,19 @@ const mapStateToProps = state => {
     myPoos,
     myInfo,
     mapType
-   };
-};
+  }
+}
 
-export default connect(mapStateToProps, {
-  increaseUID,
-  selectPoo,
-  updateDescription,
-  updateDateTime,
-  addPoo,
-  editPoos,
-  resetInput,
-  sendToFriendsAction
-})(InputScreen);
+export default connect(
+  mapStateToProps,
+  {
+    increaseUID,
+    selectPoo,
+    updateDescription,
+    updateDateTime,
+    addPoo,
+    editPoos,
+    resetInput,
+    sendToFriendsAction
+  }
+)(InputScreen)

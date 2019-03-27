@@ -1,84 +1,84 @@
-import { AppLoading, Asset, Font, Notifications } from 'expo';
-import React from 'react';
-import { PersistGate } from 'redux-persist/es/integration/react';
-import { Image, View, Alert } from 'react-native';
-import { StackNavigator } from 'react-navigation';
-import { Provider } from 'react-redux';
-import firebase from 'firebase';
+import { AppLoading, Asset, Font, Notifications } from 'expo'
+import React from 'react'
+import { PersistGate } from 'redux-persist/es/integration/react'
+import { Image, View, Alert } from 'react-native'
+import { StackNavigator } from 'react-navigation'
+import { Provider } from 'react-redux'
+import firebase from 'firebase'
 
 // Map Images
-import defaultMapImage from './assets/maps/default.png';
-import satelliteMapImage from './assets/maps/satellite.png';
-import terrainMapImage from './assets/maps/terrain.png';
+import defaultMapImage from './assets/maps/default.png'
+import satelliteMapImage from './assets/maps/satellite.png'
+import terrainMapImage from './assets/maps/terrain.png'
 
 // Poo Images
-import allPoos from './assets/pooExport';
+import allPoos from './assets/pooExport'
 
 // Background Images
-import feetBackground from './assets/backgrounds/feet_background.jpg';
+import feetBackground from './assets/backgrounds/feet_background.jpg'
 
-import { registerForNotifications } from './src/services/push_notifications';
+import { registerForNotifications } from './src/services/push_notifications'
 // import store from './src/store';
-import configureStore from './src/store';
-import HomeScreen from './src/screens/HomeScreen';
-import MapScreen from './src/screens/MapScreen';
-import PooSelect from './src/screens/PooSelect';
-import InputScreen from './src/screens/InputScreen';
-import LogScreen from './src/screens/LogScreen';
-import MapSelectScreen from './src/screens/MapSelectScreen';
-import StatsScreen from './src/screens/StatsScreen';
-import SettingsScreen from './src/screens/SettingsScreen';
-import AuthScreen from './src/screens/AuthScreen';
-import FriendsScreen from './src/screens/FriendsScreen';
-import AddFriendsScreen from './src/screens/AddFriendsScreen';
-import SendToFriendsScreen from './src/screens/SendToFriendsScreen';
-import ProfileScreen from './src/screens/ProfileScreen';
-import SentToMeScreen from './src/screens/SentToMeScreen';
+import configureStore from './src/store'
+import HomeScreen from './src/screens/HomeScreen'
+import MapScreen from './src/screens/MapScreen'
+import PooSelect from './src/screens/PooSelect'
+import InputScreen from './src/screens/InputScreen'
+import LogScreen from './src/screens/LogScreen'
+import MapSelectScreen from './src/screens/MapSelectScreen'
+import StatsScreen from './src/screens/StatsScreen'
+import SettingsScreen from './src/screens/SettingsScreen'
+import AuthScreen from './src/screens/AuthScreen'
+import FriendsScreen from './src/screens/FriendsScreen'
+import AddFriendsScreen from './src/screens/AddFriendsScreen'
+import SendToFriendsScreen from './src/screens/SendToFriendsScreen'
+import ProfileScreen from './src/screens/ProfileScreen'
+import SentToMeScreen from './src/screens/SentToMeScreen'
 
-console.ignoredYellowBox = [
-  'Warning: PropTypes',
-  'Warning: checkPropTypes',
-  'Warning: React.createClass'
-];
+// console.ignoredYellowBox = [
+//   'Warning: PropTypes',
+//   'Warning: checkPropTypes',
+//   'Warning: React.createClass'
+// ];
 
 const cacheImages = images => {
   return images.map(image => {
     if (typeof image === 'string') {
-      const pre = Image.prefetch(image);
-      return pre;
+      const pre = Image.prefetch(image)
+      return pre
     }
 
-    return Asset.fromModule(image).downloadAsync();
-  });
-};
+    return Asset.fromModule(image).downloadAsync()
+  })
+}
 
 const cacheFonts = fonts => {
-  return fonts.map(font => Font.loadAsync(font));
-};
+  return fonts.map(font => Font.loadAsync(font))
+}
 
 export default class App extends React.Component {
   state = {
     isReady: false,
     notification: {}
-  };
+  }
 
   componentWillMount() {
-    this.loadAssetsAsync();
+    this.loadAssetsAsync()
   }
 
   async loadAssetsAsync() {
-    const poos = allPoos.map(poo => poo.image);
+    const poos = allPoos.map(poo => poo.image)
     const imageAssets = cacheImages([
       feetBackground,
       defaultMapImage,
       satelliteMapImage,
       terrainMapImage,
       ...poos
-    ]);
+    ])
 
-    const fontAssets = cacheFonts([{}]);
+    const fontAssets = cacheFonts([{}])
 
-    await Promise.all([...imageAssets, ...fontAssets]);
+    await Promise.all([...imageAssets, ...fontAssets])
   }
 
   componentDidMount() {
@@ -89,8 +89,8 @@ export default class App extends React.Component {
       projectId: 'one-time-password-698fc',
       storageBucket: 'one-time-password-698fc.appspot.com',
       messagingSenderId: '1035913942891'
-    };
-    firebase.initializeApp(config);
+    }
+    firebase.initializeApp(config)
     // this.notificationSubscription = Notifications.addListener(this.handleNotification);
     // console.log('origin');
     // console.log(this.state.notification.origin);
@@ -101,17 +101,17 @@ export default class App extends React.Component {
       const {
         data: { text },
         origin
-      } = notification;
+      } = notification
 
       if (origin === 'received') {
-        Alert.alert('New Push Notification', text, [{ text: 'ok' }]);
+        Alert.alert('New Push Notification', text, [{ text: 'ok' }])
       }
-    });
+    })
   }
 
   _handleNotification = notification => {
-    this.setState({ notification });
-  };
+    this.setState({ notification })
+  }
 
   render() {
     if (!this.state.isReady) {
@@ -121,7 +121,7 @@ export default class App extends React.Component {
           onFinish={() => this.setState({ isReady: true })}
           onError={console.warn}
         />
-      );
+      )
     }
 
     const MainNavigator = StackNavigator({
@@ -139,9 +139,9 @@ export default class App extends React.Component {
       send_to_friends: { screen: SendToFriendsScreen },
       sent_to_me: { screen: SentToMeScreen },
       profile: { screen: ProfileScreen }
-    });
+    })
 
-    const { persistor, store } = configureStore();
+    const { persistor, store } = configureStore()
 
     return (
       <Provider store={store}>
@@ -151,7 +151,7 @@ export default class App extends React.Component {
           </View>
         </PersistGate>
       </Provider>
-    );
+    )
   }
 }
 
@@ -160,4 +160,4 @@ const styles = {
     flex: 1,
     backgroundColor: '#fff'
   }
-};
+}
